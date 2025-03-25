@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import Page from "../layouts/Page";
-import { BookUser, Backpack, User ,Shapes} from "lucide-react";
+import { BookUser, Backpack, User, Shapes } from "lucide-react";
 
 
 const cadastros = [
-    { nome: "Cadastro de Aluno", href: "/cadastros/aluno", tipo: "Pessoas" ,icon:Backpack},
-    { nome: "Cadastro de Profissional", href: "/cadastros/profissional", tipo: "Pessoas" , icon:BookUser},
-    { nome: "Cadastro de Responsável", href: "/cadastros/pessoa", tipo: "Pessoas", icon:User},
-    { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infra" , icon:Shapes}
+    { nome: "Cadastro de Aluno", href: "/cadastros/aluno", tipo: "Pessoas", icon: Backpack },
+    { nome: "Cadastro de Profissional", href: "/cadastros/profissional", tipo: "Pessoas", icon: BookUser },
+    { nome: "Cadastro de Responsável", href: "/cadastros/pessoa", tipo: "Pessoas", icon: User },
+    { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infra", icon: Shapes }
 ]
 
 export default function HomeCadastros(props) {
@@ -63,15 +63,17 @@ export default function HomeCadastros(props) {
                                 if (cadastro.nome.toLowerCase().includes(filtro.toLowerCase())) {
                                     if (tipo == "todos" || cadastro.tipo === tipo)
                                         return (
-                                            <div className="transform hover:scale-105 transition-transform bg-white rounded-xl shadow-lg overflow-hidden">
-                                                <div className="bg-orange-500 h-2"></div>
-                                                <div className="p-6">
-                                                    <cadastro.icon className="w-12 h-12 mx-auto mb-4 text-orange-500" />
-                                                    <p className="text-center font-semibold text-gray-800 text-lg">
-                                                        {cadastro.nome}
-                                                    </p>
+                                            <a href={cadastro.href}>
+                                                <div className="transform hover:scale-105 transition-transform bg-white rounded-xl shadow-lg overflow-hidden">
+                                                    <div className="bg-orange-500 h-2"></div>
+                                                    <div className="p-6">
+                                                        <cadastro.icon className="w-12 h-12 mx-auto mb-4 text-orange-500" />
+                                                        <p className="text-center font-semibold text-gray-800 text-lg">
+                                                            {cadastro.nome}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            </a>
                                         );
                                 }
                             })
