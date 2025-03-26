@@ -62,13 +62,16 @@ function CadastroPessoa(props) {
   }
 
   function verificaCPF(){
-    consultarPessoa(pessoa.cpf).then((consulta)=>{
-      if(consulta!=undefined && consulta!=null && consulta!=[] ){
-        alert("O cpf: "+pessoa.cpf+" ja esta sendo utilizado");
-        setPessoa({ ...pessoa, ["cpf"]: "" });
-      }
+    if(!props.modoEdicao){
 
-    })
+      consultarPessoa(pessoa.cpf).then((consulta)=>{
+        if(consulta!=undefined && consulta!=null && consulta!=[] ){
+          alert("O cpf: "+pessoa.cpf+" ja esta sendo utilizado");
+          setPessoa({ ...pessoa, ["cpf"]: "" });
+        }
+        
+      })
+    }
   }
 
   function handleSubmit(evento) {
@@ -148,6 +151,7 @@ function CadastroPessoa(props) {
                     id="cpf"
                     maxLength={14}
                     minLength={14}
+                    disabled={props.modoEdicao}
                     required
                     onBlur={verificaCPF}
                     value={pessoa.cpf}
@@ -169,6 +173,7 @@ function CadastroPessoa(props) {
                     name="rg"
                     id="rg"
                     value={pessoa.rg}
+                    disabled={props.modoEdicao}
                     maxLength={12}
                     minLength={12}
                     required

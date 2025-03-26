@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { apagarPessoa, buscarPessoas } from '../../../redux/pessoaReducer';
 import ESTADO from '../../../redux/estados';
 
-export default function TabelaPessoa({ setModoEdicao, setExibirTabela, setPessoa }) {
+export default function TabelaPessoa(props) {
   const { estado, mensagem, listaDePessoas } = useSelector(state => state.pessoa);
   const dispatch = useDispatch();
   const [pesquisa, setPesquisa] = useState("");
@@ -20,9 +20,9 @@ export default function TabelaPessoa({ setModoEdicao, setExibirTabela, setPessoa
   }
 
   function alterarPessoa(pessoa) {
-    setModoEdicao(true);
-    setExibirTabela(false);
-    setPessoa({ ...pessoa, enderecoId: 1 });
+    props.setModoEdicao(true);
+    props.setExibirTabela(false);
+    props.setPessoa(pessoa)
   }
 
   const pessoasFiltradas = listaDePessoas.filter(pessoa =>
@@ -64,7 +64,7 @@ export default function TabelaPessoa({ setModoEdicao, setExibirTabela, setPessoa
             <p className="mt-2 text-sm text-gray-700">Lista de todas as pessoas cadastradas no sistema</p>
           </div>
           <button
-            onClick={() => setExibirTabela(false)}
+            onClick={() => props.setExibirTabela(false)}
             className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
           >
             <UserPlus className="h-4 w-4 mr-2" /> Nova Pessoa
