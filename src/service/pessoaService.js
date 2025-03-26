@@ -36,9 +36,15 @@ export async function excluirPessoa(pessoa){
 }
 
 export async function consultarPessoa(termo){
-    const resposta = await fetch(urlBase+"/"+termo,{
-        "method": "GET",
-    })
+    let resposta
+    if(termo==undefined)
+        resposta = await fetch(urlBase+"/",{
+            "method": "GET",
+        })
+    else
+        resposta = await fetch(urlBase+"/"+termo,{
+            "method": "GET",
+        })
     const resultado =await  resposta.json();
     return resultado;
 }
