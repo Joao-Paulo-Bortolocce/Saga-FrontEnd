@@ -38,23 +38,23 @@ function CadastroPessoa(props) {
     if (props.modoEdicao) {
 
 
-      dispachante(alterarPessoa(props.pessoa));
+      dispachante(alterarPessoa(pessoa));
       setTimeout(() => {
         props.setExibirTabela(true);
         props.setModoEdicao(false);
         zeraPessoa();
 
-      }, 5000)
+      }, 1000)
 
     }
     else {
 
-      dispachante(incluirPessoa(props.pessoa));
+      dispachante(incluirPessoa(pessoa));
       setTimeout(() => {
         props.setExibirTabela(true);
         zeraPessoa();
 
-      }, 5000)
+      }, 1000)
 
     }
 
