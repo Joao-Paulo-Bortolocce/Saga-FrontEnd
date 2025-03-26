@@ -1,11 +1,54 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
+import Tela from './components/Tela.jsx';
+import FormularioSalas from './componentes/FormularioSalas.jsx';
+import TabelaSalas from './componentes/TabelaSalas.jsx';
+import * as servicoSalas from './services/servicoSalas.js'
 
-function App() {
+export default function App() {
+  const [salas, setSalas] = useState([]);
+  const [salasEmEdicao, setSalasEmEdicao] = useState(null);
+
+  useEffect(() => {
+    buscarSalas();
+  }, []);
+
+  async function buscarSalas() {
+    const lista = await servicoSalas.consultarSalas();
+    setSalas(lista ?? []);
+  }
+
+  async function excluirSalas(salas) {
+    await servicoSalas.excluirSalas(salas);
+    buscarSalas();
+  }
+
+  function editarSalas(salas) {
+    setSalasEmEdicao(salas);
+  }
+
+  function cancelarEdicao() {
+    setSalasEmEdicao(null);
+  }
+
+  async function buscarPorCarteiras(termo) {
+    const lista = await servicoSalas.consultarSalas(termo);
+    setSeries(lista ?? []);
+  }
+  
+
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <p>funcionou</p>
-    </div>
+    <Tela titulo="Cadastro de Série">
+      <FormularioSerie
+        atualizarLista={buscarSalas}
+        salasEmEdicao={salasEmEdicao}
+        cancelarEdicao={cancelarEdicao}
+        buscarPorCarteiras={buscarPorCarteiras}
+      />
+      <TabelaSerie
+        salas={salas}
+        excluirSalas={excluirSalas}
+        editarSalas={editarSalas}
+      />
+    </Tela>
   );
 }
-
-export default App;
