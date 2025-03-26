@@ -1,22 +1,43 @@
 import React, { useState } from 'react';
-import { Hash, BookOpen, User } from 'lucide-react';
+import { Hash, BookOpen, User, MapPin, Home } from 'lucide-react';
 import imagemFundoPrefeitura from "../../../assets/images/imagemFundoPrefeitura.png";
 import logoPrefeitura from "../../../assets/images/logoPrefeitura.png";
-import { gravarPessoa, alterarPessoa } from '../../../service/pessoaService.js';
 import { useDispatch, useSelector } from 'react-redux';
 import ESTADO from '../../../redux/estados.js';
-import { incluirPessoa } from '../../../redux/pessoaReducer.js';
-
+import { incluirPessoa, atualizarPessoa } from '../../../redux/pessoaReducer.js';
+import { formatarCEP, formatarCPF, formatarRG } from '../../../service/formatadores.js';
+import { consultarPessoa } from '../../../service/pessoaService.js';
 
 function CadastroPessoa(props) {
   const [pessoa, setPessoa] = useState(props.pessoa);
   const { estado, mensagem } = useSelector(state => state.pessoa);
   const dispachante = useDispatch();
+  
 
   function manipularMudanca(event) {
     const id = event.currentTarget.id;
     let valor = event.currentTarget.value;
-    setPessoa({ ...pessoa, [id]: valor });
+
+    if (id === 'cpf')
+      valor = formatarCPF(valor, pessoa.cpf.length < valor.length);
+    else
+      if (id === 'rg')
+        valor = formatarRG(valor, pessoa.rg.length < valor.length)
+
+    if (id.startsWith('endereco.')) {
+      const idAux = id.split('.')[1];
+      if (idAux === "cep")
+        valor = formatarCEP(valor, pessoa.endereco.cep.length < valor.length);
+      setPessoa({
+        ...pessoa,
+        endereco: {
+          ...pessoa.endereco,
+          [idAux]: valor
+        }
+      });
+    } else {
+      setPessoa({ ...pessoa, [id]: valor });
+    }
   }
 
   function zeraPessoa() {
@@ -28,34 +49,39 @@ function CadastroPessoa(props) {
       sexo: "",
       locNascimento: "",
       estadoNascimento: "",
-      enderecoId: 1,
-      estadoCivil: ""
+      estadoCivil: "",
+      endereco: {
+        rua: "",
+        numero: "",
+        complemento: "",
+        cep: "",
+        uf: "",
+        cidade: ""
+      }
+    })
+  }
+
+  function verificaCPF(){
+    consultarPessoa(pessoa.cpf).then((consulta)=>{
+      if(consulta!=undefined && consulta!=null && consulta!=[] ){
+        alert("O cpf: "+pessoa.cpf+" ja esta sendo utilizado");
+        setPessoa({ ...pessoa, ["cpf"]: "" });
+      }
+
     })
   }
 
   function handleSubmit(evento) {
-
     if (props.modoEdicao) {
-
-
-      dispachante(alterarPessoa(pessoa));
-      setTimeout(() => {
-        props.setExibirTabela(true);
-        props.setModoEdicao(false);
-        zeraPessoa();
-
-      }, 1000)
-
+      dispachante(atualizarPessoa(pessoa));
+      props.setExibirTabela(true);
+      props.setModoEdicao(false);
+      zeraPessoa();
     }
     else {
-
       dispachante(incluirPessoa(pessoa));
-      setTimeout(() => {
-        props.setExibirTabela(true);
-        zeraPessoa();
-
-      }, 1000)
-
+      props.setExibirTabela(true);
+      zeraPessoa();
     }
 
     evento.stopPropagation();
@@ -70,23 +96,22 @@ function CadastroPessoa(props) {
       </div>
     );
   }
-  else
-    if (estado === ESTADO.ERRO) {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 space-y-4">
-          <div className="flex items-center bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
-            <AlertCircle className="w-5 h-5 mr-2" />
-            {mensagem}
-          </div>
-          <button
-            onClick={() => dispatch(buscarPessoas())}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors duration-200"
-          >
-            Voltar
-          </button>
+  else if (estado === ESTADO.ERRO) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4 space-y-4">
+        <div className="flex items-center bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+          <AlertCircle className="w-5 h-5 mr-2" />
+          {mensagem}
         </div>
-      );
-    }
+        <button
+          onClick={() => dispatch(buscarPessoas())}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors duration-200"
+        >
+          Voltar
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -121,6 +146,10 @@ function CadastroPessoa(props) {
                     type="text"
                     name="cpf"
                     id="cpf"
+                    maxLength={14}
+                    minLength={14}
+                    required
+                    onBlur={verificaCPF}
                     value={pessoa.cpf}
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -140,6 +169,9 @@ function CadastroPessoa(props) {
                     name="rg"
                     id="rg"
                     value={pessoa.rg}
+                    maxLength={12}
+                    minLength={12}
+                    required
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     placeholder="Digite o RG"
@@ -157,7 +189,8 @@ function CadastroPessoa(props) {
                     type="date"
                     name="dataNascimento"
                     id="dataNascimento"
-                    value={pessoa.dataNascimento}
+                    required
+                    value={pessoa.dataNascimento.substr(0, 10)}
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   />
@@ -177,6 +210,7 @@ function CadastroPessoa(props) {
                     name="nome"
                     id="nome"
                     value={pessoa.nome}
+                    required
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     placeholder="Digite o nome"
@@ -190,6 +224,7 @@ function CadastroPessoa(props) {
                         type="radio"
                         name="sexo"
                         id="sexo"
+                        required
                         className="w-4 h-4"
                         value="m"
                         checked={pessoa.sexo.toUpperCase() === "M"}
@@ -208,6 +243,7 @@ function CadastroPessoa(props) {
                         name="sexo"
                         id="sexo"
                         className="w-4 h-4"
+                        required
                         value="F"
                         checked={pessoa.sexo.toUpperCase() === "F"}
                         onChange={manipularMudanca}
@@ -224,40 +260,19 @@ function CadastroPessoa(props) {
                 <div className="md:col-span-3 space-y-2">
                   <p className="text-sm font-medium text-white mb-1">Estado Civil</p>
                   <div className="flex flex-col sm:flex-row gap-2">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="estadoCivil"
-                        id="estadoCivil"
-                        className="w-4 h-4"
-                        value="casado"
-                        checked={pessoa.estadoCivil.toUpperCase() === "CASADO"}
-                        onChange={manipularMudanca}
-                      />
-                      <label
-                        htmlFor="casado"
-                        className="text-sm font-medium text-white"
-                      >
-                        Casado
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="radio"
-                        name="estadoCivil"
-                        id="estadoCivil"
-                        className="w-4 h-4"
-                        value="solteiro"
-                        checked={pessoa.estadoCivil.toUpperCase() === "SOLTEIRO"}
-                        onChange={manipularMudanca}
-                      />
-                      <label
-                        htmlFor="solteiro"
-                        className="text-sm font-medium text-white"
-                      >
-                        Solteiro
-                      </label>
-                    </div>
+                    <select
+                      name="estadoCivil"
+                      required
+                      id="estadoCivil"
+                      value={pessoa.estadoCivil.toUpperCase()}
+                      onChange={manipularMudanca}
+                    >
+                      <option value="">Selecione</option>
+                      <option value="SOLTEIRO">Solteiro</option>
+                      <option value="CASADO">Casado</option>
+                      <option value="DIVORCIADO">Divorciado</option>
+                      <option value="VIÚVO">Viúvo</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -272,6 +287,7 @@ function CadastroPessoa(props) {
                   <select
                     name="estadoNascimento"
                     id="estadoNascimento"
+                    required
                     value={pessoa.estadoNascimento}
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -304,7 +320,6 @@ function CadastroPessoa(props) {
                     <option value="São Paulo">São Paulo</option>
                     <option value="Sergipe">Sergipe</option>
                     <option value="Tocantins">Tocantins</option>
-
                   </select>
                 </div>
                 <div>
@@ -318,11 +333,156 @@ function CadastroPessoa(props) {
                     type="text"
                     name="locNascimento"
                     id="locNascimento"
+                    required
                     value={pessoa.locNascimento}
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     placeholder="Digite a cidade que nasceu"
                   />
+                </div>
+              </div>
+              <div className="pt-6 border-t border-gray-600">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <MapPin className="w-5 h-5" />
+                  Endereço
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="sm:col-span-2">
+                    <label
+                      htmlFor="endereco.rua"
+                      className="flex items-center gap-2 text-sm font-medium text-white mb-1"
+                    >
+                      <Home className="w-4 h-4" />
+                      Rua
+                    </label>
+                    <input
+                      type="text"
+                      name="endereco.rua"
+                      required
+                      id="endereco.rua"
+                      value={pessoa.endereco.rua}
+                      onChange={manipularMudanca}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      placeholder="Digite o nome da rua"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="endereco.numero"
+                      className="flex items-center gap-2 text-sm font-medium text-white mb-1"
+                    >
+                      Número
+                    </label>
+                    <input
+                      type="number"
+                      name="endereco.numero"
+                      required
+                      id="endereco.numero"
+                      value={pessoa.endereco.numero}
+                      onChange={manipularMudanca}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      placeholder="Número"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="endereco.complemento"
+                      className="flex items-center gap-2 text-sm font-medium text-white mb-1"
+                    >
+                      Complemento
+                    </label>
+                    <input
+                      type="text"
+                      name="endereco.complemento"
+                      id="endereco.complemento"
+                      value={pessoa.endereco.complemento}
+                      onChange={manipularMudanca}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      placeholder="Apartamento, sala, etc."
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="endereco.cep"
+                      className="flex items-center gap-2 text-sm font-medium text-white mb-1"
+                    >
+                      CEP
+                    </label>
+                    <input
+                      type="text"
+                      name="endereco.cep"
+                      id="endereco.cep"
+                      required
+                      maxLength={9}
+                      value={pessoa.endereco.cep}
+                      onChange={manipularMudanca}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      placeholder="00000-000"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="endereco.uf"
+                      className="flex items-center gap-2 text-sm font-medium text-white mb-1"
+                    >
+                      Estado
+                    </label>
+                    <select
+                      name="endereco.uf"
+                      required
+                      id="endereco.uf"
+                      value={pessoa.endereco.uf}
+                      onChange={manipularMudanca}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                    >
+                      <option value="">Selecione um estado</option>
+                      <option value="AC">Acre</option>
+                      <option value="AL">Alagoas</option>
+                      <option value="AP">Amapá</option>
+                      <option value="AM">Amazonas</option>
+                      <option value="BA">Bahia</option>
+                      <option value="CE">Ceará</option>
+                      <option value="DF">Distrito Federal</option>
+                      <option value="ES">Espírito Santo</option>
+                      <option value="GO">Goiás</option>
+                      <option value="MA">Maranhão</option>
+                      <option value="MT">Mato Grosso</option>
+                      <option value="MS">Mato Grosso do Sul</option>
+                      <option value="MG">Minas Gerais</option>
+                      <option value="PA">Pará</option>
+                      <option value="PB">Paraíba</option>
+                      <option value="PR">Paraná</option>
+                      <option value="PE">Pernambuco</option>
+                      <option value="PI">Piauí</option>
+                      <option value="RJ">Rio de Janeiro</option>
+                      <option value="RN">Rio Grande do Norte</option>
+                      <option value="RS">Rio Grande do Sul</option>
+                      <option value="RO">Rondônia</option>
+                      <option value="RR">Roraima</option>
+                      <option value="SC">Santa Catarina</option>
+                      <option value="SP">São Paulo</option>
+                      <option value="SE">Sergipe</option>
+                      <option value="TO">Tocantins</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="endereco.cidade"
+                      className="flex items-center gap-2 text-sm font-medium text-white mb-1"
+                    >
+                      Cidade
+                    </label>
+                    <input
+                      type="text"
+                      name="endereco.cidade"
+                      id="endereco.cidade"
+                      required
+                      value={pessoa.endereco.cidade}
+                      onChange={manipularMudanca}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                      placeholder="Digite a cidade"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -332,7 +492,6 @@ function CadastroPessoa(props) {
             >
               {props.modoEdicao ? "Alterar" : "Confirmar"}
             </button>
-
           </form>
         </div>
       </div>

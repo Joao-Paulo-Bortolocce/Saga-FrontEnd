@@ -3,7 +3,7 @@ import Page from "../layouts/Page";
 import CadastroPessoa from "./cadastros/CadastroPessoa";
 import TabelaPessoa from "./tabelas/TabelaPessoa";
 
-export default function HomePessoas() {
+export default function HomePessoas(props) {
     const [exibirTabela, setExibirTabela] = useState(true);
     const [modoEdicao, setModoEdicao] = useState(false);
     const [pessoa, setPessoa] = useState({
@@ -14,9 +14,17 @@ export default function HomePessoas() {
         sexo: "",
         locNascimento: "",
         estadoNascimento: "",
-        enderecoId: 1,
-        estadoCivil: ""
+        estadoCivil: "",
+        endereco: {
+            rua: "",
+            numero: "",
+            complemento: "",
+            cep: "",
+            uf: "",
+            cidade: ""
+        }
     });
+    
 
     return (
         <>
@@ -29,6 +37,7 @@ export default function HomePessoas() {
                 />
             ) : (
                 <CadastroPessoa 
+                    setExibirTabela={setExibirTabela} 
                     setModoEdicao={setModoEdicao} 
                     modoEdicao={modoEdicao} 
                     pessoa={pessoa} 
