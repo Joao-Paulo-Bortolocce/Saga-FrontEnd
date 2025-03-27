@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Tela from './components/Tela.jsx';
+import Telas from './componentes/Telas.jsx';
 import FormularioSalas from './componentes/FormularioSalas.jsx';
 import TabelaSalas from './componentes/TabelaSalas.jsx';
 import * as servicoSalas from './services/servicoSalas.js'
@@ -32,23 +32,23 @@ export default function App() {
 
   async function buscarPorCarteiras(termo) {
     const lista = await servicoSalas.consultarSalas(termo);
-    setSeries(lista ?? []);
+    setSalas(lista ?? []);
   }
   
 
   return (
-    <Tela titulo="Cadastro de Série">
-      <FormularioSerie
+    <Telas titulo="Cadastro de Série">
+      <FormularioSalas
         atualizarLista={buscarSalas}
         salasEmEdicao={salasEmEdicao}
         cancelarEdicao={cancelarEdicao}
         buscarPorCarteiras={buscarPorCarteiras}
       />
-      <TabelaSerie
+      <TabelaSalas
         salas={salas}
         excluirSalas={excluirSalas}
         editarSalas={editarSalas}
       />
-    </Tela>
+    </Telas>
   );
 }

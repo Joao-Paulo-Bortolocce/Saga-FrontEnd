@@ -6,7 +6,8 @@ export async function gravarSalas(salas) {
     headers: { 'Content-Type': "application/json" },
     body: JSON.stringify(salas),
   });
-  return await resposta.json();
+  const resultado =await  resposta.json();
+  return resultado;
 }
 
 export async function alterarSalas(id, salas) {
@@ -15,7 +16,8 @@ export async function alterarSalas(id, salas) {
     headers: { 'Content-Type': "application/json" },
     body: JSON.stringify(salas),
   });
-  return await resposta.json();
+  const resultado = await resposta.json();
+  return resultado;
 }
 
 export async function excluirSalas(salas) {
@@ -23,9 +25,16 @@ export async function excluirSalas(salas) {
   return await resposta.json();
 }
 
-export async function consultarSalas(termo = "") {
-    const resposta = await fetch(`${urlBase}/${termo}`);
-    const resultado = await resposta.json();
+export async function consultarSalas(termo){
+    let resposta
+    if(termo==undefined)
+        resposta = await fetch(urlBase+"/",{
+            "method": "GET",
+        })
+    else
+        resposta = await fetch(urlBase+"/"+termo,{
+            "method": "GET",
+        })
+    const resultado =await  resposta.json();
     return resultado;
 }
-  
