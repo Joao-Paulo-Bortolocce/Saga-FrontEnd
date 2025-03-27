@@ -66,7 +66,6 @@ export  function formatarCEP(entrada,exec){
 
 export function formatarRG(entrada,exec) {
     if(exec){
-
         var valor = entrada;
         // if (valor.length === 9) {
             //     entrada = `${valor.slice(0, 1)}.${valor.slice(1, 4)}.${valor.slice(4, 7)}-${valor.slice(7)}`;

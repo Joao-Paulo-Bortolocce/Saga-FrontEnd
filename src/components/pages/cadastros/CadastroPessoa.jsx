@@ -12,11 +12,20 @@ function CadastroPessoa(props) {
   const [pessoa, setPessoa] = useState(props.pessoa);
   const { estado, mensagem } = useSelector(state => state.pessoa);
   const dispachante = useDispatch();
-  
+
 
   function manipularMudanca(event) {
     const id = event.currentTarget.id;
     let valor = event.currentTarget.value;
+    if (id === 'dataNascimento') {
+      let atual = new Date();
+      let dataInformada = new Date(valor);
+
+      if (dataInformada > atual) {
+        alert("A data informada é inválida");
+        valor = dataInformada.toLocaleString().substring(0, 10);
+      }
+    }
 
     if (id === 'cpf')
       valor = formatarCPF(valor, pessoa.cpf.length < valor.length);
@@ -61,15 +70,15 @@ function CadastroPessoa(props) {
     })
   }
 
-  function verificaCPF(){
-    if(!props.modoEdicao){
+  function verificaCPF() {
+    if (!props.modoEdicao && pessoa.cpf != "") {
 
-      consultarPessoa(pessoa.cpf).then((consulta)=>{
-        if(consulta!=undefined && consulta!=null && consulta!=[] ){
-          alert("O cpf: "+pessoa.cpf+" ja esta sendo utilizado");
+      consultarPessoa(pessoa.cpf).then((consulta) => {
+        if (consulta != undefined && consulta != null && consulta != []) {
+          alert("O cpf: " + pessoa.cpf + " ja esta sendo utilizado");
           setPessoa({ ...pessoa, ["cpf"]: "" });
         }
-        
+
       })
     }
   }
@@ -496,6 +505,16 @@ function CadastroPessoa(props) {
               className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
             >
               {props.modoEdicao ? "Alterar" : "Confirmar"}
+            </button>
+            <button
+              onClick={() => {
+                zeraPessoa();
+                props.setExibirTabela(true);
+              }}
+
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
+            >
+             Voltar
             </button>
           </form>
         </div>
