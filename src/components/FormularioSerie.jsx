@@ -1,24 +1,35 @@
-import { useState } from 'react';
-import { gravarSerie, alterarSerie } from '../services/servicoSerie.js';
+import { useState, useEffect } from 'react';
+import { Search } from "lucide-react";
 
-export default function FormularioSerie({ atualizarLista, serieEmEdicao, cancelarEdicao, buscarPorDescricao }) {
-  const [serieNum, setSerieNum] = useState(serieEmEdicao?.serieNum || '');
-  const [descricao, setDescricao] = useState(serieEmEdicao?.descricao || '');
+export default function FormularioSerie({
+  atualizarLista,
+  salvarSerie,
+  serieEmEdicao,
+  cancelarEdicao,
+  buscarPorDescricao,
+}) {
+  const [serieNum, setSerieNum] = useState('');
+  const [descricao, setDescricao] = useState('');
   const [busca, setBusca] = useState('');
+
+  useEffect(() => {
+    if (serieEmEdicao) {
+      setSerieNum(serieEmEdicao.serieNum);
+      setDescricao(serieEmEdicao.descricao);
+    } else {
+      setSerieNum('');
+      setDescricao('');
+    }
+  }, [serieEmEdicao]);
 
   async function handleSubmit(e) {
     e.preventDefault();
-
-    if (serieEmEdicao) {
-      await alterarSerie(serieEmEdicao.id, { serieNum: Number(serieNum), descricao });
-      cancelarEdicao();
-    } else {
-      await gravarSerie({ serieNum: Number(serieNum), descricao });
-    }
-
+    await salvarSerie(
+      { serieNum: Number(serieNum), descricao, id: serieEmEdicao?.id },
+      !!serieEmEdicao
+    );
     setSerieNum('');
     setDescricao('');
-    atualizarLista();
   }
 
   function handleBuscaChange(e) {
@@ -46,24 +57,25 @@ export default function FormularioSerie({ atualizarLista, serieEmEdicao, cancela
           className="p-2 rounded bg-gray-800 border border-gray-700 w-64"
           required
         />
-        <button type="submit" className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">
+        <button type="submit" className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">
           {serieEmEdicao ? 'Atualizar' : 'Cadastrar'}
         </button>
         {serieEmEdicao && (
-          <button type="button" onClick={cancelarEdicao} className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded">
+          <button type="button" onClick={cancelarEdicao} className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded">
             Cancelar
           </button>
         )}
       </form>
-
-      {/* Campo de busca por descrição */}
-      <input
-        type="text"
-        placeholder="Buscar por descrição..."
-        value={busca}
-        onChange={handleBuscaChange}
-        className="p-2 rounded bg-gray-800 border border-gray-700 w-72"
-      />
+      <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 rounded px-2">
+        <Search className="text-green-400 w-5 h-5" />
+        <input
+          type="text"
+          placeholder="Buscar por descrição..."
+          value={busca}
+          onChange={handleBuscaChange}
+          className="bg-transparent p-2 focus:outline-none w-64"
+        />
+      </div>
     </div>
   );
 }

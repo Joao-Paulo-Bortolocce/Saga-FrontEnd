@@ -3,6 +3,7 @@ import Tela from './components/Tela.jsx';
 import FormularioSerie from './components/FormularioSerie.jsx';
 import TabelaSerie from './components/TabelaSerie.jsx';
 import * as servicoSerie from './services/servicoSerie.js';
+import { Toaster, toast } from 'react-hot-toast';
 
 export default function App() {
   const [series, setSeries] = useState([]);
@@ -18,37 +19,70 @@ export default function App() {
   }
 
   async function excluirSerie(serie) {
-    await servicoSerie.excluirSerie(serie);
-    buscarSeries();
+    toast.promise(
+      servicoSerie.excluirSerie(serie).then(buscarSeries),
+      {
+        loading: 'Excluindo...',
+        success: 'Série excluída com sucesso!',
+        error: 'Erro ao excluir série',
+      }
+    );
   }
 
   function editarSerie(serie) {
     setSerieEmEdicao(serie);
+    toast("Você está alterando uma série!", { icon: '⚠️' });
   }
+
 
   function cancelarEdicao() {
     setSerieEmEdicao(null);
+    toast('Alteração cancelada!', { icon: '❌' });
+  }
+
+  async function salvarSerie(serie, modoEdicao) {
+    const acao = modoEdicao
+      ? servicoSerie.alterarSerie(serie.id, serie)
+      : servicoSerie.gravarSerie(serie);
+
+    toast.promise(
+      acao.then(() => {
+        buscarSeries();
+        setSerieEmEdicao(null);
+      }),
+      {
+        loading: modoEdicao ? 'Atualizando...' : 'Cadastrando...',
+        success: modoEdicao ? 'Série atualizada com sucesso!' : 'Série cadastrada com sucesso!',
+        error: modoEdicao ? 'Erro ao atualizar série' : 'Erro ao cadastrar série',
+      }
+    );
   }
 
   async function buscarPorDescricao(termo) {
     const lista = await servicoSerie.consultarSerie(termo);
     setSeries(lista ?? []);
   }
-  
 
   return (
-    <Tela titulo="Cadastro de Série">
-      <FormularioSerie
-        atualizarLista={buscarSeries}
-        serieEmEdicao={serieEmEdicao}
-        cancelarEdicao={cancelarEdicao}
-        buscarPorDescricao={buscarPorDescricao}
+    <>
+      <Toaster
+        position="top-center"
+        reverseOrder={false}
       />
-      <TabelaSerie
-        series={series}
-        excluirSerie={excluirSerie}
-        editarSerie={editarSerie}
-      />
-    </Tela>
+      <Tela titulo="Cadastro de Série">
+        <FormularioSerie
+          atualizarLista={buscarSeries}
+          salvarSerie={salvarSerie}
+          serieEmEdicao={serieEmEdicao}
+          cancelarEdicao={cancelarEdicao}
+          buscarPorDescricao={buscarPorDescricao}
+        />
+        <TabelaSerie
+          series={series}
+          excluirSerie={excluirSerie}
+          editarSerie={editarSerie}
+        />
+      </Tela>
+    </>
   );
 }
