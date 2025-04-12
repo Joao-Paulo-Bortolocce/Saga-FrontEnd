@@ -1,7 +1,9 @@
- const urlBase= "http://localhost:4000/pessoa";
+//  const urlBase= "http://localhost:4000/pessoa";
+ const urlBase= "http://localhost:8080/pessoa";
+
 
 export async function gravarPessoa(pessoa){
-    const resposta = await fetch(urlBase,{
+    const resposta = await fetch(urlBase+"/gravar",{
         "method": "POST",
         "headers":{
             "Content-type":"application/json"
@@ -13,7 +15,7 @@ export async function gravarPessoa(pessoa){
 }
 
 export async function alterarPessoa(pessoa){
-    const resposta = await fetch(urlBase,{
+    const resposta = await fetch(urlBase+"/alterar",{
         "method": "PUT",
         "headers":{
             "Content-type":"application/json"
@@ -26,7 +28,7 @@ export async function alterarPessoa(pessoa){
 }
 
 export async function excluirPessoa(pessoa){
-    const resposta = await fetch(urlBase+ "/"+ pessoa.cpf,{
+    const resposta = await fetch(urlBase+ "/apagar/"+ pessoa.cpf,{
         "method": "DELETE",
     
     })
@@ -38,7 +40,7 @@ export async function excluirPessoa(pessoa){
 export async function consultarPessoa(termo){
     let resposta
     if(termo==undefined)
-        resposta = await fetch(urlBase+"/",{
+        resposta = await fetch(urlBase+"/buscarTodos",{
             "method": "GET",
         })
     else
@@ -46,5 +48,5 @@ export async function consultarPessoa(termo){
             "method": "GET",
         })
     const resultado =await  resposta.json();
-    return resultado;
+    return resultado.listaDePessoas;
 }
