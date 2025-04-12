@@ -56,7 +56,7 @@ export default function TabelaPessoa(props) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className=" py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>

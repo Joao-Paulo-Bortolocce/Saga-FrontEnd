@@ -4,10 +4,11 @@ import HomePessoas from "./components/pages/HomePessoas";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./redux/store.js";
+import imagemFundoPrefeitura from "./assets/images/imagemFundoPrefeitura.png";
 
 export default function App() {
   return (
-    <div className="App">
+    <div className="App min-h-screen" style={{ backgroundImage: `url(${imagemFundoPrefeitura})` , backgroundSize:"cover"}}>
       <Provider store={store}>
       <BrowserRouter>
         <Routes>

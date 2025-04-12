@@ -24,26 +24,31 @@ export default function HomePessoas(props) {
             cidade: ""
         }
     });
-    
+
 
     return (
-        <>
-            <Page />
-            {exibirTabela ? (
-                <TabelaPessoa 
-                    setExibirTabela={setExibirTabela} 
-                    setModoEdicao={setModoEdicao} 
-                    setPessoa={setPessoa} 
-                />
-            ) : (
-                <CadastroPessoa 
-                    setExibirTabela={setExibirTabela} 
-                    setModoEdicao={setModoEdicao} 
-                    modoEdicao={modoEdicao} 
-                    pessoa={pessoa} 
-                    setPessoa={setPessoa}
-                />
-            )}
-        </>
+        <div className="min-h-screen flex flex-col">
+            <div className="h-1/10">
+                <Page />
+            </div>
+            <div className="h-9/10">
+                {exibirTabela ? (
+                    <TabelaPessoa
+                        setExibirTabela={setExibirTabela}
+                        setModoEdicao={setModoEdicao}
+                        setPessoa={setPessoa}
+                    />
+                ) : (
+                    <CadastroPessoa
+                        setExibirTabela={setExibirTabela}
+                        setModoEdicao={setModoEdicao}
+                        modoEdicao={modoEdicao}
+                        pessoa={pessoa}
+                        setPessoa={setPessoa}
+                    />
+                )}
+            </div>
+        </div>
+
     );
 }

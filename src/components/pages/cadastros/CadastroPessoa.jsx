@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Hash, BookOpen, User, MapPin, Home } from 'lucide-react';
-import imagemFundoPrefeitura from "../../../assets/images/imagemFundoPrefeitura.png";
 import logoPrefeitura from "../../../assets/images/logoPrefeitura.png";
 import { useDispatch, useSelector } from 'react-redux';
 import ESTADO from '../../../redux/estados.js';
@@ -127,8 +126,7 @@ function CadastroPessoa(props) {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative p-4"
-      style={{ backgroundImage: `url(${imagemFundoPrefeitura})` }}
+      className="flex items-center justify-center bg-cover bg-center bg-no-repeat relative p-4"
     >
       <div className="absolute inset-0 bg-black/40" />
       <div className="relative z-10 w-full max-w-4xl">
