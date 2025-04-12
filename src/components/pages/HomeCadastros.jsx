@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import Page from "../layouts/Page";
-import { BookUser, Backpack, User, Shapes } from "lucide-react";
+import { BookUser, Backpack, User, Shapes,Calculator  } from "lucide-react";
 
 
 const cadastros = [
-    { nome: "Cadastro de Aluno", href: "/cadastros/aluno", tipo: "Pessoas", icon: Backpack },
-    { nome: "Cadastro de Profissional", href: "/cadastros/profissional", tipo: "Pessoas", icon: BookUser },
-    { nome: "Cadastro de Pessoa", href: "/cadastros/pessoa", tipo: "Pessoas", icon: User },
-    { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infra", icon: Shapes }
+    { nome: "Cadastro de Aluno", href: "/cadastros/aluno", tipo: "Pessoas", icon: Backpack, bgcolor:"bg-orange-500", color:"text-orange-500" },
+    { nome: "Cadastro de Profissional", href: "/cadastros/profissional", tipo: "Pessoas", icon: BookUser, bgcolor:"bg-orange-500", color:"text-orange-500" },
+    { nome: "Cadastro de Pessoa", href: "/cadastros/pessoa", tipo: "Pessoas", icon: User, bgcolor:"bg-orange-500", color:"text-orange-500"},
+    { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infra", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
+    { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor:"bg-blue-500", color:"text-blue-500"  }
 ]
 
 export default function HomeCadastros(props) {
@@ -53,7 +54,7 @@ export default function HomeCadastros(props) {
                                 <option value="todos">Todos</option>
                                 <option value="Pessoas">Pessoas</option>
                                 <option value="Infra">Infraestrutura</option>
-                                <option value="Academico">Acadêmico</option>
+                                <option value="Acadêmico">Acadêmico</option>
                             </select>
                         </div>
                     </section>
@@ -65,9 +66,9 @@ export default function HomeCadastros(props) {
                                         return (
                                             <a href={cadastro.href}>
                                                 <div className="max-h-[150px] transform hover:scale-105 transition-transform bg-white rounded-xl shadow-lg overflow-hidden">
-                                                    <div className="bg-orange-500 h-2"></div>
+                                                    <div className={`${cadastro.bgcolor} h-2`}></div>
                                                     <div className="p-6">
-                                                        <cadastro.icon className="w-12 h-12 mx-auto mb-4 text-orange-500" />
+                                                        <cadastro.icon className={`w-12 h-12 mx-auto mb-4 ${cadastro.color}`} />
                                                         <p className="text-center font-semibold text-gray-800 text-lg">
                                                             {cadastro.nome}
                                                         </p>

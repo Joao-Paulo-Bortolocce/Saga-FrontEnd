@@ -22,16 +22,16 @@ import {
     XMarkIcon,
 } from '@heroicons/react/24/outline'
 
-import { UserRoundSearch } from 'lucide-react';
+import { UserRoundSearch,BookOpenText,School,Earth   } from 'lucide-react';
 import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
+
+import logoPrefeitura from "../../assets/images/logoPrefeitura.png"
 
 const products = [
     { name: 'Pessoas', description: 'Adicionar pessoa (Aluno, Responsável ou profissional)', href: '/cadastros', icon: UserRoundSearch },
-    { name: 'Analytics', description: 'Get a better understanding of your traffic', href: '#', icon: ChartPieIcon },
-    { name: 'Engagement', description: 'Speak directly to your customers', href: '#', icon: CursorArrowRaysIcon },
-    { name: 'Security', description: 'Your customers’ data will be safe and secure', href: '#', icon: FingerPrintIcon },
-    { name: 'Integrations', description: 'Connect with third-party tools', href: '#', icon: SquaresPlusIcon },
-    { name: 'Automations', description: 'Build strategic funnels that will convert', href: '#', icon: ArrowPathIcon },
+    { name: 'Acadêmico', description: 'Adicionar algo do setor acadêmico (materias, habilidades, fichas e outros) ', href: '/cadastros', icon: BookOpenText },
+    { name: 'Infraestrutura', description: 'Adicionar infraestrutura (salas, turmas, séries e outros)', href: '/cadastros', icon: School },
+    { name: 'Tudo', description: 'Todos os cadastros', href: '/cadastros', icon: Earth },
 ]
 const callsToAction = [
     { name: 'Watch demo', href: '#', icon: PlayCircleIcon },
@@ -47,11 +47,7 @@ export default function Menu() {
                 <div className="flex lg:flex-1">
                     <a href="#" className="-m-1.5 p-1.5">
                         <span className="sr-only">Your Company</span>
-                        <img
-                            alt=""
-                            src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                            className="h-8 w-auto"
-                        />
+                        <img src={logoPrefeitura} alt="logo Prefeitura" className='h-12 w-auto' />
                     </a>
                 </div>
                 <div className="flex lg:hidden">
