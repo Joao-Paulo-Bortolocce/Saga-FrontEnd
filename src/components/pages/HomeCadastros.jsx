@@ -22,7 +22,7 @@ export default function HomeCadastros(props) {
             setTipo(params.get("tipo"));
         }
         else {
-            setTipo("todos");
+            setTipo("Todos");
         }
     }, [])
 
@@ -51,7 +51,7 @@ export default function HomeCadastros(props) {
                         <div className="w-3/5"><input style={{ width: "100%" }} className="border-4 border-solid rounded-xl pl-4" placeholder="    Digite um filtro" type="text" id="filtroInput" value={filtro} onChange={manipularInput} /></div>
                         <div className="w-1/5 ">
                             <select className="border-4 border-solid rounded-xl" name="tipoSelect" id="tipoSelect" value={tipo} onChange={manipularSelect}>
-                                <option value="todos">Todos</option>
+                                <option value="Todos">Todos</option>
                                 <option value="Pessoas">Pessoas</option>
                                 <option value="Infra">Infraestrutura</option>
                                 <option value="Acadêmico">Acadêmico</option>
@@ -62,7 +62,7 @@ export default function HomeCadastros(props) {
                         {
                             cadastros.map((cadastro) => {
                                 if (cadastro.nome.toLowerCase().includes(filtro.toLowerCase())) {
-                                    if (tipo == "todos" || cadastro.tipo === tipo)
+                                    if (tipo == "Todos" || cadastro.tipo === tipo)
                                         return (
                                             <a href={cadastro.href}>
                                                 <div className="max-h-[150px] transform hover:scale-105 transition-transform bg-white rounded-xl shadow-lg overflow-hidden">
