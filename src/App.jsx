@@ -1,54 +1,29 @@
-import { useState, useEffect } from 'react';
-import Telas from './componentes/Telas.jsx';
-import FormularioSalas from './componentes/FormularioSalas.jsx';
-import TabelaSalas from './componentes/TabelaSalas.jsx';
-import * as servicoSalas from './services/servicoSalas.js'
+import HomeCadastros from "./components/pages/HomeCadastros";
+import HomePage from "./components/pages/HomePage";
+import HomePessoas from "./components/pages/HomePessoas";
+import MateriaPage from "./components/pages/cadastros/MateriaPage";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Provider } from "react-redux";
+import store from "./redux/store.js";
+import imagemFundoPrefeitura from "./assets/images/imagemFundoPrefeitura.png";
+import HomeSeries from "./components/pages/HomeSeries.jsx";
+import HomeSalas from "./componentes/pages/HomeSalas.jsx"; 
 
 export default function App() {
-  const [salas, setSalas] = useState([]);
-  const [salasEmEdicao, setSalasEmEdicao] = useState(null);
-
-  useEffect(() => {
-    buscarSalas();
-  }, []);
-
-  async function buscarSalas() {
-    const lista = await servicoSalas.consultarSalas();
-    setSalas(lista ?? []);
-  }
-
-  async function excluirSalas(salas) {
-    await servicoSalas.excluirSalas(salas);
-    buscarSalas();
-  }
-
-  function editarSalas(salas) {
-    setSalasEmEdicao(salas);
-  }
-
-  function cancelarEdicao() {
-    setSalasEmEdicao(null);
-  }
-
-  async function buscarPorCarteiras(termo) {
-    const lista = await servicoSalas.consultarSalas(termo);
-    setSalas(lista ?? []);
-  }
-  
-
   return (
-    <Telas titulo="Cadastro de Série">
-      <FormularioSalas
-        atualizarLista={buscarSalas}
-        salasEmEdicao={salasEmEdicao}
-        cancelarEdicao={cancelarEdicao}
-        buscarPorCarteiras={buscarPorCarteiras}
-      />
-      <TabelaSalas
-        salas={salas}
-        excluirSalas={excluirSalas}
-        editarSalas={editarSalas}
-      />
-    </Telas>
+    <div className="App min-h-screen" style={{ backgroundImage: `url(${imagemFundoPrefeitura})` , backgroundSize:"cover"}}>
+      <Provider store={store}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/cadastros/pessoa" element={<HomePessoas />} /> 
+          <Route path="/cadastros/materia" element={<MateriaPage />} />
+          <Route path="/cadastros/serie" element={<HomeSeries />} />
+          <Route path="/cadastros/salas" element={<HomeSalas />}/>
+          <Route path="/cadastros" element={<HomeCadastros />} />
+          <Route path="/" element={<HomePage />} />
+        </Routes> {/* A ordem das rotas é importante, por isso o Tela404 vem por ultimo com o * que significa que qualquer rota chama ele, e então deve ser o ultimo se não será chamado sempre*/}
+      </BrowserRouter>
+      </Provider>
+    </div>
   );
 }
