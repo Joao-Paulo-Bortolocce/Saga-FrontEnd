@@ -28,9 +28,7 @@ function CadastroPessoa(props) {
 
     if (id === 'cpf')
       valor = formatarCPF(valor, pessoa.cpf.length < valor.length);
-    else
-      if (id === 'rg')
-        valor = formatarRG(valor, pessoa.rg.length < valor.length)
+
 
     if (id.startsWith('endereco.')) {
       const idAux = id.split('.')[1];

@@ -7,13 +7,13 @@ export default function HomePage() {
 
   return (
     <>
-      <Page className="overflow-hidden"/>
+      <Page className="h-1/10"  style={{height:"10vh"}}/>
       <div
-        className="min-h-screen bg-cover bg-center relative flex items-center justify-center"
-        style={{ backgroundImage: `url(${imagemFundo})` }}
+        className="bg-cover bg-black/70 z-0  flex items-center justify-center " 
+        style={{height:"90vh"}}
       >
         {/* sobreposição escura */}
-        <div className="absolute inset-0 bg-black/70 z-0" />
+
 
         <div className="relative z-10 text-center">
           <img
