@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Page from "../layouts/Page";
-import { BookUser, Backpack, User, Shapes,Calculator  } from "lucide-react";
+import { BookUser, Backpack, User, Shapes,Calculator,  CalendarClock } from "lucide-react";
 
 
 const cadastros = [
@@ -8,7 +8,8 @@ const cadastros = [
     { nome: "Cadastro de Profissional", href: "/cadastros/profissional", tipo: "Pessoas", icon: BookUser, bgcolor:"bg-orange-500", color:"text-orange-500" },
     { nome: "Cadastro de Pessoa", href: "/cadastros/pessoa", tipo: "Pessoas", icon: User, bgcolor:"bg-orange-500", color:"text-orange-500"},
     { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infra", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
-    { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor:"bg-blue-500", color:"text-blue-500"  }
+    { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor:"bg-blue-500", color:"text-blue-500"  },
+    { nome: "Agendar reunião de pais", href: "/cadastros/reuniao", tipo: "Acadêmico", icon: CalendarClock, bgcolor:"bg-blue-500", color:"text-blue-500"  }
 ]
 
 export default function HomeCadastros(props) {
