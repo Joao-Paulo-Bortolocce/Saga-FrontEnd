@@ -105,8 +105,8 @@ export default function Menu() {
                         </PopoverPanel>
                     </Popover>
 
-                    <a href="#" className="text-sm/6 font-semibold text-gray-900">
-                        Features
+                    <a href="/funcionalidades" className="text-sm/6 font-semibold text-gray-900">
+                        Funcionalidades
                     </a>
                     <a href="#" className="text-sm/6 font-semibold text-gray-900">
                         Marketplace

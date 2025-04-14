@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Page from "../layouts/Page";
 import { BookUser, Backpack, User, Shapes,Calculator,  CalendarClock,SquarePen , Users, Calendar, GraduationCap,Dumbbell,DoorClosed} from "lucide-react";
-// import { BicepsFlexed } from 'lucide-react';
+
 
 
 const cadastros = [
