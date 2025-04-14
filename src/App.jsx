@@ -1,29 +1,18 @@
-import HomeCadastros from "./components/pages/HomeCadastros";
-import HomePage from "./components/pages/HomePage";
-import HomePessoas from "./components/pages/HomePessoas";
-import MateriaPage from "./components/pages/cadastros/MateriaPage";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Provider } from "react-redux";
-import store from "./redux/store.js";
-import imagemFundoPrefeitura from "./assets/images/imagemFundoPrefeitura.png";
-import HomeSeries from "./components/pages/HomeSeries.jsx";
-import HomeSalas from "./componentes/pages/HomeSalas.jsx"; 
+import { useState } from 'react';
+import TabelaTurmas from './componentes/TabelaTurmas.jsx';
+import TurmaSelecionada from './componentes/TurmaSelecionada.jsx';
+import Telas from './componentes/Telas.jsx';
 
 export default function App() {
+  const [turmaSelecionada, setTurmaSelecionada] = useState(null);
+
   return (
-    <div className="App min-h-screen" style={{ backgroundImage: `url(${imagemFundoPrefeitura})` , backgroundSize:"cover"}}>
-      <Provider store={store}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/cadastros/pessoa" element={<HomePessoas />} /> 
-          <Route path="/cadastros/materia" element={<MateriaPage />} />
-          <Route path="/cadastros/serie" element={<HomeSeries />} />
-          <Route path="/cadastros/salas" element={<HomeSalas />}/>
-          <Route path="/cadastros" element={<HomeCadastros />} />
-          <Route path="/" element={<HomePage />} />
-        </Routes> {/* A ordem das rotas é importante, por isso o Tela404 vem por ultimo com o * que significa que qualquer rota chama ele, e então deve ser o ultimo se não será chamado sempre*/}
-      </BrowserRouter>
-      </Provider>
-    </div>
+    <Telas titulo="Cadastro de presença">
+      {!turmaSelecionada ? (
+        <TabelaTurmas selecionarTurma={setTurmaSelecionada} />
+      ) : (
+        <TurmaSelecionada turma={turmaSelecionada} voltar={() => setTurmaSelecionada(null)} />
+      )}
+    </Telas>
   );
 }
