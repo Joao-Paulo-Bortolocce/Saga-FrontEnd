@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import pessoaReducer from "./pessoaReducer";
+import matriculaReducer from "./matriculaReducer";
 
 
 const store= configureStore({
     reducer:{
-        'pessoa':pessoaReducer
+        'pessoa':pessoaReducer,
+        'matricula':matriculaReducer
     }
 })
 

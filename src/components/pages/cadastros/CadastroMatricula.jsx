@@ -3,17 +3,16 @@ import { Hash, BookOpen, User, MapPin, Home } from 'lucide-react';
 import logoPrefeitura from "../../../assets/images/logoPrefeitura.png";
 import { useDispatch, useSelector } from 'react-redux';
 import ESTADO from '../../../redux/estados.js';
-import { incluirPessoa, atualizarPessoa } from '../../../redux/pessoaReducer.js';
-import { formatarCEP, formatarCPF, formatarRG } from '../../../service/formatadores.js';
-import { consultarPessoa } from '../../../service/pessoaService.js';
+import { incluirMatricula, atualizarMatricula } from '../../../redux/matriculaReducer.js';
+import { consultarMatricula } from '../../../service/matriculaService.js';
 
-function CadastroPessoa(props) {
-  const [pessoa, setPessoa] = useState(props.pessoa);
-  const { estado, mensagem } = useSelector(state => state.pessoa);
+function CadastroMatricula(props) {
+  const [matricula, setMatricula] = useState(props.matricula);
+  const { estado, mensagem } = useSelector(state => state.matricula);
   const dispachante = useDispatch();
 
 
-  function manipularMudanca(event) {
+  /*function manipularMudanca(event) {
     const id = event.currentTarget.id;
     let valor = event.currentTarget.value;
     if (id === 'dataNascimento') {
@@ -27,70 +26,64 @@ function CadastroPessoa(props) {
     }
 
     if (id === 'cpf')
-      valor = formatarCPF(valor, pessoa.cpf.length < valor.length);
+      valor = formatarCPF(valor, matricula.cpf.length < valor.length);
 
 
     if (id.startsWith('endereco.')) {
       const idAux = id.split('.')[1];
       if (idAux === "cep")
-        valor = formatarCEP(valor, pessoa.endereco.cep.length < valor.length);
-      setPessoa({
-        ...pessoa,
+        valor = formatarCEP(valor, matricula.endereco.cep.length < valor.length);
+      setMatricula({
+        ...matricula,
         endereco: {
-          ...pessoa.endereco,
+          ...matricula.endereco,
           [idAux]: valor
         }
       });
     } else {
-      setPessoa({ ...pessoa, [id]: valor });
+      setMatricula({ ...matricula, [id]: valor });
     }
   }
-
-  function zeraPessoa() {
-    props.setPessoa({
-      cpf: "",
-      rg: "",
-      nome: "",
-      dataNascimento: "",
-      sexo: "",
-      locNascimento: "",
-      estadoNascimento: "",
-      estadoCivil: "",
-      endereco: {
-        rua: "",
-        numero: "",
-        complemento: "",
-        cep: "",
-        uf: "",
-        cidade: ""
-      }
+*/
+  function zeraMatricula() {
+    props.setMatricula({
+        id: 0,
+        ra: "",
+        aprovado: 0,
+        idMatricula: 0,
+        Turma_letra: "",
+        Turma_Serie_id: 0,
+        Turma_AnoLetivo_id: 0,
+        Aluno_RA: 0,
+        AnoLetivo_id: 0,
+        Serie_id: 0
     })
   }
 
-  function verificaCPF() {
-    if (!props.modoEdicao && pessoa.cpf != "") {
+//   function verificaCPF() {
+//     if (!props.modoEdicao && matricula.cpf != "") {
 
-      consultarPessoa(pessoa.cpf).then((consulta) => {
-        if (consulta != undefined && consulta != null && consulta != []) {
-          alert("O cpf: " + pessoa.cpf + " ja esta sendo utilizado");
-          setPessoa({ ...pessoa, ["cpf"]: "" });
-        }
+//       consultarMatricula(matricula.cpf).then((consulta) => {
+//         if (consulta != undefined && consulta != null && consulta != []) {
+//           alert("O cpf: " + matricula.cpf + " ja esta sendo utilizado");
+//           setMatricula({ ...matricula, ["cpf"]: "" });
+//         }
 
-      })
-    }
-  }
+//       })
+//     }
+//   }
 
   function handleSubmit(evento) {
     if (props.modoEdicao) {
-      dispachante(atualizarPessoa(pessoa));
+      dispachante(atualizarMatricula(matricula));
       props.setExibirTabela(true);
       props.setModoEdicao(false);
-      zeraPessoa();
+      zeraMatricula();
     }
     else {
-      dispachante(incluirPessoa(pessoa));
+      dispachante(incluirMatricula(matricula));
       props.setExibirTabela(true);
-      zeraPessoa();
+      zeraMatricula();
     }
 
     evento.stopPropagation();
@@ -113,7 +106,7 @@ function CadastroPessoa(props) {
           {mensagem}
         </div>
         <button
-          onClick={() => dispatch(buscarPessoas())}
+          onClick={() => dispatch(buscarMatriculas())}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors duration-200"
         >
           Voltar
@@ -131,7 +124,7 @@ function CadastroPessoa(props) {
         <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
           <div className="flex flex-col items-center mb-6 md:mb-8">
             <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 tracking-wide">
-              Cadastro de Pessoa
+              Cadastro de Matricula
             </h2>
             <img
               src={logoPrefeitura}
@@ -159,7 +152,7 @@ function CadastroPessoa(props) {
                     disabled={props.modoEdicao}
                     required
                     onBlur={verificaCPF}
-                    value={pessoa.cpf}
+                    value={matricula.cpf}
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     placeholder="Digite o CPF"
@@ -177,10 +170,10 @@ function CadastroPessoa(props) {
                     type="text"
                     name="rg"
                     id="rg"
-                    value={pessoa.rg}
+                    value={matricula.rg}
                     disabled={props.modoEdicao}
                     maxLength={12}
-                    minLength={8}
+                    minLength={12}
                     required
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -200,7 +193,7 @@ function CadastroPessoa(props) {
                     name="dataNascimento"
                     id="dataNascimento"
                     required
-                    value={pessoa.dataNascimento.substr(0, 10)}
+                    value={matricula.dataNascimento.substr(0, 10)}
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   />
@@ -219,7 +212,7 @@ function CadastroPessoa(props) {
                     type="text"
                     name="nome"
                     id="nome"
-                    value={pessoa.nome}
+                    value={matricula.nome}
                     required
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
@@ -237,7 +230,7 @@ function CadastroPessoa(props) {
                         required
                         className="w-4 h-4"
                         value="m"
-                        checked={pessoa.sexo.toUpperCase() === "M"}
+                        checked={matricula.sexo.toUpperCase() === "M"}
                         onChange={manipularMudanca}
                       />
                       <label
@@ -255,7 +248,7 @@ function CadastroPessoa(props) {
                         className="w-4 h-4"
                         required
                         value="F"
-                        checked={pessoa.sexo.toUpperCase() === "F"}
+                        checked={matricula.sexo.toUpperCase() === "F"}
                         onChange={manipularMudanca}
                       />
                       <label
@@ -274,7 +267,7 @@ function CadastroPessoa(props) {
                       name="estadoCivil"
                       required
                       id="estadoCivil"
-                      value={pessoa.estadoCivil.toUpperCase()}
+                      value={matricula.estadoCivil.toUpperCase()}
                       onChange={manipularMudanca}
                     >
                       <option value="">Selecione</option>
@@ -298,7 +291,7 @@ function CadastroPessoa(props) {
                     name="estadoNascimento"
                     id="estadoNascimento"
                     required
-                    value={pessoa.estadoNascimento}
+                    value={matricula.estadoNascimento}
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   >
@@ -344,7 +337,7 @@ function CadastroPessoa(props) {
                     name="locNascimento"
                     id="locNascimento"
                     required
-                    value={pessoa.locNascimento}
+                    value={matricula.locNascimento}
                     onChange={manipularMudanca}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     placeholder="Digite a cidade que nasceu"
@@ -370,7 +363,7 @@ function CadastroPessoa(props) {
                       name="endereco.rua"
                       required
                       id="endereco.rua"
-                      value={pessoa.endereco.rua}
+                      value={matricula.endereco.rua}
                       onChange={manipularMudanca}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       placeholder="Digite o nome da rua"
@@ -388,7 +381,7 @@ function CadastroPessoa(props) {
                       name="endereco.numero"
                       required
                       id="endereco.numero"
-                      value={pessoa.endereco.numero}
+                      value={matricula.endereco.numero}
                       onChange={manipularMudanca}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       placeholder="Número"
@@ -405,7 +398,7 @@ function CadastroPessoa(props) {
                       type="text"
                       name="endereco.complemento"
                       id="endereco.complemento"
-                      value={pessoa.endereco.complemento}
+                      value={matricula.endereco.complemento}
                       onChange={manipularMudanca}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       placeholder="Apartamento, sala, etc."
@@ -424,7 +417,7 @@ function CadastroPessoa(props) {
                       id="endereco.cep"
                       required
                       maxLength={9}
-                      value={pessoa.endereco.cep}
+                      value={matricula.endereco.cep}
                       onChange={manipularMudanca}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       placeholder="00000-000"
@@ -441,7 +434,7 @@ function CadastroPessoa(props) {
                       name="endereco.uf"
                       required
                       id="endereco.uf"
-                      value={pessoa.endereco.uf}
+                      value={matricula.endereco.uf}
                       onChange={manipularMudanca}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     >
@@ -487,7 +480,7 @@ function CadastroPessoa(props) {
                       name="endereco.cidade"
                       id="endereco.cidade"
                       required
-                      value={pessoa.endereco.cidade}
+                      value={matricula.endereco.cidade}
                       onChange={manipularMudanca}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                       placeholder="Digite a cidade"
@@ -504,7 +497,7 @@ function CadastroPessoa(props) {
             </button>
             <button
               onClick={() => {
-                zeraPessoa();
+                zeraMatricula();
                 props.setExibirTabela(true);
               }}
 
@@ -519,4 +512,4 @@ function CadastroPessoa(props) {
   );
 }
 
-export default CadastroPessoa;
+export default CadastroMatricula;
