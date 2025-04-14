@@ -98,9 +98,9 @@ export default function HomeReunioes() {
           {!mostrarFormulario && (
             <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full border border-gray-700">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white">Reuniões Cadastradas</h2>
+                <h2 className="text-2xl font-bold text-white">Reuniões Agendadas</h2>
                 <button onClick={() => setMostrarFormulario(true)} className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white py-2 px-4 rounded-lg">
-                  <Plus className="w-4 h-4" /> Cadastrar
+                  <Plus className="w-4 h-4" /> Agendar
                 </button>
               </div>
               <div className="mb-6">
@@ -128,7 +128,7 @@ export default function HomeReunioes() {
           {mostrarFormulario && (
             <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-8 max-w-md mx-auto">
               <h2 className="text-2xl font-bold text-white mb-4 text-center">
-                {reuniaoEmEdicao ? 'Editar Reunião' : 'Cadastro de Reunião'}
+                {reuniaoEmEdicao ? 'Editar Reunião' : 'Agendar Reunião'}
               </h2>
               <FormularioReunioes
                 salvarReuniao={salvarReuniao}

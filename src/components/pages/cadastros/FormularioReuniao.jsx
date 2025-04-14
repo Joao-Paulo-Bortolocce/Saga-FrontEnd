@@ -104,12 +104,12 @@ export default function FormularioReunioes({
         type="submit"
         className="w-full bg-green-700 hover:bg-green-800 transition-colors text-white py-2 px-4 rounded-lg"
       >
-        {reuniaoEmEdicao ? 'Atualizar' : 'Cadastrar'}
+        {reuniaoEmEdicao ? 'Alterar' : 'Confirmar'}
       </button>
       <button
         type="button"
         onClick={cancelarEdicao}
-        className="w-full mt-2 bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg"
+        className="w-full mt-2 bg-red-500 hover:bg-red-800 text-white py-2 px-4 rounded-lg"
       >
         Cancelar
       </button>
