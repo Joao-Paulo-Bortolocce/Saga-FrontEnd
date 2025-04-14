@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import Page from "../layouts/Page";
-import { BookUser, Backpack, User, Shapes,Calculator,  CalendarClock } from "lucide-react";
+import { BookUser, Backpack, User, Shapes,Calculator,  CalendarClock,SquarePen , Users, Calendar, GraduationCap,Dumbbell,DoorClosed} from "lucide-react";
+// import { BicepsFlexed } from 'lucide-react';
 
 
 const cadastros = [
     { nome: "Cadastro de Aluno", href: "/cadastros/aluno", tipo: "Pessoas", icon: Backpack, bgcolor:"bg-orange-500", color:"text-orange-500" },
     { nome: "Cadastro de Profissional", href: "/cadastros/profissional", tipo: "Pessoas", icon: BookUser, bgcolor:"bg-orange-500", color:"text-orange-500" },
     { nome: "Cadastro de Pessoa", href: "/cadastros/pessoa", tipo: "Pessoas", icon: User, bgcolor:"bg-orange-500", color:"text-orange-500"},
+    { nome: "Cadastro de Matricula", href: "/cadastros/matricula", tipo: "Pessoas", icon: SquarePen, bgcolor:"bg-orange-500", color:"text-orange-500"},
     { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infra", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
+    { nome: "Cadastro de Turmas", href: "/cadastros/turma", tipo: "Infra", icon: Users, bgcolor:"bg-red-500", color:"text-red-500"  },
+    { nome: "Cadastro de Salas", href: "/cadastros/sala", tipo: "Infra", icon: DoorClosed, bgcolor:"bg-red-500", color:"text-red-500"  },
+    { nome: "Cadastro de Ano letivo", href: "/cadastros/anoLetivo", tipo: "Infra", icon: Calendar, bgcolor:"bg-red-500", color:"text-red-500"  },
+    { nome: "Cadastro de Graduação", href: "/cadastros/graduacao", tipo: "Infra", icon: GraduationCap, bgcolor:"bg-red-500", color:"text-red-500"  },
     { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor:"bg-blue-500", color:"text-blue-500"  },
+    { nome: "Cadastro de Habilidades", href: "/cadastros/habilidade", tipo: "Acadêmico", icon: Dumbbell, bgcolor:"bg-blue-500", color:"text-blue-500"  },
     { nome: "Agendar reunião de pais", href: "/cadastros/reuniao", tipo: "Acadêmico", icon: CalendarClock, bgcolor:"bg-blue-500", color:"text-blue-500"  }
 ]
 

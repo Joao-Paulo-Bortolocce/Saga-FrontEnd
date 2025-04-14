@@ -9,6 +9,7 @@ import imagemFundoPrefeitura from "./assets/images/imagemFundoPrefeitura.png";
 import HomeSeries from "./components/pages/HomeSeries.jsx";
 import HomeMatricula from "./components/pages/HomeMatricula.jsx";
 import HomeReunioes from "./components/pages/HomeReunioes.jsx"
+import HomeSalas from "./components/pages/HomeSalas.jsx"
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/cadastros/materia" element={<MateriaPage />} />
           <Route path="/cadastros/serie" element={<HomeSeries />} />
           <Route path="/cadastros/matricula" element={<HomeMatricula />} />
+          <Route path="/cadastros/sala" element={<HomeSalas />}/>
           <Route path="/cadastros/reuniao" element={<HomeReunioes />} />
           <Route path="/cadastros" element={<HomeCadastros />} />
           <Route path="/" element={<HomePage />} />

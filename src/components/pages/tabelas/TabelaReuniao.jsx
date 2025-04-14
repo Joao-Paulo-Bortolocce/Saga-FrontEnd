@@ -1,4 +1,4 @@
-import { seriesDescricaoPorNumero } from "../../../service/mockReunioes.js";
+import { seriesDescricaoPorNumero } from "../../../mockDados/mockReunioes.js";
 
 export default function TabelaReuniao({ reunioes, editarReuniao, excluirReuniao }) {
   return (

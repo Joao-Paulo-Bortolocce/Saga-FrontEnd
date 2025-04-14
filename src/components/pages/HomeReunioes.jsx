@@ -4,7 +4,7 @@ import { Toaster, toast } from "react-hot-toast";
 import Page from "../layouts/Page";
 import FormularioReunioes from "./cadastros/FormularioReuniao";
 import TabelaReunioes from "./tabelas/TabelaReuniao";
-import { reunioesMockadas } from "../../service/mockReunioes.js";
+import { reunioesMockadas } from "../../mockDados/mockReunioes";
 
 export default function HomeReunioes() {
   const [reunioes, setReunioes] = useState([]);
