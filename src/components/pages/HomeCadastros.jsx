@@ -7,6 +7,7 @@ const cadastros = [
     { nome: "Cadastro de Aluno", href: "/cadastros/aluno", tipo: "Pessoas", icon: Backpack, bgcolor:"bg-orange-500", color:"text-orange-500" },
     { nome: "Cadastro de Profissional", href: "/cadastros/profissional", tipo: "Pessoas", icon: BookUser, bgcolor:"bg-orange-500", color:"text-orange-500" },
     { nome: "Cadastro de Pessoa", href: "/cadastros/pessoa", tipo: "Pessoas", icon: User, bgcolor:"bg-orange-500", color:"text-orange-500"},
+    { nome: "Cadastro de Reuniao", href: "/cadastros/reuniao", tipo: "Infra", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
     { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infra", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
     { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor:"bg-blue-500", color:"text-blue-500"  }
 ]
