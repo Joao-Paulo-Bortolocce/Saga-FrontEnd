@@ -11,12 +11,12 @@ export default function HomeMatricula(props) {
         ra: "",
         aprovado: 0,
         idMatricula: 0,
-        Turma_letra: "",
-        Turma_Serie_id: 0,
-        Turma_AnoLetivo_id: 0,
-        Aluno_RA: 0,
-        AnoLetivo_id: 0,
-        Serie_id: 0
+        turma_letra: "",
+        turma_Serie_id: 0,
+        turma_AnoLetivo_id: 0,
+        aluno_RA: 0,
+        anoLetivo_id: 0,
+        serie_id: 0
     });
 
 

@@ -4,6 +4,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import ESTADO from '../../../redux/estados.js';
 import { incluirMatricula, atualizarMatricula } from '../../../redux/matriculaReducer.js';
 import { consultarMatricula } from '../../../service/matriculaService.js';
+import { listaDeAlunos } from '../../../mockDados/mockAlunos.js';
+import { listaDeanosLetivos } from '../../../mockDados/mockAnoLetivo.js';
+import { listaDeTurmas } from '../../../mockDados/mockTurmas.js';
+import { listaDeSeries } from '../../../mockDados/mockSeries.js';
 
 function CadastroMatricula(props) {
   const [matricula, setMatricula] = useState(props.matricula);
@@ -11,51 +15,25 @@ function CadastroMatricula(props) {
   const dispachante = useDispatch();
 
 
-  /*function manipularMudanca(event) {
+  function manipularMudanca(event) {
     const id = event.currentTarget.id;
     let valor = event.currentTarget.value;
-    if (id === 'dataNascimento') {
-      let atual = new Date();
-      let dataInformada = new Date(valor);
-
-      if (dataInformada > atual) {
-        alert("A data informada é inválida");
-        valor = dataInformada.toLocaleString().substring(0, 10);
-      }
-    }
-
-    if (id === 'cpf')
-      valor = formatarCPF(valor, matricula.cpf.length < valor.length);
-
-
-    if (id.startsWith('endereco.')) {
-      const idAux = id.split('.')[1];
-      if (idAux === "cep")
-        valor = formatarCEP(valor, matricula.endereco.cep.length < valor.length);
-      setMatricula({
-        ...matricula,
-        endereco: {
-          ...matricula.endereco,
-          [idAux]: valor
-        }
-      });
-    } else {
       setMatricula({ ...matricula, [id]: valor });
-    }
+    
   }
-*/
+
   function zeraMatricula() {
     props.setMatricula({
       id: 0,
-      ra: "",
-      aprovado: 0,
-      idMatricula: 0,
-      Turma_letra: "",
-      Turma_Serie_id: 0,
-      Turma_AnoLetivo_id: 0,
-      Aluno_RA: 0,
-      AnoLetivo_id: 0,
-      Serie_id: 0
+        ra: "",
+        aprovado: 0,
+        idMatricula: 0,
+        turma_letra: "",
+        turma_Serie_id: 0,
+        turma_AnoLetivo_id: 0,
+        aluno_RA: 0,
+        anoLetivo_id: 0,
+        serie_id: 0
     })
   }
 
@@ -131,8 +109,38 @@ function CadastroMatricula(props) {
               className="h-16 sm:h-20 md:h-24 w-auto"
             />
           </div>
-          <form action="">
-            
+          <form >
+            <div className='flex flex-row justify-evenly'>
+              <div className='flex flex-col'>
+                <label htmlFor="anoLetivo_id" className='text-white'>Ano letivo</label>
+                <select id='anoLetivo_id' name='anoLetivo_id' value={matricula.anoLetivo_id} onChange={manipularMudanca}>
+                  <option value="0">Selecione</option>
+                  {listaDeanosLetivos.map((ano)=>{
+                    return (<option value={ano.anoletiv}>{ano.anoletiv}</option> )
+                  })}
+                </select>
+              </div>
+              <div className='flex flex-col'>
+                <label htmlFor="serie_id" className='text-white'>Series</label>
+                <select id='serie_id' name='serie_id' value={matricula.serie_id} onChange={manipularMudanca}>
+                  <option value="0">Selecione</option>
+                  {listaDeSeries.map((serie)=>{
+                    return  (<option value={serie.numero}>{serie.descricao}</option> ) 
+                  })}
+                </select>
+              </div>
+              <div className='flex flex-col'>
+                <label htmlFor="turma_letra" className='text-white'>Turmas</label>
+                <select id='turma_letra' name='turma_letra' value={matricula.turma_letra} onChange={manipularMudanca}>
+                  <option value="0">Selecione</option>
+                  {listaDeTurmas.map((turma)=>{
+                    if(!(matricula.anoLetivo_id!=0 && matricula.anoLetivo_id!=turma.turmaanoletivo_id) || !(matricula.serie_id!=0 && matricula.serie_id!=turma.serieturma_id))
+                      return  (<option value={turma.turma_letra}>{turma.serieturma_id+" "+turma.turma_letra}</option> ) 
+                  })}
+                </select>
+              </div>
+              
+            </div>
           </form>
         </div>
       </div>
