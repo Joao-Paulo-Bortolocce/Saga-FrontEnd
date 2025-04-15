@@ -2,7 +2,7 @@ export const listaDeAlunos=[
     {
       "aluno_ra":1001,
       "aluno_restricaomedica": "Alergia a amendoim",
-      "aluno_pessoa_cpf": "123.456.789-00"
+      "aluno_pessoa_cpf": "111.222.333-44"
     },
     {
       "aluno_ra": 1002,
