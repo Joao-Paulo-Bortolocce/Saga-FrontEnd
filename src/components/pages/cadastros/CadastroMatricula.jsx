@@ -140,7 +140,7 @@ function CadastroMatricula(props) {
       onLoad={setAlunos}
     >
       <div className="absolute inset-0 bg-black/40" />
-      <div className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-hidden">
+      <div className="relative z-10 w-full max-w-4xl max-h-[100vh] overflow-hidden">
         <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 h-full flex flex-col">
           <div className="flex flex-col justify-around flex-shrink-0">
             <div className="flex flex-col items-center mb-6 md:mb-8">
