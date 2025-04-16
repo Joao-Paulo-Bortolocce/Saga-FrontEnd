@@ -105,7 +105,7 @@ export default function TabelaPessoa(props) {
                     <td className="px-6 py-4 whitespace-nowrap">{pessoa.cpf}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{pessoa.rg}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{new Date(pessoa.dataNascimento).toLocaleDateString()}</td>
-                    <td className="px-6 py-4 whitespace-nowrap">{pessoa.sexo === 'M' || pessoa.sexo==='m' ? 'Masculino' : 'Feminino'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">{pessoa.sexo == 'M' || pessoa.sexo=='m' ? 'Masculino' : 'Feminino'}</td>
                     <td className="px-6 py-4 whitespace-nowrap">{pessoa.estadoCivil}</td>
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       <button onClick={() => alterarPessoa(pessoa)} className="text-indigo-600 hover:text-indigo-900 mr-4">

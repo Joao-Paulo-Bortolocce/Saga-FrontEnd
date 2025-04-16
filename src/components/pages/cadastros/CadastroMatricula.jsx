@@ -1,50 +1,78 @@
+
 import React, { useEffect, useState } from 'react';
 import logoPrefeitura from "../../../assets/images/logoPrefeitura.png";
 import { useDispatch, useSelector } from 'react-redux';
 import ESTADO from '../../../redux/estados.js';
 import { incluirMatricula, atualizarMatricula } from '../../../redux/matriculaReducer.js';
-import { consultarMatricula } from '../../../service/matriculaService.js';
-import { listaDeAlunos } from '../../../mockDados/mockAlunos.js';
 import { listaDeanosLetivos } from '../../../mockDados/mockAnoLetivo.js';
-import { listaDeTurmas } from '../../../mockDados/mockTurmas.js';
 import { listaDeSeries } from '../../../mockDados/mockSeries.js';
 import toast, { Toaster } from "react-hot-toast";
-import { buscarPessoas } from '../../../redux/pessoaReducer.js';
+import { buscarAlunos } from '../../../redux/alunoReducer.js';
+import { AlertCircle, Loader2 } from 'lucide-react';
+import { formatarCPF } from "../../../service/formatadores.js"
+
 
 function CadastroMatricula(props) {
-  const { listaDePessoas } = useSelector(state => state.pessoa);
   const [matricula, setMatricula] = useState(props.matricula);
-  const [turmasFiltradas, setTurmasFiltradas] = useState(listaDeTurmas); // ✅ novo estado para as turmas filtradas
-  const { estado, mensagem } = useSelector(state => state.matricula);
+  const { estado, mensagem, listaDeAlunos } = useSelector(state => state.aluno);
   const dispachante = useDispatch();
+  const [listaFiltrada, setListaFiltrada] = useState([]);
+  const [lenCpf, setLenCpf] = useState(0);
+
+  useEffect(() => {
+    dispachante(buscarAlunos())
+  }, [])
 
   function manipularMudanca(event) {
     const id = event.currentTarget.id;
-    let valor = event.currentTarget.value;
-    setMatricula({ ...matricula, [id]: valor });
+    const valor = event.currentTarget.value;
+    if (id == 'cpf') {
+      const aux = document.getElementById("cpf").value;
+      const result = formatarCPF(aux, aux.length > lenCpf);
+      document.getElementById("cpf").value = result;
+      setLenCpf(result.length);
+    }
+    else {
+      if (id != "nome")
+        setMatricula({ ...matricula, [id]: valor });
+    }
+
+    filtrar();
   }
 
-  useEffect(() => {
-    let turmas = listaDeTurmas;
-    if (matricula.anoLetivo_id != 0) {
-      turmas = turmas.filter(turma => turma.turmaanoletivo_id === Number(matricula.anoLetivo_id));
-    }
-    if (matricula.serie_id != 0) {
-      turmas = turmas.filter(turma => turma.serieturma_id === Number(matricula.serie_id));
-    }
-    setTurmasFiltradas(turmas);
-  }, [matricula.anoLetivo_id, matricula.serie_id]);
+  function filtrar() {
+    const cpf = document.getElementById("cpf").value.toLowerCase();
+    const nome = document.getElementById("nome").value.toLowerCase();
+    const ra = document.getElementById("ra").value;
+
+    const novaListaFiltrada = listaDeAlunos.filter((aluno) => {
+      const nomeAluno = aluno.pessoa.nome.toLowerCase();
+      const cpfAluno = aluno.pessoa.cpf.toLowerCase();
+      const raAluno = aluno.ra.toString();
+
+      const filtroRA = ra == 0 || raAluno.includes(ra);
+      const filtroNome = nome === "" || nomeAluno.includes(nome);
+      const filtroCPF = cpf === "" || cpfAluno.includes(cpf);
+
+      return filtroRA && filtroNome && filtroCPF;
+    });
+    setListaFiltrada(novaListaFiltrada);
+  }
+
+  function setAlunos() {
+    setListaFiltrada(listaDeAlunos)
+  }
+
+  function setarValores(aluno) {
+    document.getElementById("cpf").value = aluno.pessoa.cpf
+    document.getElementById("nome").value = aluno.pessoa.nome
+    setMatricula({ ...matricula, ["ra"]: aluno.ra });
+  }
+
 
   function zeraMatricula() {
     props.setMatricula({
-      id: 0,
       ra: "",
-      aprovado: 0,
-      idMatricula: 0,
-      turma_letra: "",
-      turma_Serie_id: 0,
-      turma_AnoLetivo_id: 0,
-      aluno_RA: 0,
       anoLetivo_id: 0,
       serie_id: 0
     });
@@ -66,18 +94,18 @@ function CadastroMatricula(props) {
     evento.preventDefault();
   }
 
-  function buscarPessoa(){
-    let aluno=listaDeAlunos.filter((alunoAux)=>{
-      if(matricula.ra==alunoAux.aluno_ra)
+  function buscarPessoa() {
+    let aluno = listaDeAlunos.filter((alunoAux) => {
+      if (matricula.ra == alunoAux.aluno_ra)
         return alunoAux;
     })
-    if(Array.isArray(aluno) && aluno.length!=1)
-      toast.error("RA informado é invalido", {duration: 5000, repeat: false});
-    else{
+    if (Array.isArray(aluno) && aluno.length != 1)
+      toast.error("RA informado é invalido", { duration: 5000, repeat: false });
+    else {
       dispachante(buscarPessoas(aluno[0].aluno_pessoa_cpf));
-      let pessoa=listaDePessoas[0];
-      document.getElementById("nome").value=pessoa.pessoa_nome;
-      document.getElementById("cpf").value=pessoa.pessoa_cpf;
+      let pessoa = listaDePessoas[0];
+      document.getElementById("nome").value = pessoa.pessoa_nome;
+      document.getElementById("cpf").value = pessoa.pessoa_cpf;
     }
   }
 
@@ -108,77 +136,135 @@ function CadastroMatricula(props) {
 
   return (
     <div
-      className="flex items-center justify-center bg-cover bg-center bg-no-repeat relative p-4" 
+      className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative p-4"
+      onLoad={setAlunos}
     >
       <div className="absolute inset-0 bg-black/40" />
-      <div className="relative z-10 w-full max-w-4xl">
-        <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
-          <div className="flex flex-col items-center mb-6 md:mb-8">
-            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 tracking-wide">
-              Registro de Matricula
-            </h2>
-            <img
-              src={logoPrefeitura}
-              alt="Logo da Prefeitura"
-              className="h-16 sm:h-20 md:h-24 w-auto"
-            />
-          </div>
-          <form >
-            <div className='flex flex-col justify-evenly'>
-              <div className='flex flex-row justify-evenly'>
-                <div className='flex flex-col'>
-                  <label htmlFor="anoLetivo_id" className='text-white'>Ano letivo</label>
-                  <select id='anoLetivo_id' name='anoLetivo_id' value={matricula.anoLetivo_id} onChange={manipularMudanca}>
+      <div className="relative z-10 w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 h-full flex flex-col">
+          <div className="flex flex-col justify-around flex-shrink-0">
+            <div className="flex flex-col items-center mb-6 md:mb-8">
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 tracking-wide">
+                Registro de Matricula
+              </h2>
+              <img
+                src={logoPrefeitura}
+                alt="Logo da Prefeitura"
+                className="h-16 sm:h-20 md:h-24 w-auto"
+              />
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="flex flex-col">
+                  <label htmlFor="anoLetivo_id" className="text-white">Ano letivo</label>
+                  <select id="anoLetivo_id" name="anoLetivo_id" value={matricula.anoLetivo_id} onChange={manipularMudanca}
+                    className="rounded-md p-2 bg-gray-800 text-white">
                     <option value="0">Selecione</option>
-                    {listaDeanosLetivos.map((ano) => {
-                      return (<option value={ano.anoletiv}>{ano.anoletiv}</option>)
-                    })}
-                  </select>
-                </div>
-                <div className='flex flex-col'>
-                  <label htmlFor="serie_id" className='text-white'>Series</label>
-                  <select id='serie_id' name='serie_id' value={matricula.serie_id} onChange={manipularMudanca}>
-                    <option value="0">Selecione</option>
-                    {listaDeSeries.map((serie) => {
-                      return (<option value={serie.numero}>{serie.descricao}</option>)
-                    })}
-                  </select>
-                </div>
-                <div className='flex flex-col'>
-                  <label htmlFor="turma_letra" className='text-white'>Turmas</label>
-                  <select id='turma_letra' name='turma_letra' value={matricula.turma_letra} onChange={manipularMudanca}>
-                    <option value="0">Selecione</option>
-                    {turmasFiltradas.map((turma) => (
-                      <option key={turma.id} value={turma.turma_letra}>
-                        {turma.serieturma_id + " " + turma.turma_letra}
-                      </option>
+                    {listaDeanosLetivos.map((ano) => (
+                      <option key={ano.anoletiv} value={ano.anoletiv}>{ano.anoletiv}</option>
                     ))}
                   </select>
                 </div>
-              </div>
-              <div className='flex flex-row justify-evenly mt-10 '>
-                <div className='flex flex-col w-4/5'>
-                  <label htmlFor="ra" className='text-white'>Informe o RA</label>
-                  <input type="text" name="ra" id="ra"  onChange={manipularMudanca} onBlur={buscarPessoa}/>
+  
+                <div className="flex flex-col">
+                  <label htmlFor="serie_id" className="text-white">Série</label>
+                  <select id="serie_id" name="serie_id" value={matricula.serie_id} onChange={manipularMudanca}
+                    className="rounded-md p-2 bg-gray-800 text-white">
+                    <option value="0">Selecione</option>
+                    {listaDeSeries.map((serie) => (
+                      <option key={serie.numero} value={serie.numero}>{serie.descricao}</option>
+                    ))}
+                  </select>
+                </div>
+  
+                <div className="flex flex-col justify-end">
+                  <button type="submit"
+                    className="p-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors">
+                    Confirmar
+                  </button>
+                </div>
+  
+                <div className="flex flex-col justify-end">
+                  <button type="button" onClick={() => {
+                    zeraMatricula();
+                    props.setExibirTabela(true);
+                  }}
+                    className="p-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors">
+                    Voltar
+                  </button>
                 </div>
               </div>
-              <div className='flex flex-row justify-evenly mt-10'>
-                <div className='flex flex-col w-3/5'>
-                  <label htmlFor="nome" className='text-white'>Nome do aluno</label>
-                  <input disabled={true} type="text" name="nome" id="nome"  onChange={manipularMudanca} onBlur={buscarPessoa}/>
+  
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label htmlFor="ra" className="text-white">RA</label>
+                  <input type="number" id="ra" value={matricula.ra} onChange={manipularMudanca}
+                    className="w-full rounded-md p-2 bg-gray-800 text-white" />
                 </div>
-                <div className='flex flex-col w-1/5'>
-                  <label htmlFor="cpf" className='text-white'>CPF</label>
-                  <input disabled={true} type="text" name="cpf" id="cpf"  onChange={manipularMudanca} onBlur={buscarPessoa}/>
+                <div>
+                  <label htmlFor="nome" className="text-white">Nome do aluno</label>
+                  <input type="text" id="nome" onChange={manipularMudanca}
+                    className="w-full rounded-md p-2 bg-gray-800 text-white" />
+                </div>
+                <div>
+                  <label htmlFor="cpf" className="text-white">CPF</label>
+                  <input type="text" id="cpf" maxLength={14} onChange={manipularMudanca}
+                    className="w-full rounded-md p-2 bg-gray-800 text-white" />
                 </div>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
+  
+          {/* Tabela com rolagem independente */}
+          <div className="mt-6 overflow-y-auto max-h-[40vh]">
+            <table className="min-w-full divide-y divide-gray-700">
+              <thead>
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">
+                    Nome
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">
+                    RA
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">
+                    CPF
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">
+                    Ação
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-gray-800/40 divide-y divide-gray-700">
+                {Array.isArray(listaFiltrada) && listaFiltrada.length > 0 ? (
+                  listaFiltrada.map((aluno) => (
+                    <tr key={aluno.ra} className="hover:bg-gray-700/50 transition-colors">
+                      <td className="px-4 py-3 text-sm text-gray-300">{aluno.pessoa.nome}</td>
+                      <td className="px-4 py-3 text-sm text-gray-300">{aluno.ra}</td>
+                      <td className="px-4 py-3 text-sm text-gray-300">{aluno.pessoa.cpf}</td>
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => setarValores(aluno)}
+                          className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600 transition">
+                          Selecionar
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={4} className="text-center text-gray-300 py-4">
+                      Nenhum aluno encontrado
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
       <Toaster position="top-center" />
     </div>
-  );
+  );  
 }
 
 export default CadastroMatricula;

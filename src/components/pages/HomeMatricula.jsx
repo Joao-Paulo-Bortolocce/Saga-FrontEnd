@@ -7,14 +7,7 @@ export default function HomeMatricula(props) {
     const [exibirTabela, setExibirTabela] = useState(false);
     const [modoEdicao, setModoEdicao] = useState(false);
     const [matricula, setMatricula] = useState({
-        id: 0,
-        ra: "",
-        aprovado: 0,
-        idMatricula: 0,
-        turma_letra: "",
-        turma_Serie_id: 0,
-        turma_AnoLetivo_id: 0,
-        aluno_RA: 0,
+        ra: 0,
         anoLetivo_id: 0,
         serie_id: 0
     });
