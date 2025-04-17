@@ -18,6 +18,7 @@ function CadastroMatricula(props) {
   const dispachante = useDispatch();
   const [listaFiltrada, setListaFiltrada] = useState([]);
   const [lenCpf, setLenCpf] = useState(0);
+  const [validos, setValidos] = useState([true , true, true,])
 
   useEffect(() => {
     dispachante(buscarAlunos())
@@ -26,6 +27,9 @@ function CadastroMatricula(props) {
   function manipularMudanca(event) {
     const id = event.currentTarget.id;
     const valor = event.currentTarget.value;
+    if (id == "anoLetivo_id" && valor.length > 0) {
+      validos[0] = true;
+    }
     if (id == 'cpf') {
       const aux = document.getElementById("cpf").value;
       const result = formatarCPF(aux, aux.length > lenCpf);
@@ -67,6 +71,7 @@ function CadastroMatricula(props) {
     document.getElementById("cpf").value = aluno.pessoa.cpf
     document.getElementById("nome").value = aluno.pessoa.nome
     setMatricula({ ...matricula, ["ra"]: aluno.ra });
+    filtrar();
   }
 
 
@@ -78,16 +83,37 @@ function CadastroMatricula(props) {
     });
   }
 
+  function validaInfos(){
+    let valido=true;
+    
+    if(matricula.anoLetivo_id==""){
+      valido=false;
+      validos[0]=false;
+    }
+    if(matricula.serie_id==""){
+      validos[1]=false;
+      valido=false;
+    }
+
+    return valido;
+  }
+
   function handleSubmit(evento) {
-    if (props.modoEdicao) {
-      dispachante(atualizarMatricula(matricula));
-      props.setExibirTabela(true);
-      props.setModoEdicao(false);
-      zeraMatricula();
-    } else {
-      dispachante(incluirMatricula(matricula));
-      props.setExibirTabela(true);
-      zeraMatricula();
+    if (validaInfos()) {
+      if (props.modoEdicao) {
+        dispachante(atualizarMatricula(matricula));
+        props.setExibirTabela(true);
+        props.setModoEdicao(false);
+        zeraMatricula();
+      } else {
+        if (listaFiltrada.length == 1) {
+          dispachante(incluirMatricula(matricula));
+          props.setExibirTabela(true);
+          zeraMatricula();
+        }
+        else
+          toast.error("As informações não correspondem a um aluno", { duration: 3000, repeat: false });
+      }
     }
 
     evento.stopPropagation();
@@ -140,7 +166,7 @@ function CadastroMatricula(props) {
       onLoad={setAlunos}
     >
       <div className="absolute inset-0 bg-black/40" />
-      <div className="relative z-10 w-full max-w-4xl max-h-[100vh] overflow-hidden">
+      <div className="relative z-10 w-full max-w-4xl  overflow-hidden">
         <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 h-full flex flex-col">
           <div className="flex flex-col justify-around flex-shrink-0">
             <div className="flex flex-col items-center mb-6 md:mb-8">
@@ -154,18 +180,32 @@ function CadastroMatricula(props) {
               />
             </div>
             <form onSubmit={handleSubmit} className="space-y-6">
+
+
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="flex flex-col">
-                  <label htmlFor="anoLetivo_id" className="text-white">Ano letivo</label>
-                  <select id="anoLetivo_id" name="anoLetivo_id" value={matricula.anoLetivo_id} onChange={manipularMudanca}
-                    className="rounded-md p-2 bg-gray-800 text-white">
-                    <option value="0">Selecione</option>
-                    {listaDeanosLetivos.map((ano) => (
-                      <option key={ano.anoletiv} value={ano.anoletiv}>{ano.anoletiv}</option>
-                    ))}
-                  </select>
-                </div>
-  
+                {validos[0] ?
+                  <div className="flex flex-col">
+                    <label htmlFor="anoLetivo_id" className="text-white">Ano letivo</label>
+                    <select id="anoLetivo_id" name="anoLetivo_id" value={matricula.anoLetivo_id} onChange={manipularMudanca}
+                      className="rounded-md p-2 bg-gray-800 text-white">
+                      <option value="0">Selecione</option>
+                      {listaDeanosLetivos.map((ano) => (
+                        <option key={ano.anoletiv} value={ano.anoletiv}>{ano.anoletiv}</option>
+                      ))}
+                    </select>
+                  </div> :
+                  <div>
+                    <label for="anoLetivo_id" class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500">Ano letivo</label>
+                    <select type="anoLetivo_id" id="anoLetivo_id" class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" placeholder="Bonnie Green" >
+                      <option value="0">Selecione</option>
+                      {listaDeanosLetivos.map((ano) => (
+                        <option key={ano.anoletiv} value={ano.anoletiv}>{ano.anoletiv}</option>
+                      ))}
+                    </select>
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-500"><span class="font-medium"></span> Esta informação é obrigatória</p>
+                  </div>
+                }
+
                 <div className="flex flex-col">
                   <label htmlFor="serie_id" className="text-white">Série</label>
                   <select id="serie_id" name="serie_id" value={matricula.serie_id} onChange={manipularMudanca}
@@ -176,14 +216,14 @@ function CadastroMatricula(props) {
                     ))}
                   </select>
                 </div>
-  
+
                 <div className="flex flex-col justify-end">
                   <button type="submit"
                     className="p-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors">
                     Confirmar
                   </button>
                 </div>
-  
+
                 <div className="flex flex-col justify-end">
                   <button type="button" onClick={() => {
                     zeraMatricula();
@@ -194,7 +234,7 @@ function CadastroMatricula(props) {
                   </button>
                 </div>
               </div>
-  
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <label htmlFor="ra" className="text-white">RA</label>
@@ -214,9 +254,9 @@ function CadastroMatricula(props) {
               </div>
             </form>
           </div>
-  
-          {/* Tabela com rolagem independente */}
-          <div className="mt-6 overflow-y-auto max-h-[40vh]">
+
+   
+          <div className="mt-6 overflow-y-auto min-h-[40vh] max-h-[40vh]">
             <table className="min-w-full divide-y divide-gray-700">
               <thead>
                 <tr>
@@ -230,6 +270,9 @@ function CadastroMatricula(props) {
                     CPF
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">
+                    Data de Nascimento
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">
                     Ação
                   </th>
                 </tr>
@@ -241,6 +284,7 @@ function CadastroMatricula(props) {
                       <td className="px-4 py-3 text-sm text-gray-300">{aluno.pessoa.nome}</td>
                       <td className="px-4 py-3 text-sm text-gray-300">{aluno.ra}</td>
                       <td className="px-4 py-3 text-sm text-gray-300">{aluno.pessoa.cpf}</td>
+                      <td className="px-4 py-3 text-sm text-gray-300">{new Date(aluno.pessoa.dataNascimento).toLocaleDateString()}</td>
                       <td className="px-4 py-3">
                         <button
                           onClick={() => setarValores(aluno)}
@@ -264,7 +308,7 @@ function CadastroMatricula(props) {
       </div>
       <Toaster position="top-center" />
     </div>
-  );  
+  );
 }
 
 export default CadastroMatricula;
