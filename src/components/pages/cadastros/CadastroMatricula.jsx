@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import logoPrefeitura from "../../../assets/images/logoPrefeitura.png";
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,34 +10,35 @@ import { buscarAlunos } from '../../../redux/alunoReducer.js';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { formatarCPF } from "../../../service/formatadores.js"
 
-
 function CadastroMatricula(props) {
   const [matricula, setMatricula] = useState(props.matricula);
   const { estado, mensagem, listaDeAlunos } = useSelector(state => state.aluno);
   const dispachante = useDispatch();
   const [listaFiltrada, setListaFiltrada] = useState([]);
   const [lenCpf, setLenCpf] = useState(0);
-  const [validos, setValidos] = useState([true , true, true,])
+  const [validos, setValidos] = useState([true, true]);
 
   useEffect(() => {
-    dispachante(buscarAlunos())
-  }, [])
+    dispachante(buscarAlunos());
+  }, []);
 
   function manipularMudanca(event) {
     const id = event.currentTarget.id;
     const valor = event.currentTarget.value;
-    if (id == "anoLetivo_id" && valor.length > 0) {
-      validos[0] = true;
+
+    if (id === "anoLetivo_id") {
+      setValidos((prev) => [true, prev[1]]);
+    } else if (id === "serie_id") {
+      setValidos((prev) => [prev[0], true]);
     }
-    if (id == 'cpf') {
-      const aux = document.getElementById("cpf").value;
+
+    if (id === 'cpf') {
+      const aux = event.currentTarget.value;
       const result = formatarCPF(aux, aux.length > lenCpf);
-      document.getElementById("cpf").value = result;
+      event.currentTarget.value = result;
       setLenCpf(result.length);
-    }
-    else {
-      if (id != "nome")
-        setMatricula({ ...matricula, [id]: valor });
+    } else {
+      if (id !== "nome") setMatricula({ ...matricula, [id]: valor });
     }
 
     filtrar();
@@ -54,7 +54,7 @@ function CadastroMatricula(props) {
       const cpfAluno = aluno.pessoa.cpf.toLowerCase();
       const raAluno = aluno.ra.toString();
 
-      const filtroRA = ra == 0 || raAluno.includes(ra);
+      const filtroRA = ra === "0" || raAluno.includes(ra);
       const filtroNome = nome === "" || nomeAluno.includes(nome);
       const filtroCPF = cpf === "" || cpfAluno.includes(cpf);
 
@@ -64,16 +64,15 @@ function CadastroMatricula(props) {
   }
 
   function setAlunos() {
-    setListaFiltrada(listaDeAlunos)
+    setListaFiltrada(listaDeAlunos);
   }
 
   function setarValores(aluno) {
-    document.getElementById("cpf").value = aluno.pessoa.cpf
-    document.getElementById("nome").value = aluno.pessoa.nome
-    setMatricula({ ...matricula, ["ra"]: aluno.ra });
+    document.getElementById("cpf").value = aluno.pessoa.cpf;
+    document.getElementById("nome").value = aluno.pessoa.nome;
+    setMatricula({ ...matricula, ra: aluno.ra });
     filtrar();
   }
-
 
   function zeraMatricula() {
     props.setMatricula({
@@ -83,22 +82,27 @@ function CadastroMatricula(props) {
     });
   }
 
-  function validaInfos(){
-    let valido=true;
-    
-    if(matricula.anoLetivo_id==""){
-      valido=false;
-      validos[0]=false;
-    }
-    if(matricula.serie_id==""){
-      validos[1]=false;
-      valido=false;
+  function validaInfos() {
+    let valido = true;
+    let novosValidos = [true, true];
+
+    if (matricula.anoLetivo_id === "" || matricula.anoLetivo_id === 0) {
+      novosValidos[0] = false;
+      valido = false;
     }
 
+    if (matricula.serie_id === "" || matricula.serie_id === 0) {
+      novosValidos[1] = false;
+      valido = false;
+    }
+
+    setValidos(novosValidos);
     return valido;
   }
 
   function handleSubmit(evento) {
+    evento.preventDefault();
+
     if (validaInfos()) {
       if (props.modoEdicao) {
         dispachante(atualizarMatricula(matricula));
@@ -106,32 +110,14 @@ function CadastroMatricula(props) {
         props.setModoEdicao(false);
         zeraMatricula();
       } else {
-        if (listaFiltrada.length == 1) {
+        if (listaFiltrada.length === 1) {
           dispachante(incluirMatricula(matricula));
           props.setExibirTabela(true);
           zeraMatricula();
+        } else {
+          toast.error("As informações não correspondem a um aluno, preencha todos os campos corretamente", { duration: 5000, repeat: false });
         }
-        else
-          toast.error("As informações não correspondem a um aluno", { duration: 3000, repeat: false });
       }
-    }
-
-    evento.stopPropagation();
-    evento.preventDefault();
-  }
-
-  function buscarPessoa() {
-    let aluno = listaDeAlunos.filter((alunoAux) => {
-      if (matricula.ra == alunoAux.aluno_ra)
-        return alunoAux;
-    })
-    if (Array.isArray(aluno) && aluno.length != 1)
-      toast.error("RA informado é invalido", { duration: 5000, repeat: false });
-    else {
-      dispachante(buscarPessoas(aluno[0].aluno_pessoa_cpf));
-      let pessoa = listaDePessoas[0];
-      document.getElementById("nome").value = pessoa.pessoa_nome;
-      document.getElementById("cpf").value = pessoa.pessoa_cpf;
     }
   }
 
@@ -143,7 +129,8 @@ function CadastroMatricula(props) {
       </div>
     );
   }
-  else if (estado === ESTADO.ERRO) {
+
+  if (estado === ESTADO.ERRO) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4 space-y-4">
         <div className="flex items-center bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
@@ -151,7 +138,7 @@ function CadastroMatricula(props) {
           {mensagem}
         </div>
         <button
-          onClick={() => dispatch(buscarMatriculas())}
+          onClick={() => dispachante(buscarAlunos())}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors duration-200"
         >
           Voltar
@@ -161,120 +148,96 @@ function CadastroMatricula(props) {
   }
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative p-4"
-      onLoad={setAlunos}
-    >
+    <div className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative p-4" onLoad={setAlunos}>
       <div className="absolute inset-0 bg-black/40" />
-      <div className="relative z-10 w-full max-w-4xl  overflow-hidden">
+      <div className="relative z-10 w-full max-w-4xl overflow-hidden">
         <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 h-full flex flex-col">
-          <div className="flex flex-col justify-around flex-shrink-0">
-            <div className="flex flex-col items-center mb-6 md:mb-8">
-              <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 tracking-wide">
-                Registro de Matricula
-              </h2>
-              <img
-                src={logoPrefeitura}
-                alt="Logo da Prefeitura"
-                className="h-16 sm:h-20 md:h-24 w-auto"
-              />
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="flex flex-col items-center mb-6 md:mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 tracking-wide">Registro de Matricula</h2>
+            <img src={logoPrefeitura} alt="Logo da Prefeitura" className="h-16 sm:h-20 md:h-24 w-auto" />
+          </div>
 
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="flex flex-col">
+                <label htmlFor="anoLetivo_id" className={`text-sm ${validos[0] ? 'text-white' : 'text-red-500'}`}>Ano letivo</label>
+                <select
+                  id="anoLetivo_id"
+                  name="anoLetivo_id"
+                  value={matricula.anoLetivo_id}
+                  onChange={manipularMudanca}
+                  className={`rounded-md p-2 bg-gray-800 text-white ${!validos[0] ? 'border border-red-500' : ''}`}
+                >
+                  <option value="0">Selecione</option>
+                  {listaDeanosLetivos.map((ano) => (
+                    <option key={ano.anoletiv} value={ano.anoletiv}>{ano.anoletiv}</option>
+                  ))}
+                </select>
+                {!validos[0] && <p className="text-red-500 text-sm mt-1">Campo obrigatório</p>}
+              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {validos[0] ?
-                  <div className="flex flex-col">
-                    <label htmlFor="anoLetivo_id" className="text-white">Ano letivo</label>
-                    <select id="anoLetivo_id" name="anoLetivo_id" value={matricula.anoLetivo_id} onChange={manipularMudanca}
-                      className="rounded-md p-2 bg-gray-800 text-white">
-                      <option value="0">Selecione</option>
-                      {listaDeanosLetivos.map((ano) => (
-                        <option key={ano.anoletiv} value={ano.anoletiv}>{ano.anoletiv}</option>
-                      ))}
-                    </select>
-                  </div> :
-                  <div>
-                    <label for="anoLetivo_id" class="block mb-2 text-sm font-medium text-red-700 dark:text-red-500">Ano letivo</label>
-                    <select type="anoLetivo_id" id="anoLetivo_id" class="bg-red-50 border border-red-500 text-red-900 placeholder-red-700 text-sm rounded-lg focus:ring-red-500 dark:bg-gray-700 focus:border-red-500 block w-full p-2.5 dark:text-red-500 dark:placeholder-red-500 dark:border-red-500" placeholder="Bonnie Green" >
-                      <option value="0">Selecione</option>
-                      {listaDeanosLetivos.map((ano) => (
-                        <option key={ano.anoletiv} value={ano.anoletiv}>{ano.anoletiv}</option>
-                      ))}
-                    </select>
-                    <p class="mt-2 text-sm text-red-600 dark:text-red-500"><span class="font-medium"></span> Esta informação é obrigatória</p>
-                  </div>
-                }
+              <div className="flex flex-col">
+                <label htmlFor="serie_id" className={`text-sm ${validos[1] ? 'text-white' : 'text-red-500'}`}>Série</label>
+                <select
+                  id="serie_id"
+                  name="serie_id"
+                  value={matricula.serie_id}
+                  onChange={manipularMudanca}
+                  className={`rounded-md p-2 bg-gray-800 text-white ${!validos[1] ? 'border border-red-500' : ''}`}
+                >
+                  <option value="0">Selecione</option>
+                  {listaDeSeries.map((serie) => (
+                    <option key={serie.numero} value={serie.numero}>{serie.descricao}</option>
+                  ))}
+                </select>
+                {!validos[1] && <p className="text-red-500 text-sm mt-1">Campo obrigatório</p>}
+              </div>
 
-                <div className="flex flex-col">
-                  <label htmlFor="serie_id" className="text-white">Série</label>
-                  <select id="serie_id" name="serie_id" value={matricula.serie_id} onChange={manipularMudanca}
-                    className="rounded-md p-2 bg-gray-800 text-white">
-                    <option value="0">Selecione</option>
-                    {listaDeSeries.map((serie) => (
-                      <option key={serie.numero} value={serie.numero}>{serie.descricao}</option>
-                    ))}
-                  </select>
-                </div>
+              <div className="flex flex-col justify-end">
+                <button type="submit" className="p-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors">
+                  Confirmar
+                </button>
+              </div>
 
-                <div className="flex flex-col justify-end">
-                  <button type="submit"
-                    className="p-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors">
-                    Confirmar
-                  </button>
-                </div>
-
-                <div className="flex flex-col justify-end">
-                  <button type="button" onClick={() => {
+              <div className="flex flex-col justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
                     zeraMatricula();
                     props.setExibirTabela(true);
                   }}
-                    className="p-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors">
-                    Voltar
-                  </button>
-                </div>
+                  className="p-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
+                >
+                  Voltar
+                </button>
               </div>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label htmlFor="ra" className="text-white">RA</label>
-                  <input type="number" id="ra" value={matricula.ra} onChange={manipularMudanca}
-                    className="w-full rounded-md p-2 bg-gray-800 text-white" />
-                </div>
-                <div>
-                  <label htmlFor="nome" className="text-white">Nome do aluno</label>
-                  <input type="text" id="nome" onChange={manipularMudanca}
-                    className="w-full rounded-md p-2 bg-gray-800 text-white" />
-                </div>
-                <div>
-                  <label htmlFor="cpf" className="text-white">CPF</label>
-                  <input type="text" id="cpf" maxLength={14} onChange={manipularMudanca}
-                    className="w-full rounded-md p-2 bg-gray-800 text-white" />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label htmlFor="ra" className="text-white">RA</label>
+                <input type="number" id="ra" value={matricula.ra} onChange={manipularMudanca} className="w-full rounded-md p-2 bg-gray-800 text-white" />
               </div>
-            </form>
-          </div>
+              <div>
+                <label htmlFor="nome" className="text-white">Nome do aluno</label>
+                <input type="text" id="nome" onChange={manipularMudanca} className="w-full rounded-md p-2 bg-gray-800 text-white" />
+              </div>
+              <div>
+                <label htmlFor="cpf" className="text-white">CPF</label>
+                <input type="text" id="cpf" maxLength={14} onChange={manipularMudanca} className="w-full rounded-md p-2 bg-gray-800 text-white" />
+              </div>
+            </div>
+          </form>
 
-   
           <div className="mt-6 overflow-y-auto min-h-[40vh] max-h-[40vh]">
             <table className="min-w-full divide-y divide-gray-700">
               <thead>
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">
-                    Nome
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">
-                    RA
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">
-                    CPF
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">
-                    Data de Nascimento
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">
-                    Ação
-                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">Nome</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">RA</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">CPF</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">Data de Nascimento</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-300 uppercase bg-gray-800">Ação</th>
                 </tr>
               </thead>
               <tbody className="bg-gray-800/40 divide-y divide-gray-700">
@@ -288,7 +251,8 @@ function CadastroMatricula(props) {
                       <td className="px-4 py-3">
                         <button
                           onClick={() => setarValores(aluno)}
-                          className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600 transition">
+                          className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600 transition"
+                        >
                           Selecionar
                         </button>
                       </td>
@@ -296,9 +260,7 @@ function CadastroMatricula(props) {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={4} className="text-center text-gray-300 py-4">
-                      Nenhum aluno encontrado
-                    </td>
+                    <td colSpan={5} className="text-center text-gray-300 py-4">Nenhum aluno encontrado</td>
                   </tr>
                 )}
               </tbody>

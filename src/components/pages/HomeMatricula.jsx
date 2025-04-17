@@ -4,7 +4,7 @@ import CadastroMatricula from "./cadastros/CadastroMatricula";
 import TabelaMatricula from "./tabelas/TabelaMatricula";
 
 export default function HomeMatricula(props) {
-    const [exibirTabela, setExibirTabela] = useState(false);
+    const [exibirTabela, setExibirTabela] = useState(true);
     const [modoEdicao, setModoEdicao] = useState(false);
     const [matricula, setMatricula] = useState({
         ra: 0,
