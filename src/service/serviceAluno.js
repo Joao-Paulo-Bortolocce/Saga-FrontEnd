@@ -4,7 +4,7 @@ const urlBase= "http://localhost:8080/aluno";
 
 
 export async function gravarAluno(aluno){
-    const resposta = await fetch(urlBase+"/gravar",{
+    const resposta = await fetch(urlBase,{
         "method": "POST",
         "headers":{
             "Content-type":"application/json"
@@ -16,7 +16,7 @@ export async function gravarAluno(aluno){
 }
 
 export async function alterarAluno(aluno){
-    const resposta = await fetch(urlBase+"/alterar",{
+    const resposta = await fetch(urlBase,{
         "method": "PUT",
         "headers":{
             "Content-type":"application/json"
@@ -29,7 +29,7 @@ export async function alterarAluno(aluno){
 }
 
 export async function excluirAluno(aluno){
-    const resposta = await fetch(urlBase+ "/apagar/"+ aluno.ra,{
+    const resposta = await fetch(urlBase+ "/"+ aluno.ra,{
         "method": "DELETE",
     
     })
@@ -40,15 +40,21 @@ export async function excluirAluno(aluno){
 
 export async function consultarAluno(termo){
     let resposta
-    if(termo==undefined)
+    if(termo==undefined){
+
         resposta = await fetch(urlBase+"/buscarTodos",{
             "method": "GET",
         })
-    else
+        const resultado =await  resposta.json();
+        return resultado.listaDeAlunos;
+    }
+    else{
+
         resposta = await fetch(urlBase+"/"+termo,{
             "method": "GET",
         })
-    const resultado =await  resposta.json();
-    return resultado.listaDeAlunos;
+        const resultado =await  resposta.json();
+        return resultado.aluno;
+    }
 }
 

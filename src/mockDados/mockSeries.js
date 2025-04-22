@@ -1,8 +1,8 @@
 export const listaDeSeries=[
-    { "id": 1, "numero": 1, "descricao": "1º ano" },
-    { "id": 2, "numero": 2, "descricao": "2º ano" },
-    { "id": 3, "numero": 3, "descricao": "3º ano" },
-    { "id": 4, "numero": 4, "descricao": "4º ano" },
-    { "id": 5, "numero": 5, "descricao": "5º ano" }
+    { "serie_id": 7, "serie_num": 1, "serie_descr": "1º ano" },
+    { "serie_id": 8, "serie_num": 2, "serie_descr": "2º ano" },
+    { "serie_id": 9, "serie_num": 3, "serie_descr": "3º ano" },
+    { "serie_id": 10, "serie_num": 4, "serie_descr": "4º ano" },
+    { "serie_id": 11, "serie_num": 5, "serie_descr": "5º ano" }
   ]
   

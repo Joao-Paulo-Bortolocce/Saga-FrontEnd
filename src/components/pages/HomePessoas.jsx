@@ -45,6 +45,7 @@ export default function HomePessoas(props) {
                         modoEdicao={modoEdicao}
                         pessoa={pessoa}
                         setPessoa={setPessoa}
+                        cadastrarPessoa={false}
                     />
                 )}
             </div>

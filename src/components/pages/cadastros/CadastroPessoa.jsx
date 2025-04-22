@@ -4,8 +4,8 @@ import logoPrefeitura from "../../../assets/images/logoPrefeitura.png";
 import { useDispatch, useSelector } from 'react-redux';
 import ESTADO from '../../../redux/estados.js';
 import { incluirPessoa, atualizarPessoa } from '../../../redux/pessoaReducer.js';
-import { formatarCEP, formatarCPF, formatarRG } from '../../../service/formatadores.js';
-import { consultarPessoa } from '../../../service/pessoaService.js';
+import { formatarCEP, formatarCPF } from '../../../service/formatadores.js';
+import { consultarPessoa } from '../../../service/servicePessoa.js';
 
 function CadastroPessoa(props) {
   const [pessoa, setPessoa] = useState(props.pessoa);
@@ -81,16 +81,31 @@ function CadastroPessoa(props) {
   }
 
   function handleSubmit(evento) {
-    if (props.modoEdicao) {
-      dispachante(atualizarPessoa(pessoa));
-      props.setExibirTabela(true);
-      props.setModoEdicao(false);
-      zeraPessoa();
-    }
-    else {
+    if(props.cadastrarPessoa){
       dispachante(incluirPessoa(pessoa));
-      props.setExibirTabela(true);
-      zeraPessoa();
+      props.setAluno({
+        ra: 0,
+        restricaoMedica: "",
+        pessoa: {
+            cpf: pessoa.cpf,
+            nome: pessoa.nome
+        }
+      })
+      props.setCadastrarPessoas(false);
+      props.setExibirTabela(false);
+    }
+    else{
+      if (props.modoEdicao) {
+        dispachante(atualizarPessoa(pessoa));
+        props.setExibirTabela(true);
+        props.setModoEdicao(false);
+        zeraPessoa();
+      }
+      else {
+        dispachante(incluirPessoa(pessoa));
+        props.setExibirTabela(true);
+        zeraPessoa();
+      }
     }
 
     evento.stopPropagation();

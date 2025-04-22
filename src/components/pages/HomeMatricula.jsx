@@ -9,7 +9,8 @@ export default function HomeMatricula(props) {
     const [matricula, setMatricula] = useState({
         ra: 0,
         anoLetivo_id: 0,
-        serie_id: 0
+        serie_id: 0,
+        data: new Date().toISOString().substring(0, 10)
     });
 
 

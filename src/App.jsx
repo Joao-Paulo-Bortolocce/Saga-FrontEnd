@@ -10,6 +10,7 @@ import HomeSeries from "./components/pages/HomeSeries.jsx";
 import HomeMatricula from "./components/pages/HomeMatricula.jsx";
 import HomeReunioes from "./components/pages/HomeReunioes.jsx"
 import HomeSalas from "./components/pages/HomeSalas.jsx"
+import HomeAluno from "./components/pages/HomeAluno.jsx";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/cadastros/pessoa" element={<HomePessoas />} /> 
+          <Route path="/cadastros/aluno" element={<HomeAluno />} /> 
           <Route path="/cadastros/materia" element={<MateriaPage />} />
           <Route path="/cadastros/serie" element={<HomeSeries />} />
           <Route path="/cadastros/matricula" element={<HomeMatricula />} />

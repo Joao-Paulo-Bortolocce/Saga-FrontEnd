@@ -3,7 +3,7 @@
 
 
 export async function gravarPessoa(pessoa){
-    const resposta = await fetch(urlBase+"/gravar",{
+    const resposta = await fetch(urlBase,{
         "method": "POST",
         "headers":{
             "Content-type":"application/json"
@@ -15,7 +15,7 @@ export async function gravarPessoa(pessoa){
 }
 
 export async function alterarPessoa(pessoa){
-    const resposta = await fetch(urlBase+"/alterar",{
+    const resposta = await fetch(urlBase,{
         "method": "PUT",
         "headers":{
             "Content-type":"application/json"
@@ -28,7 +28,7 @@ export async function alterarPessoa(pessoa){
 }
 
 export async function excluirPessoa(pessoa){
-    const resposta = await fetch(urlBase+ "/apagar/"+ pessoa.cpf,{
+    const resposta = await fetch(urlBase+"/"+ pessoa.cpf,{
         "method": "DELETE",
     
     })
@@ -49,4 +49,21 @@ export async function consultarPessoa(termo){
         })
     const resultado =await  resposta.json();
     return resultado.listaDePessoas;
+}
+
+export async function consultarPessoaSemAlunos(termo){
+    let resposta
+    if(termo==undefined){
+
+        resposta = await fetch(urlBase+"/buscarTodosSemAlunos",{
+            "method": "GET",
+        })
+        const resultado =await  resposta.json();
+        return resultado.listaDePessoas;
+    }
+        resposta = await fetch(urlBase+"/buscarSemAlunos/"+termo,{
+            "method": "GET",
+        })
+    const resultado =await  resposta.json();
+    return resultado.pessoa;
 }

@@ -16,31 +16,48 @@ function CadastroMatricula(props) {
   const dispachante = useDispatch();
   const [listaFiltrada, setListaFiltrada] = useState([]);
   const [lenCpf, setLenCpf] = useState(0);
-  const [validos, setValidos] = useState([true, true]);
+  const [validos, setValidos] = useState([true, true, true, true, true, true]);
 
   useEffect(() => {
     dispachante(buscarAlunos());
   }, []);
 
+
+
   function manipularMudanca(event) {
     const id = event.currentTarget.id;
-    const valor = event.currentTarget.value;
+    let valor = event.currentTarget.value;
+    setValidos((prevValidos) => {
+      const novosValidos = [...prevValidos];
 
-    if (id === "anoLetivo_id") {
-      setValidos((prev) => [true, prev[1]]);
-    } else if (id === "serie_id") {
-      setValidos((prev) => [prev[0], true]);
-    }
+      if (id === "anoLetivo_id")
+        novosValidos[0] = true;
+      else if (id === "serie_id")
+        novosValidos[1] = true;
+      else if (id === 'cpf') {
+        const result = formatarCPF(valor, valor.length > lenCpf);
+        document.getElementById("cpf").value = result;
+        setLenCpf(result.length);
+        novosValidos[2] = true;
+      } else if (id == "nome")
+        novosValidos[3] = true;
+      else if (id == "ra")
+        novosValidos[4] = true;
+      else {
+        let atual = new Date();
+        let dataInformada = new Date(valor);
 
-    if (id === 'cpf') {
-      const aux = event.currentTarget.value;
-      const result = formatarCPF(aux, aux.length > lenCpf);
-      event.currentTarget.value = result;
-      setLenCpf(result.length);
-    } else {
-      if (id !== "nome") setMatricula({ ...matricula, [id]: valor });
-    }
+        if (dataInformada > atual) {
+          toast.error("A data informada é inválida", { duration: 3000, repeat: false });
+          valor = "";
+        }
+        novosValidos[5] = true;
+      }
 
+      if (id !== "nome")
+        setMatricula({ ...matricula, [id]: valor });
+      return novosValidos;
+    })
     filtrar();
   }
 
@@ -68,6 +85,13 @@ function CadastroMatricula(props) {
   }
 
   function setarValores(aluno) {
+    setValidos((prevValidos) => {
+      const novosValidos = [...prevValidos];
+      novosValidos[2]=true;
+      novosValidos[3]=true;
+      novosValidos[4]=true;
+      return novosValidos;
+    })
     document.getElementById("cpf").value = aluno.pessoa.cpf;
     document.getElementById("nome").value = aluno.pessoa.nome;
     setMatricula({ ...matricula, ra: aluno.ra });
@@ -76,15 +100,18 @@ function CadastroMatricula(props) {
 
   function zeraMatricula() {
     props.setMatricula({
-      ra: "",
+      ra: 0,
       anoLetivo_id: 0,
-      serie_id: 0
+      serie_id: 0,
+      data: new Date().toISOString().substring(0, 10)
     });
   }
 
   function validaInfos() {
     let valido = true;
-    let novosValidos = [true, true];
+    let novosValidos = [true, true, true, true, true, true];
+    const cpf=document.getElementById("cpf").value;
+    const nome=document.getElementById("nome").value;
 
     if (matricula.anoLetivo_id === "" || matricula.anoLetivo_id === 0) {
       novosValidos[0] = false;
@@ -93,6 +120,26 @@ function CadastroMatricula(props) {
 
     if (matricula.serie_id === "" || matricula.serie_id === 0) {
       novosValidos[1] = false;
+      valido = false;
+    }
+
+    if (cpf === "" || cpf === undefined) {
+      novosValidos[2] = false;
+      valido = false;
+    }
+
+    if (nome === "" || nome === undefined) {
+      novosValidos[3] = false;
+      valido = false;
+    }
+
+    if (matricula.ra === "" || matricula.ra === 0 || matricula.ra === undefined) {
+      novosValidos[4] = false;
+      valido = false;
+    }
+
+    if (matricula.data === "" || matricula.data === 0) {
+      novosValidos[5] = false;
       valido = false;
     }
 
@@ -158,8 +205,8 @@ function CadastroMatricula(props) {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="flex flex-col">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
+              <div className="flex flex-col lg:col-span-2">
                 <label htmlFor="anoLetivo_id" className={`text-sm ${validos[0] ? 'text-white' : 'text-red-500'}`}>Ano letivo</label>
                 <select
                   id="anoLetivo_id"
@@ -170,13 +217,15 @@ function CadastroMatricula(props) {
                 >
                   <option value="0">Selecione</option>
                   {listaDeanosLetivos.map((ano) => (
-                    <option key={ano.anoletiv} value={ano.anoletiv}>{ano.anoletiv}</option>
+                    <option key={ano.anoletivo_id} value={ano.anoletivo_id}>
+                      {ano.anoletivo_inicio.substring(0, 4)}
+                    </option>
                   ))}
                 </select>
                 {!validos[0] && <p className="text-red-500 text-sm mt-1">Campo obrigatório</p>}
               </div>
 
-              <div className="flex flex-col">
+              <div className="flex flex-col lg:col-span-1">
                 <label htmlFor="serie_id" className={`text-sm ${validos[1] ? 'text-white' : 'text-red-500'}`}>Série</label>
                 <select
                   id="serie_id"
@@ -187,19 +236,34 @@ function CadastroMatricula(props) {
                 >
                   <option value="0">Selecione</option>
                   {listaDeSeries.map((serie) => (
-                    <option key={serie.numero} value={serie.numero}>{serie.descricao}</option>
+                    <option key={serie.serie_id} value={serie.serie_id}>
+                      {serie.serie_descr}
+                    </option>
                   ))}
                 </select>
                 {!validos[1] && <p className="text-red-500 text-sm mt-1">Campo obrigatório</p>}
               </div>
 
-              <div className="flex flex-col justify-end">
+              <div className="flex flex-col lg:col-span-2">
+                <label htmlFor="data" className={`text-sm ${validos[5] ? 'text-white' : 'text-red-500'}`}>Data de Matrícula</label>
+                <input
+                  type="date"
+                  name="data"
+                  id="data"
+                  value={matricula.data.substr(0, 10)}
+                  onChange={manipularMudanca}
+                  className={`w-full px-3 py-2 rounded-md bg-gray-800 text-white ${!validos[5] ? 'border border-red-500' : 'border border-gray-300'}`}
+                />
+                {!validos[5] && <p className="text-red-500 text-sm mt-1">Campo obrigatório</p>}
+              </div>
+
+              <div className="flex flex-col justify-end lg:col-span-1">
                 <button type="submit" className="p-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors">
                   Confirmar
                 </button>
               </div>
 
-              <div className="flex flex-col justify-end">
+              <div className="flex flex-col justify-end lg:col-span-1">
                 <button
                   type="button"
                   onClick={() => {
@@ -214,17 +278,44 @@ function CadastroMatricula(props) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label htmlFor="ra" className="text-white">RA</label>
-                <input type="number" id="ra" value={matricula.ra} onChange={manipularMudanca} className="w-full rounded-md p-2 bg-gray-800 text-white" />
+              <div className="flex flex-col">
+                <label htmlFor="ra" className={`text-sm ${validos[4] ? 'text-white' : 'text-red-500'}`}>RA</label>
+                <input
+                  type="number"
+                  id="ra"
+                  name="ra"
+                  value={matricula.ra}
+                  onChange={manipularMudanca}
+                  className={`rounded-md p-2 bg-gray-800 text-white ${!validos[4] ? 'border border-red-500' : ''}`}
+                />
+                {!validos[4] && <p className="text-red-500 text-sm mt-1">Campo obrigatório</p>}
               </div>
-              <div>
-                <label htmlFor="nome" className="text-white">Nome do aluno</label>
-                <input type="text" id="nome" onChange={manipularMudanca} className="w-full rounded-md p-2 bg-gray-800 text-white" />
+
+              <div className="flex flex-col">
+                <label htmlFor="nome" className={`text-sm ${validos[3] ? 'text-white' : 'text-red-500'}`}>Nome do aluno</label>
+                <input
+                  type="text"
+                  id="nome"
+                  name="nome"
+                  value={matricula.nome}
+                  onChange={manipularMudanca}
+                  className={`rounded-md p-2 bg-gray-800 text-white ${!validos[3] ? 'border border-red-500' : ''}`}
+                />
+                {!validos[3] && <p className="text-red-500 text-sm mt-1">Campo obrigatório</p>}
               </div>
-              <div>
-                <label htmlFor="cpf" className="text-white">CPF</label>
-                <input type="text" id="cpf" maxLength={14} onChange={manipularMudanca} className="w-full rounded-md p-2 bg-gray-800 text-white" />
+
+              <div className="flex flex-col">
+                <label htmlFor="cpf" className={`text-sm ${validos[2] ? 'text-white' : 'text-red-500'}`}>CPF</label>
+                <input
+                  type="text"
+                  id="cpf"
+                  name="cpf"
+                  maxLength={14}
+                  value={matricula.cpf}
+                  onChange={manipularMudanca}
+                  className={`rounded-md p-2 bg-gray-800 text-white ${!validos[2] ? 'border border-red-500' : ''}`}
+                />
+                {!validos[2] && <p className="text-red-500 text-sm mt-1">Campo obrigatório</p>}
               </div>
             </div>
           </form>
@@ -247,7 +338,9 @@ function CadastroMatricula(props) {
                       <td className="px-4 py-3 text-sm text-gray-300">{aluno.pessoa.nome}</td>
                       <td className="px-4 py-3 text-sm text-gray-300">{aluno.ra}</td>
                       <td className="px-4 py-3 text-sm text-gray-300">{aluno.pessoa.cpf}</td>
-                      <td className="px-4 py-3 text-sm text-gray-300">{new Date(aluno.pessoa.dataNascimento).toLocaleDateString()}</td>
+                      <td className="px-4 py-3 text-sm text-gray-300">
+                        {new Date(`${aluno.pessoa.dataNascimento}T00:00:00`).toLocaleDateString('pt-BR')}
+                      </td>
                       <td className="px-4 py-3">
                         <button
                           onClick={() => setarValores(aluno)}
@@ -270,6 +363,7 @@ function CadastroMatricula(props) {
       </div>
       <Toaster position="top-center" />
     </div>
+
   );
 }
 

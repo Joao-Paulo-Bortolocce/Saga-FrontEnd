@@ -1,10 +1,35 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ESTADO from "./estados.js";
-import { gravarMatricula,alterarMatricula,excluirMatricula,consultarMatricula } from "../service/matriculaService.js";
+import { gravarMatricula,alterarMatricula,excluirMatricula,consultarMatricula, consultarMatriculaFiltros } from "../service/serviceMatricula.js"
 
 
 export const buscarMatriculas = createAsyncThunk('buscarMatriculas', async (termo) => {
   const resultado = await consultarMatricula(termo);
+  try {
+    if (Array.isArray(resultado)) {
+      return {
+        "status": true,
+        "mensagem": "Matriculas recuperadas com sucesso",
+        "listaDeMatriculas": resultado
+      };
+    } else {
+      return {
+        "status": false,
+        "mensagem": "Erro ao recuperar as matriculas do backend",
+        "listaDeMatriculas": []
+      };
+    }
+  } catch (erro) {
+    return {
+      "status": false,
+      "mensagem": "Erro: " + erro.message,
+      "listaDeMatriculas": []
+    };
+  }
+});
+
+export const buscarMatriculasFiltros = createAsyncThunk('buscarMatriculasFiltros', async (termo) => {
+  const resultado = await consultarMatriculaFiltros(termo);
   try {
     if (Array.isArray(resultado)) {
       return {
@@ -51,7 +76,7 @@ export const incluirMatricula = createAsyncThunk('incluirMatricula', async (matr
       return {
         "status": resultado.status,
         "mensagem": resultado.mensagem,
-        "matricula": matricula
+        "matricula": resultado.matricula
       };
     } else {
       return {
@@ -115,6 +140,24 @@ const matriculaSlice = createSlice({
         state.listaDeMatriculas = action.payload.listaDeMatriculas;
       })
       .addCase(buscarMatriculas.rejected, (state, action) => {
+        state.estado = ESTADO.ERRO;
+        state.mensagem = action.payload.mensagem;
+        state.listaDeMatriculas = [];
+      })
+      .addCase(buscarMatriculasFiltros.pending, (state) => {
+        state.estado = ESTADO.PENDENTE;
+        state.mensagem = "Processando requisição (buscando matriculas com os devidos filtros)";
+      })
+      .addCase(buscarMatriculasFiltros.fulfilled, (state, action) => {
+        if (action.payload.status) {
+          state.estado = ESTADO.OCIOSO;
+        } else {
+          state.estado = ESTADO.ERRO;
+        }
+        state.mensagem = action.payload.mensagem;
+        state.listaDeMatriculas = action.payload.listaDeMatriculas;
+      })
+      .addCase(buscarMatriculasFiltros.rejected, (state, action) => {
         state.estado = ESTADO.ERRO;
         state.mensagem = action.payload.mensagem;
         state.listaDeMatriculas = [];
