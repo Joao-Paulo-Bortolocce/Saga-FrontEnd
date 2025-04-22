@@ -58,3 +58,12 @@ export async function consultarAluno(termo){
     }
 }
 
+export async function consultarAlunoSemMatricula() {
+    let resposta
+    resposta = await fetch(urlBase + "/buscarTodosSemMatricula", {
+        "method": "GET",
+    })
+    const resultado = await resposta.json();
+    return resultado.listaDeAlunos;
+}
+

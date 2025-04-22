@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ESTADO from "./estados.js";
-import { gravarAluno,alterarAluno,excluirAluno,consultarAluno } from "../service/serviceAluno.js";
+import { gravarAluno,alterarAluno,excluirAluno,consultarAluno, consultarAlunoSemMatricula } from "../service/serviceAluno.js";
 
 
 export const buscarAlunos = createAsyncThunk('buscarAlunos', async (termo) => {
@@ -27,6 +27,34 @@ export const buscarAlunos = createAsyncThunk('buscarAlunos', async (termo) => {
     };
   }
 });
+
+
+export const buscarAlunosSemMatricula = createAsyncThunk('buscarAlunosSemMatricula', async (termo) => {
+  const resultado = await consultarAlunoSemMatricula(termo);
+  try {
+    if (Array.isArray(resultado)) {
+      return {
+        "status": true,
+        "mensagem": "Alunos recuperadas com sucesso",
+        "listaDeAlunos": resultado
+      };
+    } else {
+      return {
+        "status": false,
+        "mensagem": "Erro ao recuperar as alunos do backend",
+        "listaDeAlunos": []
+      };
+    }
+  } catch (erro) {
+    return {
+      "status": false,
+      "mensagem": "Erro: " + erro.message,
+      "listaDeAlunos": []
+    };
+  }
+});
+
+
 
 export const apagarAluno = createAsyncThunk('apagarAluno', async (aluno) => {
   const resultado = await excluirAluno(aluno);
@@ -115,6 +143,24 @@ const alunoSlice = createSlice({
         state.listaDeAlunos = action.payload.listaDeAlunos;
       })
       .addCase(buscarAlunos.rejected, (state, action) => {
+        state.estado = ESTADO.ERRO;
+        state.mensagem = action.payload.mensagem;
+        state.listaDeAlunos = [];
+      })
+      .addCase(buscarAlunosSemMatricula.pending, (state) => {
+        state.estado = ESTADO.PENDENTE;
+        state.mensagem = "Processando requisição (buscando alunos)";
+      })
+      .addCase(buscarAlunosSemMatricula.fulfilled, (state, action) => {
+        if (action.payload.status) {
+          state.estado = ESTADO.OCIOSO;
+        } else {
+          state.estado = ESTADO.ERRO;
+        }
+        state.mensagem = action.payload.mensagem;
+        state.listaDeAlunos = action.payload.listaDeAlunos;
+      })
+      .addCase(buscarAlunosSemMatricula.rejected, (state, action) => {
         state.estado = ESTADO.ERRO;
         state.mensagem = action.payload.mensagem;
         state.listaDeAlunos = [];

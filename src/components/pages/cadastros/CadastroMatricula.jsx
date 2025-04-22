@@ -6,7 +6,7 @@ import { incluirMatricula, atualizarMatricula } from '../../../redux/matriculaRe
 import { listaDeanosLetivos } from '../../../mockDados/mockAnoLetivo.js';
 import { listaDeSeries } from '../../../mockDados/mockSeries.js';
 import toast, { Toaster } from "react-hot-toast";
-import { buscarAlunos } from '../../../redux/alunoReducer.js';
+import { buscarAlunosSemMatricula } from '../../../redux/alunoReducer.js';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { formatarCPF } from "../../../service/formatadores.js"
 
@@ -19,7 +19,7 @@ function CadastroMatricula(props) {
   const [validos, setValidos] = useState([true, true, true, true, true, true]);
 
   useEffect(() => {
-    dispachante(buscarAlunos());
+    dispachante(buscarAlunosSemMatricula());
   }, []);
 
 
