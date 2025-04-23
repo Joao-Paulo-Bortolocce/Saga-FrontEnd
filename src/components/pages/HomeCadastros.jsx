@@ -9,11 +9,11 @@ const cadastros = [
     { nome: "Cadastro de Profissional", href: "/cadastros/profissional", tipo: "Pessoas", icon: BookUser, bgcolor:"bg-orange-500", color:"text-orange-500" },
     { nome: "Cadastro de Pessoa", href: "/cadastros/pessoa", tipo: "Pessoas", icon: User, bgcolor:"bg-orange-500", color:"text-orange-500"},
     { nome: "Cadastro de Matricula", href: "/cadastros/matricula", tipo: "Pessoas", icon: SquarePen, bgcolor:"bg-orange-500", color:"text-orange-500"},
-    { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infra", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
-    { nome: "Cadastro de Turmas", href: "/cadastros/turma", tipo: "Infra", icon: Users, bgcolor:"bg-red-500", color:"text-red-500"  },
-    { nome: "Cadastro de Salas", href: "/cadastros/sala", tipo: "Infra", icon: DoorClosed, bgcolor:"bg-red-500", color:"text-red-500"  },
-    { nome: "Cadastro de Ano letivo", href: "/cadastros/anoLetivo", tipo: "Infra", icon: Calendar, bgcolor:"bg-red-500", color:"text-red-500"  },
-    { nome: "Cadastro de Graduação", href: "/cadastros/graduacao", tipo: "Infra", icon: GraduationCap, bgcolor:"bg-red-500", color:"text-red-500"  },
+    { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infraestrutura", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
+    { nome: "Cadastro de Turmas", href: "/cadastros/turma", tipo: "Infraestrutura", icon: Users, bgcolor:"bg-red-500", color:"text-red-500"  },
+    { nome: "Cadastro de Salas", href: "/cadastros/sala", tipo: "Infraestrutura", icon: DoorClosed, bgcolor:"bg-red-500", color:"text-red-500"  },
+    { nome: "Cadastro de Ano letivo", href: "/cadastros/anoLetivo", tipo: "Infraestrutura", icon: Calendar, bgcolor:"bg-red-500", color:"text-red-500"  },
+    { nome: "Cadastro de Graduação", href: "/cadastros/graduacao", tipo: "Infraestrutura", icon: GraduationCap, bgcolor:"bg-red-500", color:"text-red-500"  },
     { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor:"bg-blue-500", color:"text-blue-500"  },
     { nome: "Cadastro de Habilidades", href: "/cadastros/habilidade", tipo: "Acadêmico", icon: Dumbbell, bgcolor:"bg-blue-500", color:"text-blue-500"  },
     { nome: "Agendar reunião de pais", href: "/cadastros/reuniao", tipo: "Acadêmico", icon: CalendarClock, bgcolor:"bg-blue-500", color:"text-blue-500"  }
@@ -61,7 +61,7 @@ export default function HomeCadastros(props) {
                             <select className="border-4 border-solid rounded-xl" name="tipoSelect" id="tipoSelect" value={tipo} onChange={manipularSelect}>
                                 <option value="Todos">Todos</option>
                                 <option value="Pessoas">Pessoas</option>
-                                <option value="Infra">Infraestrutura</option>
+                                <option value="Infraestrutura">Infraestrutura</option>
                                 <option value="Acadêmico">Acadêmico</option>
                             </select>
                         </div>
