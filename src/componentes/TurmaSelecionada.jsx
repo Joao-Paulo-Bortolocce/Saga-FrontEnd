@@ -4,7 +4,6 @@ import { mockMatricula } from './dados/mockMatricula';
 export default function TurmaSelecionada({ turma, voltar }) {
   const [alunos, setAlunos] = useState([]);
   const [presencas, setPresencas] = useState({});
-  const [mensagem, setMensagem] = useState('');
 
   useEffect(() => {
     const filtrados = mockMatricula.filter(a => a.turmalet === turma.letra && a.turmaser === turma.serie);
