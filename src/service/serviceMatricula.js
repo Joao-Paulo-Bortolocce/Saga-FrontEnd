@@ -55,7 +55,8 @@ export async function consultarMatricula(termo) {
 }
 
 export async function consultarMatriculaFiltros(termos) {
-    const resposta = await fetch(urlBase + "/buscarTodasFiltradas?serie=" + termos.serie + "&anoLetivo=" + termos.anoLetivo, {
+    const resposta = await fetch(urlBase + "/buscarTodasFiltradas?serie=" + termos.serie + "&anoLetivo=" + termos.anoLetivo
+        + "&valido=" + termos.valido, {
         "method": "GET",
     });
     const resultado = await resposta.json();

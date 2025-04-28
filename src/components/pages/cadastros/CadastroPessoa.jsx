@@ -9,7 +9,7 @@ import { consultarPessoa } from '../../../service/servicePessoa.js';
 
 function CadastroPessoa(props) {
   const [pessoa, setPessoa] = useState(props.pessoa);
-  const { estado, mensagem } = useSelector(state => state.pessoa);
+  const { estado, mensagem,listaDePessoas } = useSelector(state => state.pessoa);
   const dispachante = useDispatch();
 
 
@@ -19,7 +19,14 @@ function CadastroPessoa(props) {
     if (id === 'dataNascimento') {
       let atual = new Date();
       let dataInformada = new Date(valor);
-
+      let idade = 0
+      if(props.cadastrarPessoa){
+        idade= atual.getFullYear() - dataInformada.getFullYear();
+        if(idade>12){
+          alert("Você está cadastrando informações pessoais de um aluno, que portanto pode ter no maximo 12 anos de idade")
+          valor = dataInformada.toLocaleString().substring(0, 10);
+        }
+      }
       if (dataInformada > atual) {
         alert("A data informada é inválida");
         valor = dataInformada.toLocaleString().substring(0, 10);
@@ -69,7 +76,7 @@ function CadastroPessoa(props) {
 
   function verificaCPF() {
     if (!props.modoEdicao && pessoa.cpf != "") {
-
+    
       consultarPessoa(pessoa.cpf).then((consulta) => {
         if (consulta != undefined && consulta != null && consulta != []) {
           alert("O cpf: " + pessoa.cpf + " ja esta sendo utilizado");

@@ -17,10 +17,11 @@ function CadastroMatricula(props) {
   const [listaFiltrada, setListaFiltrada] = useState([]);
   const [lenCpf, setLenCpf] = useState(0);
   const [validos, setValidos] = useState([true, true, true, true, true, true]);
+  const[ano, setAno]= useState(0)
 
   useEffect(() => {
-    dispachante(buscarAlunosSemMatricula());
-  }, []);
+    dispachante(buscarAlunosSemMatricula(ano));
+  }, [ano,dispachante]);
 
 
 
@@ -30,8 +31,10 @@ function CadastroMatricula(props) {
     setValidos((prevValidos) => {
       const novosValidos = [...prevValidos];
 
-      if (id === "anoLetivo_id")
+      if (id === "anoLetivo_id"){
+        setAno(valor);
         novosValidos[0] = true;
+      }
       else if (id === "serie_id")
         novosValidos[1] = true;
       else if (id === 'cpf') {
@@ -168,6 +171,14 @@ function CadastroMatricula(props) {
     }
   }
 
+  function nomeAno(id) {
+      const ano = listaDeanosLetivos.filter((aux) => {
+        return aux.anoletivo_id == id;
+      })
+  
+      return ano[0].anoletivo_inicio.substring(0, 4);
+    }
+
   if (estado === ESTADO.PENDENTE) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4 space-y-4">
@@ -185,7 +196,7 @@ function CadastroMatricula(props) {
           {mensagem}
         </div>
         <button
-          onClick={() => dispachante(buscarAlunos())}
+          onClick={() => dispachante(buscarAlunosSemMatricula())}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors duration-200"
         >
           Voltar
@@ -321,6 +332,7 @@ function CadastroMatricula(props) {
           </form>
 
           <div className="mt-6 overflow-y-auto min-h-[40vh] max-h-[40vh]">
+            <p className='px-4 py-3  text-2xl text-center font-semibold text-gray-300 uppercase'>Alunos que não possuem  {ano==0?"nenhuma matricula":" matricula em "+nomeAno(ano)}</p>
             <table className="min-w-full divide-y divide-gray-700">
               <thead>
                 <tr>

@@ -46,7 +46,7 @@ export default function TabelaAluno(props) {
           {mensagem}
         </div>
         <button
-          onClick={() => dispatch(buscarMatriculas())}
+          onClick={() => dispatch(buscarAlunos())}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors duration-200"
         >
           Voltar

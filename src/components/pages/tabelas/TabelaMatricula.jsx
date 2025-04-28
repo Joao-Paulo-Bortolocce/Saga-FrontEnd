@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { PlusCircle, Pencil, Trash2, Search, UserPlus, AlertCircle, Loader2 } from 'lucide-react';
+import { Ban, Trash2, Search, UserPlus, AlertCircle, Loader2 } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
-import { apagarMatricula, buscarMatriculasFiltros } from '../../../redux/matriculaReducer';
+import { apagarMatricula, buscarMatriculasFiltros, atualizarMatricula } from '../../../redux/matriculaReducer';
 import ESTADO from '../../../redux/estados';
 import { listaDeanosLetivos } from '../../../mockDados/mockAnoLetivo.js';
 import { listaDeSeries } from '../../../mockDados/mockSeries.js';
@@ -12,7 +12,8 @@ export default function TabelaMatricula(props) {
   const [pesquisa, setPesquisa] = useState("");
   const [filtros, setFiltros] = useState({
     anoLetivo: 0,
-    serie: 0
+    serie: 0,
+    valido: 0
   });
 
 
@@ -41,15 +42,24 @@ export default function TabelaMatricula(props) {
   }
 
   function addFiltro(event) {
-    const id = event.currentTarget.id;
+    let id = event.currentTarget.id;
+    if (id.startsWith("valido")) {
+      id = "valido";
+    }
     let valor = event.currentTarget.value;
     setFiltros({ ...filtros, [id]: valor });
-
   }
 
   function excluirMatricula(matricula) {
     if (window.confirm(`Deseja realmente excluir a matrícula de ${matricula.aluno.pessoa.nome} no ${matricula.serie.serieDescr} em ${matricula.anoLetivo.inicio.substring(0, 4)}?`)) {
       dispatch(apagarMatricula(matricula));
+    }
+  }
+
+  function cancelarMatricula(matricula) {
+    if (window.confirm(`Deseja realmente cancelar a matrícula de ${matricula.aluno.pessoa.nome} no ${matricula.serie.serieDescr} em ${matricula.anoLetivo.inicio.substring(0, 4)}?\nUma vez cancelada essa matrícula não mais poderá ser recuperada`)) {
+      const matriculaAtualizada = { ...matricula, valido: false };
+      dispatch(atualizarMatricula(matriculaAtualizada));
     }
   }
 
@@ -74,7 +84,7 @@ export default function TabelaMatricula(props) {
           {mensagem}
         </div>
         <button
-          onClick={() => dispatch(buscarMatriculas())}
+          onClick={() => dispatch(buscarMatriculasFiltros())}
           className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors duration-200"
         >
           Voltar
@@ -87,7 +97,7 @@ export default function TabelaMatricula(props) {
     <div className="py-10 px-6 sm:px-10 lg:px-16-50 min-h-screen font-sans text-black">
       <div className="max-w-7xl mx-auto space-y-8">
 
-        {/* Cabeçalho */}
+
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div>
             <h1 className="text-4xl font-bold text-gray-900">Cadastro de Matrículas</h1>
@@ -101,7 +111,6 @@ export default function TabelaMatricula(props) {
           </button>
         </div>
 
-        {/* Barra de pesquisa */}
         <div className="relative max-w-lg mx-auto sm:mx-0">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" />
@@ -116,7 +125,7 @@ export default function TabelaMatricula(props) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          <div className="bg-white p-4 rounded-xl shadow-sm">
+          <div className="bg-white p-4 rounded-xl shadow-sm  max-h-fit flex flex-col justify-center">
             <label htmlFor="anoLetivo" className="block text-sm font-medium text-gray-700 mb-2">
               Ano Letivo
             </label>
@@ -135,7 +144,7 @@ export default function TabelaMatricula(props) {
             </select>
           </div>
 
-          <div className="bg-white p-4 rounded-xl shadow-sm">
+          <div className="bg-white p-4 rounded-xl shadow-sm  max-h-fit flex flex-col justify-center">
             <label htmlFor="serie" className="block text-sm font-medium text-gray-700 mb-2">
               Série
             </label>
@@ -153,7 +162,55 @@ export default function TabelaMatricula(props) {
               ))}
             </select>
           </div>
+
+          <div className="bg-white p-6 rounded-xl shadow-sm h-full flex flex-col justify-center">
+            <label htmlFor="valido" className="block text-sm font-semibold text-gray-800 mb-4">
+              Validade
+            </label>
+
+            <div className="flex flex-col gap-3">
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-gray-300 hover:bg-gray-50">
+                <input
+                  id="valido-0"
+                  name="valido"
+                  type="radio"
+                  value={0}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  onChange={addFiltro}
+                  checked={filtros.valido == 0}
+                />
+                <span className="text-sm text-gray-700">Todas</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-gray-300 hover:bg-gray-50">
+                <input
+                  id="valido-1"
+                  name="valido"
+                  type="radio"
+                  value={1}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  onChange={addFiltro}
+                  checked={filtros.valido == 1}
+                />
+                <span className="text-sm text-gray-700">Válidas</span>
+              </label>
+
+              <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg border border-gray-300 hover:bg-gray-50">
+                <input
+                  id="valido-2"
+                  name="valido"
+                  type="radio"
+                  value={2}
+                  className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300"
+                  onChange={addFiltro}
+                  checked={filtros.valido == 2}
+                />
+                <span className="text-sm text-gray-700">Canceladas</span>
+              </label>
+            </div>
+          </div>
         </div>
+
 
         {listaDeMatriculas.length > 0 ?
           <div className="overflow-x-auto rounded-xl shadow-lg bg-white">
@@ -165,27 +222,42 @@ export default function TabelaMatricula(props) {
                   <th className="px-6 py-4 text-left font-semibold text-gray-600">Ano Letivo</th>
                   <th className="px-6 py-4 text-left font-semibold text-gray-600">Série</th>
                   <th className="px-6 py-4 text-left font-semibold text-gray-600">Turma</th>
-                  <th className="px-6 py-4 text-right font-semibold text-gray-600">Ações</th>
+                  <th className="px-6 py-4 text-left font-semibold text-gray-600">Status</th>
+                  <th className="px-6 py-4 text-center font-semibold text-gray-600">Ações</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 bg-white">
                 {matriculasFiltradas.map((matricula) => (
-                  <tr key={matricula.id} className="hover:bg-gray-50">
+                  <tr
+                    key={matricula.id}
+                    className={`hover:bg-gray-50 ${!matricula.valido ? 'bg-gray-200' : ''}`}
+                  >
                     <td className="px-6 py-4">{matricula.aluno.ra}</td>
                     <td className="px-6 py-4">{matricula.aluno.pessoa.nome}</td>
                     <td className="px-6 py-4">{matricula.anoLetivo.inicio.substring(0, 4)}</td>
                     <td className="px-6 py-4">{matricula.serie.serieDescr}</td>
                     <td className="px-6 py-4">{matricula.turma ? matricula.turma.letra : 'Indefinido'}</td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4">{matricula.valido? 'valida' : 'Cancelada'}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right space-x-20">
+                      <button
+                        onClick={() => cancelarMatricula(matricula)}
+                        disabled={!matricula.valido}
+                        className={`transition-all ${matricula.valido ? 'text-yellow-500 hover:text-yellow-700' : 'text-gray-400 cursor-not-allowed'}`}
+                        title="Cancelar matrícula"
+                      >
+                        <Ban className="h-5 w-5" />
+                      </button>
                       <button
                         onClick={() => excluirMatricula(matricula)}
-                        className="text-red-500 hover:text-red-700 transition-all"
+                        disabled={!matricula.valido}
+                        className={`transition-all ${matricula.valido ? 'text-red-500 hover:text-red-700' : 'text-gray-400 cursor-not-allowed'}`}
                         title="Excluir matrícula"
                       >
                         <Trash2 className="h-5 w-5" />
                       </button>
                     </td>
                   </tr>
+
                 ))}
               </tbody>
             </table>

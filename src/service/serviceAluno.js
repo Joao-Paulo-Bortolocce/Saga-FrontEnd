@@ -58,9 +58,9 @@ export async function consultarAluno(termo){
     }
 }
 
-export async function consultarAlunoSemMatricula() {
+export async function consultarAlunoSemMatricula(termo) {
     let resposta
-    resposta = await fetch(urlBase + "/buscarTodosSemMatricula", {
+    resposta = await fetch(urlBase + "/buscarTodosSemMatricula?anoLetivo="+termo, {
         "method": "GET",
     })
     const resultado = await resposta.json();
