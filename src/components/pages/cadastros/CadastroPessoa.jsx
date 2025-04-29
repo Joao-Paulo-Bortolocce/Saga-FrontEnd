@@ -19,14 +19,6 @@ function CadastroPessoa(props) {
     if (id === 'dataNascimento') {
       let atual = new Date();
       let dataInformada = new Date(valor);
-      let idade = 0
-      if(props.cadastrarPessoa){
-        idade= atual.getFullYear() - dataInformada.getFullYear();
-        if(idade>12){
-          alert("Você está cadastrando informações pessoais de um aluno, que portanto pode ter no maximo 12 anos de idade")
-          valor = dataInformada.toLocaleString().substring(0, 10);
-        }
-      }
       if (dataInformada > atual) {
         alert("A data informada é inválida");
         valor = dataInformada.toLocaleString().substring(0, 10);
@@ -50,6 +42,20 @@ function CadastroPessoa(props) {
       });
     } else {
       setPessoa({ ...pessoa, [id]: valor });
+    }
+  }
+
+  function verificaMenorIdade(){
+    let atual = new Date();
+    let dataInformada = new Date(document.getElementById("dataNascimento").value);
+    let idade = 0
+    if(props.cadastrarPessoa){
+      idade= atual.getFullYear() - dataInformada.getFullYear();
+      if(idade>12){
+        alert("Você está cadastrando informações pessoais de um aluno, que portanto pode ter no maximo 12 anos de idade")
+        
+        setPessoa({ ...pessoa, ["dataNascimento"]: "" });
+      }
     }
   }
 
@@ -224,6 +230,7 @@ function CadastroPessoa(props) {
                     required
                     value={pessoa.dataNascimento.substr(0, 10)}
                     onChange={manipularMudanca}
+                    onBlur={verificaMenorIdade}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   />
                 </div>
