@@ -29,3 +29,7 @@ export async function consultarSerie(termo = "") {
     return resultado;
 }
   
+export async function buscarSeries() {
+  const resposta = await fetch("http://localhost:8080/serie/buscarTodos");
+  return await resposta.json();
+}
