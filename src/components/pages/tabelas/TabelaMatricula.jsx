@@ -5,25 +5,22 @@ import { apagarMatricula, buscarMatriculasFiltros, atualizarMatricula } from '..
 import ESTADO from '../../../redux/estados';
 import { listaDeanosLetivos } from '../../../mockDados/mockAnoLetivo.js';
 import { listaDeSeries } from '../../../mockDados/mockSeries.js';
+import toast, { Toaster } from "react-hot-toast";
 
 export default function TabelaMatricula(props) {
   const { estado, mensagem, listaDeMatriculas } = useSelector(state => state.matricula);
   const dispatch = useDispatch();
   const [pesquisa, setPesquisa] = useState("");
+  const[toastMostrado,setToastMostrado]=useState(false);
   const [filtros, setFiltros] = useState({
     anoLetivo: 0,
     serie: 0,
     valido: 0
   });
 
-
   useEffect(() => {
     dispatch(buscarMatriculasFiltros(filtros));
-  }, []);
-
-  useEffect(() => {
-    dispatch(buscarMatriculasFiltros(filtros));
-  }, [filtros]);
+  }, [dispatch,filtros]);
 
   function nomeSerie(id) {
     const serie = listaDeSeries.filter((aux) => {
@@ -51,17 +48,91 @@ export default function TabelaMatricula(props) {
   }
 
   function excluirMatricula(matricula) {
-    if (window.confirm(`Deseja realmente excluir a matrícula de ${matricula.aluno.pessoa.nome} no ${matricula.serie.serieDescr} em ${matricula.anoLetivo.inicio.substring(0, 4)}?`)) {
-      dispatch(apagarMatricula(matricula));
-    }
+    toast.custom((t) => (
+      <div
+        className={`${
+          t.visible ? 'animate-enter' : 'animate-leave'
+        } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto flex flex-col ring-1 ring-black ring-opacity-5`}
+      >
+        <div className="p-4">
+          <p className="text-sm font-medium text-gray-900 mb-2">
+            Confirmar exclusão
+          </p>
+          <p className="text-sm text-gray-700">
+            Deseja realmente excluir a matrícula de <strong>{matricula.aluno.pessoa.nome}</strong> no <strong>{matricula.serie.serieDescr}</strong> em <strong>{matricula.anoLetivo.inicio.substring(0, 4)}</strong>?
+          </p>
+        </div>
+        <div className="flex justify-end border-t border-gray-200">
+          <button
+            onClick={() => {
+              dispatch(apagarMatricula(matricula));
+              toast.dismiss(t.id);
+            }}
+            className="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded-bl-lg"
+          >
+            Confirmar
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    ));
   }
+  
 
   function cancelarMatricula(matricula) {
-    if (window.confirm(`Deseja realmente cancelar a matrícula de ${matricula.aluno.pessoa.nome} no ${matricula.serie.serieDescr} em ${matricula.anoLetivo.inicio.substring(0, 4)}?\nUma vez cancelada essa matrícula não mais poderá ser recuperada`)) {
-      const matriculaAtualizada = { ...matricula, valido: false };
-      dispatch(atualizarMatricula(matriculaAtualizada));
-    }
+    toast.custom((t) => (
+      <div
+        className={`${
+          t.visible ? 'animate-enter' : 'animate-leave'
+        } max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-red-600 ring-opacity-40 border border-red-300`}
+      >
+        <div className="p-4">
+          <div className="flex items-start">
+            <div className="flex-shrink-0">
+              <svg className="h-6 w-6 text-red-600 mt-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm font-bold text-red-700">
+                Cancelamento permanente
+              </p>
+              <p className="mt-1 text-sm text-gray-800">
+                Tem certeza que deseja <strong>cancelar definitivamente</strong> a matrícula de <strong>{matricula.aluno.pessoa.nome}</strong> no <strong>{matricula.serie.serieDescr}</strong> ({matricula.anoLetivo.inicio.substring(0, 4)})?
+              </p>
+              <p className="mt-2 text-sm text-red-600 font-medium">
+                Esta ação é irreversível. A matrícula será desativada e não poderá ser recuperada!
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-end border-t border-gray-200 bg-gray-50 rounded-b-lg">
+          <button
+            onClick={() => {
+              const matriculaAtualizada = { ...matricula, valido: false };
+              dispatch(atualizarMatricula(matriculaAtualizada));
+              toast.dismiss(t.id);
+            }}
+            className="px-4 py-2 text-sm font-semibold text-white bg-red-600 hover:bg-red-700 rounded-bl-lg"
+          >
+            Cancelar matrícula
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
+          >
+            Voltar
+          </button>
+        </div>
+      </div>
+    ));
   }
+  
 
   const matriculasFiltradas = listaDeMatriculas.filter(matricula =>
     matricula.aluno.pessoa.nome.toLowerCase().includes(pesquisa.toLowerCase())
@@ -77,6 +148,16 @@ export default function TabelaMatricula(props) {
   }
 
   if (estado === ESTADO.ERRO) {
+    if (!toastMostrado) {
+      setToastMostrado(true);
+      setTimeout(() => {
+        toast.error(mensagem, { duration: 7000, repeat: false });
+      }, 1000);
+      setTimeout(() => {
+        setToastMostrado(false);
+      }, 15000);
+    }
+  
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4 space-y-4">
         <div className="flex items-center bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
@@ -92,6 +173,7 @@ export default function TabelaMatricula(props) {
       </div>
     );
   }
+  
 
   return (
     <div className="py-10 px-6 sm:px-10 lg:px-16-50 min-h-screen font-sans text-black">
@@ -273,6 +355,7 @@ export default function TabelaMatricula(props) {
           )
         }
       </div>
+      <Toaster position="top-center" />
     </div>
 
   );
