@@ -10,13 +10,14 @@ export async function gravarReuniao(reuniao) {
   }
   
   export async function alterarReuniao(reuniao) {
-    const resposta = await fetch(`http://localhost:8080/reuniao/${reuniao.id}`, {
+    const resposta = await fetch(`http://localhost:8080/reuniao/${reuniao.reuniaoId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(reuniao),
     });
     return await resposta.json();
   }
+  
 
 export async function excluirReuniao(id) {
   const resposta = await fetch(`${urlBase}/${id}`, {

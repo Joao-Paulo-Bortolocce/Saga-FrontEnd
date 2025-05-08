@@ -17,7 +17,7 @@ export default function TabelaReuniao({ reunioes, editarReuniao, excluirReuniao 
               <td className="px-6 py-4 text-sm text-center text-gray-300">{reuniao.reuniaoId}</td>
               <td className="px-6 py-4 text-sm text-center text-gray-300">{reuniao.turma.letra}</td>
               <td className="px-6 py-4 text-sm text-center text-gray-300">{`${reuniao.serie.serieNum}° Série`}</td>
-              <td className="px-6 py-4 text-sm text-center text-gray-300">{reuniao.anoLetivo.inicio}</td>
+              <td className="px-6 py-4 text-sm text-center text-gray-300">{new Date(reuniao.anoLetivo.inicio).getFullYear()}</td>
               <td className="px-6 py-4 text-sm text-center text-gray-300">
                 {new Date(reuniao.reuniaoData).toLocaleString("pt-BR", {
                   day: "2-digit",

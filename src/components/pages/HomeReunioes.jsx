@@ -32,7 +32,7 @@ export default function HomeReunioes() {
 
   function editarReuniao(reuniao) {
     const dataFormatada = new Date(reuniao.reuniaoData).toISOString().slice(0, 16); // yyyy-MM-ddTHH:mm
-  
+
     setReuniaoEmEdicao({
       ...reuniao,
       serie_id: reuniao.serie?.serieId,
@@ -41,7 +41,7 @@ export default function HomeReunioes() {
       tipo: reuniao.reuniaoTipo,
       data: dataFormatada
     });
-  
+
     setMostrarFormulario(true);
     toast('Você está alterando uma reunião!', { icon: '⚠️' });
   }
@@ -98,10 +98,19 @@ export default function HomeReunioes() {
 
   async function buscarPorLetra(termo) {
     setBusca(termo);
+
+    if (termo.trim() === "") {
+      const todas = await buscarTodasReunioes();
+      if (todas.status) setReunioes(todas.reunioes);
+      else toast.error(todas.mensagem);
+      return;
+    }
+
     if (/\d/.test(termo)) {
       toast.error("A busca deve conter apenas letras.");
       return;
     }
+
     const resposta = await buscarReunioesPorTermo(termo);
     if (resposta.status) setReunioes(resposta.reunioes);
     else toast.error(resposta.mensagem);

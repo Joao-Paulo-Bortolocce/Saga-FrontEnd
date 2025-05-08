@@ -8,24 +8,24 @@ export default function FormularioReunioes({ reuniaoEmEdicao, salvarReuniao, can
   const [anos, setAnos] = useState([]);
 
   useEffect(() => {
-  if (reuniaoEmEdicao) {
-    setForm({
-      ...reuniaoEmEdicao,
-      serie_id: reuniaoEmEdicao.serie?.serieId,
-      anoletivo_id: reuniaoEmEdicao.anoLetivo?.id,
-      letra: reuniaoEmEdicao.turma?.letra || reuniaoEmEdicao.letra,
-      tipo: reuniaoEmEdicao.reuniaoTipo,
-      data: reuniaoEmEdicao.reuniaoData?.slice(0, 16) // datetime-local precisa desse formato
-    });
-  } else {
-    setForm({});
-  }
-}, [reuniaoEmEdicao]);
+    if (reuniaoEmEdicao) {
+      setForm({
+        ...reuniaoEmEdicao,
+        serie_id: reuniaoEmEdicao.serie?.serieId,
+        anoletivo_id: reuniaoEmEdicao.anoLetivo?.id,
+        letra: reuniaoEmEdicao.turma?.letra || reuniaoEmEdicao.letra,
+        tipo: reuniaoEmEdicao.reuniaoTipo,
+        data: reuniaoEmEdicao.reuniaoData?.slice(0, 16) // datetime-local precisa desse formato
+      });
+    } else {
+      setForm({});
+    }
+  }, [reuniaoEmEdicao]);
 
   useEffect(() => {
     fetch("http://localhost:8080/reuniao/turmas")
       .then(res => res.json())
-      .then(data => setTurmas(data))
+      .then(data => setTurmas(data.turmas || [])) 
       .catch(err => console.error("Erro ao buscar turmas:", err));
 
     fetch("http://localhost:8080/serie/buscarTodos")
