@@ -6,6 +6,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Provider } from "react-redux";
 import store from "./redux/store.js";
 import imagemFundoPrefeitura from "./assets/images/imagemFundoPrefeitura.png";
+import TabelaMateria from "./components/pages/tabelas/TabelaMateria.jsx";
+import HomeMateria from "./components/pages/HomeMateria.jsx";
 import HomeSeries from "./components/pages/HomeSeries.jsx";
 import HomeMatricula from "./components/pages/HomeMatricula.jsx";
 import HomeReunioes from "./components/pages/HomeReunioes.jsx"
@@ -21,7 +23,8 @@ export default function App() {
         <Routes>
           <Route path="/cadastros/pessoa" element={<HomePessoas />} /> 
           <Route path="/cadastros/aluno" element={<HomeAluno />} /> 
-          <Route path="/cadastros/materia" element={<MateriaPage />} />
+          <Route path="/cadastros/materia" element={<TabelaMateria />} />
+          <Route path="/cadastros/materia/cad-materia" element={<HomeMateria />}/>
           <Route path="/cadastros/serie" element={<HomeSeries />} />
           <Route path="/cadastros/matricula" element={<HomeMatricula />} />
           <Route path="/cadastros/sala" element={<HomeSalas />}/>
