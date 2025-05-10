@@ -22,22 +22,22 @@ export default function HomeSeries() {
     setSeries(lista ?? []);
   }
 
-async function excluirSerie(serie) {
-  toast.promise(
-    servicoSerie.excluirSerie(serie).then((res) => {
-      if (res.status) {
-        buscarSeries();
-      } else {
-        throw new Error(res.mensagem || 'Erro ao excluir');
+  async function excluirSerie(serie) {
+    toast.promise(
+      servicoSerie.excluirSerie(serie).then((res) => {
+        if (res.status) {
+          buscarSeries();
+        } else {
+          throw new Error(res.mensagem || 'Erro ao excluir');
+        }
+      }),
+      {
+        loading: 'Excluindo...',
+        success: 'Série excluída com sucesso!',
+        error: 'Erro ao excluir série',
       }
-    }),
-    {
-      loading: 'Excluindo...',
-      success: 'Série excluída com sucesso!',
-      error: 'Erro ao excluir série',
-    }
-  );
-}
+    );
+  }
 
   function editarSerie(serie) {
     setSerieEmEdicao(serie);
