@@ -8,6 +8,7 @@ const cadastros = [
     { nome: "Cadastro de Aluno", href: "/cadastros/aluno", tipo: "Pessoas", icon: Backpack, bgcolor:"bg-orange-500", color:"text-orange-500" },
     { nome: "Cadastro de Profissional", href: "/cadastros/profissional", tipo: "Pessoas", icon: BookUser, bgcolor:"bg-orange-500", color:"text-orange-500" },
     { nome: "Cadastro de Pessoa", href: "/cadastros/pessoa", tipo: "Pessoas", icon: User, bgcolor:"bg-orange-500", color:"text-orange-500"},
+<<<<<<< HEAD
     { nome: "Cadastro de Matricula", href: "/cadastros/matricula", tipo: "Pessoas", icon: SquarePen, bgcolor:"bg-orange-500", color:"text-orange-500"},
     { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infraestrutura", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
     { nome: "Cadastro de Turmas", href: "/cadastros/turma", tipo: "Infraestrutura", icon: Users, bgcolor:"bg-red-500", color:"text-red-500"  },
@@ -17,6 +18,11 @@ const cadastros = [
     { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor:"bg-blue-500", color:"text-blue-500"  },
     { nome: "Cadastro de Habilidades", href: "/cadastros/habilidade", tipo: "Acadêmico", icon: Dumbbell, bgcolor:"bg-blue-500", color:"text-blue-500"  },
     { nome: "Agendar reunião de pais", href: "/cadastros/reuniao", tipo: "Acadêmico", icon: CalendarClock, bgcolor:"bg-blue-500", color:"text-blue-500"  }
+=======
+    { nome: "Agendar Reunião de Pais", href: "/cadastros/reuniao", tipo: "Infra", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
+    { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infra", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
+    { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor:"bg-blue-500", color:"text-blue-500"  }
+>>>>>>> d610ece26dad0d670db19b79d565805dcfa9dd04
 ]
 
 export default function HomeCadastros(props) {
