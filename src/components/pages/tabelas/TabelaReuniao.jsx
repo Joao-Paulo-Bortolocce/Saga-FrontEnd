@@ -19,13 +19,17 @@ export default function TabelaReuniao({ reunioes, editarReuniao, excluirReuniao 
               <td className="px-6 py-4 text-sm text-center text-gray-300">{`${reuniao.serie.serieNum}° Série`}</td>
               <td className="px-6 py-4 text-sm text-center text-gray-300">{new Date(reuniao.anoLetivo.inicio).getFullYear()}</td>
               <td className="px-6 py-4 text-sm text-center text-gray-300">
-                {new Date(reuniao.reuniaoData).toLocaleString("pt-BR", {
+              {(() => {
+                const data = new Date(reuniao.reuniaoData);
+                data.setHours(data.getHours() + 3); // Ajuste fuso horário
+                return data.toLocaleString("pt-BR", {
                   day: "2-digit",
                   month: "2-digit",
                   year: "numeric",
                   hour: "2-digit",
                   minute: "2-digit",
-                })}
+                });
+              })()}
               </td>
               <td className="px-6 py-4 text-sm text-center text-gray-300">{reuniao.reuniaoTipo}</td>
               <td className="px-6 py-4 text-sm text-center text-gray-300">
