@@ -1,4 +1,4 @@
-const urlBase = 'http://localhost:4000/turmas';
+const urlBase = 'http://localhost:8080/turma';
 
 export async function gravarTurmas(turma) {
   const resposta = await fetch(urlBase, {
@@ -28,7 +28,7 @@ export async function excluirTurmas(turma) {
 export async function consultarTurmas(termo) {
   let resposta;
   if (termo === undefined)
-    resposta = await fetch(urlBase + "/", {
+    resposta = await fetch(urlBase + "/buscarTodos", {
       method: "GET",
     });
   else
@@ -36,5 +36,5 @@ export async function consultarTurmas(termo) {
       method: "GET",
     });
   const resultado = await resposta.json();
-  return resultado;
+  return resultado.turmas;
 }
