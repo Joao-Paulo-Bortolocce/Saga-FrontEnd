@@ -22,18 +22,27 @@ export default function HomeSeries() {
     setSeries(lista ?? []);
   }
 
-  async function excluirSerie(serie) {
-    toast.promise(servicoSerie.excluirSerie(serie).then(buscarSeries), {
+async function excluirSerie(serie) {
+  toast.promise(
+    servicoSerie.excluirSerie(serie).then((res) => {
+      if (res.status) {
+        buscarSeries();
+      } else {
+        throw new Error(res.mensagem || 'Erro ao excluir');
+      }
+    }),
+    {
       loading: 'Excluindo...',
       success: 'Série excluída com sucesso!',
       error: 'Erro ao excluir série',
-    });
-  }
+    }
+  );
+}
 
   function editarSerie(serie) {
     setSerieEmEdicao(serie);
     setSerieNum(serie.serieNum);
-    setDescricao(serie.descricao);
+    setDescricao(serie.serieDescr);
     setMostrarFormulario(true);
     toast('Você está alterando uma série!', { icon: '⚠️' });
   }
@@ -49,11 +58,11 @@ export default function HomeSeries() {
     e.preventDefault();
     const serie = {
       serieNum: Number(serieNum),
-      descricao,
+      serieDescr: descricao,
       id: serieEmEdicao?.id,
     };
     const acao = serieEmEdicao
-      ? servicoSerie.alterarSerie(serie.id, serie)
+      ? servicoSerie.alterarSerie(serieEmEdicao.serieId, serie)
       : servicoSerie.gravarSerie(serie);
 
     toast.promise(
@@ -120,9 +129,9 @@ export default function HomeSeries() {
                   <tbody className="divide-y divide-gray-700 bg-gray-800/40">
                     {series.map((serie, index) => (
                       <tr key={index} className="hover:bg-gray-700/40 transition-colors duration-150">
-                        <td className="px-6 py-4 text-sm text-gray-300">{serie.id}</td>
+                        <td className="px-6 py-4 text-sm text-gray-300">{serie.serieId}</td>
                         <td className="px-6 py-4 text-sm text-gray-300">{serie.serieNum}</td>
-                        <td className="px-6 py-4 text-sm text-gray-300">{serie.descricao}</td>
+                        <td className="px-6 py-4 text-sm text-gray-300">{serie.serieDescr}</td>
                         <td className="px-6 py-4 text-sm text-gray-300 text-right">
                           <div className="flex items-center justify-end gap-3">
                             <button onClick={() => editarSerie(serie)} className="p-1.5 rounded-lg bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 hover:text-yellow-400">Editar</button>
