@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { consultarMatriculaFiltros } from '../service/servicoMatricula.js';
-import { gravarFrequencia } from '../service/serviceFrequencia.js';
+import { consultarMatriculaFiltros } from '../../../service/servicoMatricula.js';
+import { gravarFrequencia } from '../../../service/serviceFrequencia.js';
 
 export default function TurmaSelecionada({ turma, voltar }) {
   const [alunos, setAlunos] = useState([]);

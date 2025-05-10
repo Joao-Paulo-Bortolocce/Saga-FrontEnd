@@ -108,8 +108,8 @@ export default function Menu() {
                     <a href="/funcionalidades" className="text-sm/6 font-semibold text-gray-900">
                         Funcionalidades
                     </a>
-                    <a href="#" className="text-sm/6 font-semibold text-gray-900">
-                        Marketplace
+                    <a href="/cadastros/chamada" className="text-sm/6 font-semibold text-gray-900">
+                        chamada
                     </a>
                     <a href="#" className="text-sm/6 font-semibold text-gray-900">
                         Company

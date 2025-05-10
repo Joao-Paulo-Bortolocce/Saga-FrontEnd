@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { consultarTurmas } from "../service/servicoTurma.js";
+import { consultarTurmas } from "../../../service/servicoTurma.js";
 
 export default function TabelaTurmasChamada({ selecionarTurma }) {
   const [turmas, setTurmas] = useState([]);
