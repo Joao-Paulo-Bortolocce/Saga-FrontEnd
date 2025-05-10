@@ -31,7 +31,13 @@ export default function HomeReunioes() {
   }, []);
 
   function editarReuniao(reuniao) {
-    const dataFormatada = new Date(reuniao.reuniaoData).toISOString().slice(0, 16); // yyyy-MM-ddTHH:mm
+    const data = new Date(reuniao.reuniaoData);
+
+    // Corrige para o fuso local (adiciona 3 horas, se estiver em -03:00)
+    // data.setMinutes(data.getMinutes() - data.getTimezoneOffset());
+    data.setHours(data.getHours + 3)
+
+    const dataFormatada = data.toISOString().slice(0, 16); // yyyy-MM-ddTHH:mm
 
     setReuniaoEmEdicao({
       ...reuniao,
@@ -39,7 +45,7 @@ export default function HomeReunioes() {
       anoletivo_id: reuniao.anoLetivo?.id,
       letra: reuniao.turma?.letra || reuniao.letra,
       tipo: reuniao.reuniaoTipo,
-      data: dataFormatada
+      data: dataFormatada,
     });
 
     setMostrarFormulario(true);
@@ -135,7 +141,7 @@ export default function HomeReunioes() {
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Buscar por letra da turma..."
+                    placeholder="Buscar por letra da turma ou tipo..."
                     value={busca}
                     onChange={(e) => buscarPorLetra(e.target.value)}
                     className="w-full px-4 py-2 pl-10 border border-gray-700 rounded-lg bg-gray-800/40 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500"
