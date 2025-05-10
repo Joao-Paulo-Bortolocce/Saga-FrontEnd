@@ -37,20 +37,18 @@ export default function App() {
   
 
   return (
-      <div>
-        <Page/>
-        <FormularioSalas
-          atualizarLista={buscarSalas}
-          salasEmEdicao={salasEmEdicao}
-          cancelarEdicao={cancelarEdicao}
-          buscarPorCarteiras={buscarPorCarteiras}
-        />
-        <TabelaSalas
-          salas={salas}
-          excluirSalas={excluirSalas}
-          editarSalas={editarSalas}
-        />
-      </div>
-
+    <Telas titulo="Cadastro de Série">
+      <FormularioSalas
+        atualizarLista={buscarSalas}
+        salasEmEdicao={salasEmEdicao}
+        cancelarEdicao={cancelarEdicao}
+        buscarPorCarteiras={buscarPorCarteiras}
+      />
+      <TabelaSalas
+        salas={salas}
+        excluirSalas={excluirSalas}
+        editarSalas={editarSalas}
+      />
+    </Telas>
   );
 }
