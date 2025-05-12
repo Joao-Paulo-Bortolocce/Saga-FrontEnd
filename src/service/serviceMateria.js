@@ -1,4 +1,4 @@
-const urlBase = "http://localhost:4000/materia";
+const urlBase = "http://localhost:8080/materia";
 
 export async function gravarMateria(materia) {
     const res = await fetch(urlBase, {
@@ -12,7 +12,7 @@ export async function gravarMateria(materia) {
 }
 
 export async function alterarMateria(materia) {
-    const res = await fetch(urlBase + "/" + materia.materia_id, {
+    const res = await fetch(urlBase + "/" + materia.id, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -24,7 +24,7 @@ export async function alterarMateria(materia) {
 }
 
 export async function excluirMateria(materia) {
-    const res = await fetch(urlBase + "/" + materia.materia_id, {
+    const res = await fetch(urlBase + "/" + materia.id, {
         method: "DELETE",
     });
     const result = await res.json();
@@ -32,7 +32,7 @@ export async function excluirMateria(materia) {
 }
 
 export async function consultarMateria() {
-    const res = await fetch(urlBase, {
+    const res = await fetch(urlBase + "/buscarTodas", {
         method: "GET"
     });
     const result = await res.json();

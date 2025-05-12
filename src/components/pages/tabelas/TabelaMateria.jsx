@@ -10,15 +10,13 @@ export default function TabelaMateria() {
     const [listaMaterias, setListaMaterias] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
 
-    const filteredMaterias = listaMaterias.listaMaterias.filter(materia =>
-        materia.materia_nome.toLowerCase().includes(searchTerm.toLowerCase())
-    );
 
     useEffect(() => {
         async function carregarMaterias() {
             try {
                 const materias = await consultarMateria();
-                setListaMaterias(materias);
+                setListaMaterias(materias.listaDeMaterias);
+                console.log(materias)
             } catch (erro) {
                 console.error("Erro ao carregar matérias:", erro);
             }
@@ -26,8 +24,12 @@ export default function TabelaMateria() {
         carregarMaterias();
     }, []);
 
+    const filteredMaterias = listaMaterias.filter(materia =>
+        materia.nome.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     async function deleteSubject(materia) {
-        if (window.confirm("Deseja realmente excluir a matéria " + materia.materia_nome + "?")) {
+        if (window.confirm("Deseja realmente excluir a matéria " + materia.nome + "?")) {
             await excluirMateria(materia);
             const listaMatAtualizada = await consultarMateria();
             setListaMaterias(listaMatAtualizada);
@@ -37,7 +39,7 @@ export default function TabelaMateria() {
 
     function changeSubject(materiaSelecionada) {
         setMateria(materiaSelecionada);
-        setErrors({ materia_nome: "", materia_carga: "" })
+        setErrors({ nome: "", carga: "" })
     }
 
     return (
@@ -92,13 +94,13 @@ export default function TabelaMateria() {
                                             className="hover:bg-gray-700/40 transition-colors duration-150"
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-300">
-                                                {materia.materia_id}
+                                                {materia.id}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                {materia.materia_nome}
+                                                {materia.nome}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                                                {materia.materia_carga}
+                                                {materia.carga}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
                                                 <div className="flex items-center justify-end gap-3">

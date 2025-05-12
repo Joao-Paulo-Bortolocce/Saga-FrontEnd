@@ -109,7 +109,7 @@ export default function Menu() {
                         Funcionalidades
                     </a>
                     <a href="/cadastros/chamada" className="text-sm/6 font-semibold text-gray-900">
-                        chamada
+                        Chamada
                     </a>
                     <a href="#" className="text-sm/6 font-semibold text-gray-900">
                         Company
