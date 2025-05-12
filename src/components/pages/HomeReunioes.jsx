@@ -31,26 +31,31 @@ export default function HomeReunioes() {
   }, []);
 
   function editarReuniao(reuniao) {
-    const data = new Date(reuniao.reuniaoData);
+  let data = new Date(reuniao.reuniaoData);
 
-    // Corrige para o fuso local (adiciona 3 horas, se estiver em -03:00)
-    // data.setMinutes(data.getMinutes() - data.getTimezoneOffset());
-    data.setHours(data.getHours + 3)
+  // Adiciona 3 horas
+  data.setHours(data.getHours() + 3);
 
-    const dataFormatada = data.toISOString().slice(0, 16); // yyyy-MM-ddTHH:mm
+  // Função para preencher com zero à esquerda
+  const pad = (num) => String(num).padStart(2, '0');
 
-    setReuniaoEmEdicao({
-      ...reuniao,
-      serie_id: reuniao.serie?.serieId,
-      anoletivo_id: reuniao.anoLetivo?.id,
-      letra: reuniao.turma?.letra || reuniao.letra,
-      tipo: reuniao.reuniaoTipo,
-      data: dataFormatada,
-    });
+  // Formata no padrão yyyy-MM-ddTHH:mm
+  const dataFormatada = `${data.getFullYear()}-${pad(data.getMonth() + 1)}-${pad(data.getDate())}T${pad(data.getHours())}:${pad(data.getMinutes())}`;
 
-    setMostrarFormulario(true);
-    toast('Você está alterando uma reunião!', { icon: '⚠️' });
-  }
+  setReuniaoEmEdicao({
+    ...reuniao,
+    serie_id: reuniao.serie?.serieId,
+    anoletivo_id: reuniao.anoLetivo?.id,
+    letra: reuniao.turma?.letra || reuniao.letra,
+    tipo: reuniao.reuniaoTipo,
+    reuniaoData: dataFormatada,
+    data: data
+  });
+
+  setMostrarFormulario(true);
+  toast('Você está alterando uma reunião!', { icon: '⚠️' });
+}
+
 
   function excluirReuniao(id) {
     toast.promise(
