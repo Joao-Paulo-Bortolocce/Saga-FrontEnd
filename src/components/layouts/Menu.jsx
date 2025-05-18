@@ -1,199 +1,183 @@
-'use client'
-
-import { useState } from 'react'
+import { useState, useContext } from 'react';
 import {
     Dialog,
     DialogPanel,
-    Disclosure,
-    DisclosureButton,
-    DisclosurePanel,
     Popover,
     PopoverButton,
     PopoverGroup,
     PopoverPanel,
-} from '@headlessui/react'
+} from '@headlessui/react';
 import {
-    ArrowPathIcon,
     Bars3Icon,
-    ChartPieIcon,
-    CursorArrowRaysIcon,
-    FingerPrintIcon,
-    SquaresPlusIcon,
     XMarkIcon,
-} from '@heroicons/react/24/outline'
+    ChevronDownIcon,
+} from '@heroicons/react/24/outline';
+import {
+    UserRoundSearch,
+    BookOpenText,
+    School,
+    Earth,
+    LogOut,
+    User,
+} from 'lucide-react';
 
-import { UserRoundSearch,BookOpenText,School,Earth   } from 'lucide-react';
-import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
+import logoPrefeitura from "../../assets/images/logoPrefeitura.png";
+import { ContextoUsuario } from '../../App';
 
-import logoPrefeitura from "../../assets/images/logoPrefeitura.png"
+const opcoesCadastro = [
+    {
+        nome: 'Pessoas',
+        descricao: 'Adicionar pessoa (Aluno, Responsável ou Profissional)',
+        href: '/cadastros',
+        icon: UserRoundSearch
+    },
+    {
+        nome: 'Acadêmico',
+        descricao: 'Adicionar itens do setor acadêmico',
+        href: '/cadastros',
+        icon: BookOpenText
+    },
+    {
+        nome: 'Infraestrutura',
+        descricao: 'Adicionar infraestrutura (salas, turmas, séries)',
+        href: '/cadastros',
+        icon: School
+    },
+    {
+        nome: 'Todos',
+        descricao: 'Todos os cadastros',
+        href: '/cadastros',
+        icon: Earth
+    },
+];
 
-const products = [
-    { name: 'Pessoas', description: 'Adicionar pessoa (Aluno, Responsável ou profissional)', href: '/cadastros', icon: UserRoundSearch },
-    { name: 'Acadêmico', description: 'Adicionar algo do setor acadêmico (materias, habilidades, fichas e outros) ', href: '/cadastros', icon: BookOpenText },
-    { name: 'Infraestrutura', description: 'Adicionar infraestrutura (salas, turmas, séries e outros)', href: '/cadastros', icon: School },
-    { name: 'Todos', description: 'Todos os cadastros', href: '/cadastros', icon: Earth },
-]
-const callsToAction = [
-    { name: 'Watch demo', href: '#', icon: PlayCircleIcon },
-    { name: 'Contact sales', href: '#', icon: PhoneIcon },
-]
+export default function HeaderMenu() {
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const { setUsuario, usuario } = useContext(ContextoUsuario);
 
-export default function Menu() {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const handleLogout = () => {
+        localStorage.removeItem("usuario");
+        setUsuario({ id: 0, username: '', senha: '', tipo: '', logado: false });
+    };
 
     return (
-        <header className="bg-white">
-            <nav aria-label="Global" className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8">
-                <div className="flex lg:flex-1">
-                    <a href="/" className="-m-1.5 p-1.5">
-                        <span className="sr-only">Your Company</span>
-                        <img src={logoPrefeitura} alt="logo Prefeitura" className='h-12 w-auto' />
+        <header className="bg-white shadow relative z-50">
+            <nav className="mx-auto max-w-7xl flex items-center justify-between p-4 lg:px-8">
+                <div className="flex items-center gap-4">
+                    <a href="/" className="flex items-center gap-2">
+                        <img src={logoPrefeitura} alt="Logo Prefeitura" className="h-10 w-auto" />
+                        <span className="sr-only">Início</span>
                     </a>
+                    <div className="hidden lg:flex items-center gap-2 text-sm text-gray-700">
+                        <User className="w-4 h-4" />
+                        {usuario.username}
+                    </div>
                 </div>
+
                 <div className="flex lg:hidden">
                     <button
-                        type="button"
                         onClick={() => setMobileMenuOpen(true)}
-                        className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
+                        className="inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
                     >
-                        <span className="sr-only">Open main menu</span>
-                        <Bars3Icon aria-hidden="true" className="size-6" />
+                        <Bars3Icon className="h-6 w-6" />
                     </button>
                 </div>
-                <PopoverGroup className="hidden lg:flex lg:gap-x-12 z-20">
+
+                <PopoverGroup className="hidden lg:flex lg:gap-x-10">
                     <Popover className="relative">
-                        <PopoverButton className="flex items-center gap-x-1 text-sm/6 font-semibold text-gray-900">
+                        <PopoverButton className="flex items-center gap-x-1 text-sm font-semibold text-gray-900">
                             Cadastros
-                            <ChevronDownIcon aria-hidden="true" className="size-5 flex-none text-gray-400" />
+                            <ChevronDownIcon className="w-5 h-5 text-gray-400" />
                         </PopoverButton>
 
-                        <PopoverPanel
-                            transition
-                            className="absolute top-full -left-8 z-10 mt-3 w-screen max-w-md overflow-hidden rounded-3xl bg-white ring-1 shadow-lg ring-gray-900/5 transition data-closed:translate-y-1 data-closed:opacity-0 data-enter:duration-200 data-enter:ease-out data-leave:duration-150 data-leave:ease-in"
-                        >
+                        <PopoverPanel className="absolute top-full left-0 z-50 mt-3 w-screen max-w-md overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-gray-200">
                             <div className="p-4">
-                                {products.map((item) => (
-                                    <div
-                                        key={item.name}
-                                        className="group relative flex items-center gap-x-6 rounded-lg p-4 text-sm/6 hover:bg-gray-50"
-                                    >
-                                        <div className="flex size-11 flex-none items-center justify-center rounded-lg bg-gray-50 group-hover:bg-white">
-                                            <item.icon aria-hidden="true" className="size-6 text-gray-600 group-hover:text-indigo-600" />
-                                        </div>
-                                        <div className="flex-auto">
-                                            <a href={item.href + "?tipo=" + item.name} className="block font-semibold text-gray-900">
-                                                {item.name}
-                                                <span className="absolute inset-0" />
-                                            </a>
-                                            <p className="mt-1 text-gray-600">{item.description}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="grid grid-cols-2 divide-x divide-gray-900/5 bg-gray-50">
-                                {callsToAction.map((item) => (
+                                {opcoesCadastro.map((item) => (
                                     <a
-                                        key={item.name}
-                                        href={item.href}
-                                        className="flex items-center justify-center gap-x-2.5 p-3 text-sm/6 font-semibold text-gray-900 hover:bg-gray-100"
+                                        key={item.nome}
+                                        href={`${item.href}?tipo=${item.nome}`}
+                                        className="group flex items-center gap-4 rounded-lg p-3 hover:bg-gray-50"
                                     >
-                                        <item.icon aria-hidden="true" className="size-5 flex-none text-gray-400" />
-                                        {item.name}
+                                        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-gray-100 group-hover:bg-indigo-50">
+                                            <item.icon className="h-5 w-5 text-gray-600 group-hover:text-indigo-600" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-semibold text-gray-900">{item.nome}</p>
+                                            <p className="text-xs text-gray-500">{item.descricao}</p>
+                                        </div>
                                     </a>
                                 ))}
                             </div>
                         </PopoverPanel>
                     </Popover>
 
-                    <a href="/funcionalidades" className="text-sm/6 font-semibold text-gray-900">
+                    <a href="/funcionalidades" className="text-sm font-semibold text-gray-900">
                         Funcionalidades
                     </a>
-                    <a href="/cadastros/chamada" className="text-sm/6 font-semibold text-gray-900">
-                        chamada
-                    </a>
-                    <a href="#" className="text-sm/6 font-semibold text-gray-900">
-                        Company
+                    <a href="/cadastros/chamada" className="text-sm font-semibold text-gray-900">
+                        Chamada
                     </a>
                 </PopoverGroup>
-                <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-                    <a href="#" className="text-sm/6 font-semibold text-gray-900">
-                        Log in <span aria-hidden="true">&rarr;</span>
-                    </a>
+
+                <div className="hidden lg:flex lg:items-center">
+                    <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-2 rounded-md px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition"
+                    >
+                        <LogOut className="h-4 w-4" />
+                        Sair
+                    </button>
                 </div>
             </nav>
+
+            {/* Menu Mobile */}
             <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
-                <div className="fixed inset-0 z-10" />
-                <DialogPanel className="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
+                <div className="fixed inset-0 z-10 bg-black/20" />
+                <DialogPanel className="fixed inset-y-0 right-0 z-20 w-full max-w-sm bg-white p-6 overflow-y-auto">
                     <div className="flex items-center justify-between">
-                        <a href="#" className="-m-1.5 p-1.5">
-                            <span className="sr-only">Your Company</span>
-                            <img
-                                alt=""
-                                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
-                                className="h-8 w-auto"
-                            />
+                        <a href="/" className="flex items-center gap-2">
+                            <img src={logoPrefeitura} alt="Logo Prefeitura" className="h-8 w-auto" />
                         </a>
                         <button
-                            type="button"
                             onClick={() => setMobileMenuOpen(false)}
-                            className="-m-2.5 rounded-md p-2.5 text-gray-700"
+                            className="rounded-md p-2 text-gray-700"
                         >
-                            <span className="sr-only">Close menu</span>
-                            <XMarkIcon aria-hidden="true" className="size-6" />
+                            <XMarkIcon className="h-6 w-6" />
                         </button>
                     </div>
-                    <div className="mt-6 flow-root">
-                        <div className="-my-6 divide-y divide-gray-500/10">
-                            <div className="space-y-2 py-6">
-                                <Disclosure as="div" className="-mx-3">
-                                    <DisclosureButton className="group flex w-full items-center justify-between rounded-lg py-2 pr-3.5 pl-3 text-base/7 font-semibold text-gray-900 hover:bg-gray-50">
-                                        Product
-                                        <ChevronDownIcon aria-hidden="true" className="size-5 flex-none group-data-open:rotate-180" />
-                                    </DisclosureButton>
-                                    <DisclosurePanel className="mt-2 space-y-2">
-                                        {[...products, ...callsToAction].map((item) => (
-                                            <DisclosureButton
-                                                key={item.name}
-                                                as="a"
-                                                href={item.href}
-                                                className="block rounded-lg py-2 pr-3 pl-6 text-sm/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                            >
-                                                {item.name}
-                                            </DisclosureButton>
-                                        ))}
-                                    </DisclosurePanel>
-                                </Disclosure>
-                                <a
-                                    href="#"
-                                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                >
-                                    Features
-                                </a>
-                                <a
-                                    href="#"
-                                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                >
-                                    Marketplace
-                                </a>
-                                <a
-                                    href="#"
-                                    className="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                >
-                                    Company
-                                </a>
-                            </div>
-                            <div className="py-6">
-                                <a
-                                    href="#"
-                                    className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-gray-900 hover:bg-gray-50"
-                                >
-                                    Log in
-                                </a>
-                            </div>
-                        </div>
+                    <div className="mt-6 space-y-4">
+                        {opcoesCadastro.map((item) => (
+                            <a
+                                key={item.nome}
+                                href={`${item.href}?tipo=${item.nome}`}
+                                className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+                            >
+                                {item.nome}
+                            </a>
+                        ))}
+                        <a
+                            href="/funcionalidades"
+                            className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+                        >
+                            Funcionalidades
+                        </a>
+                        <a
+                            href="/cadastros/chamada"
+                            className="block rounded-md px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-100"
+                        >
+                            Chamada
+                        </a>
+                        <hr className="my-4" />
+                        <button
+                            onClick={handleLogout}
+                            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-base font-medium text-red-600 hover:bg-red-50"
+                        >
+                            <LogOut className="h-5 w-5" />
+                            Sair
+                        </button>
                     </div>
                 </DialogPanel>
             </Dialog>
         </header>
-    )
+    );
 }

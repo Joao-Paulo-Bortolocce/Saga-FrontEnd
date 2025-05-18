@@ -1,29 +1,37 @@
+import { useContext } from "react";
 import Page from "../layouts/Page";
 import logoPrefeitura from "../../assets/images/logoPrefeitura.png";
-import imagemFundo from "../../assets/images/imagemFundoPrefeitura.png"; // mesma usada nos formulários
+import imagemFundo from "../../assets/images/imagemFundoPrefeitura.png";
+import { ContextoUsuario } from "../../App";
 
 export default function HomePage() {
-  const nomeUsuario = "USUARIO TESTE"; // Pode ser dinâmico depois
+  const { usuario } = useContext(ContextoUsuario);
+  const nomeUsuario = usuario?.username || "Usuário";
 
   return (
     <>
-      <Page className="h-1/10"  style={{height:"10vh"}}/>
+      <Page className="h-[10vh]" />
+
       <div
-        className="bg-cover bg-black/70 z-0  flex items-center justify-center " 
-        style={{height:"90vh"}}
+        className="relative h-[90vh] bg-cover bg-center"
+        style={{ backgroundImage: `url(${imagemFundo})` }}
       >
-        {/* sobreposição escura */}
+        {/* Camada escura sobre a imagem de fundo */}
+        <div className="absolute inset-0 bg-black/60" />
 
-
-        <div className="relative z-10 text-center">
+        {/* Conteúdo centralizado */}
+        <div className="relative z-10 flex flex-col items-center justify-center h-full text-white text-center px-4">
           <img
             src={logoPrefeitura}
             alt="Logo Prefeitura"
-            className="h-44 mx-auto mb-10"
+            className="h-40 mb-8 drop-shadow-lg"
           />
-          <h1 className="text-white text-2xl md:text-3xl font-bold">
-            Bem-Vindo <span className="uppercase">{nomeUsuario}</span>
+          <h1 className="text-3xl md:text-4xl font-bold drop-shadow-sm">
+            Bem-vindo, <span className="uppercase text-indigo-300">{nomeUsuario}</span>
           </h1>
+          <p className="mt-4 text-sm md:text-base max-w-md text-gray-200">
+            Este é o portal de gestão educacional. Use o menu acima para navegar pelas funcionalidades do sistema.
+          </p>
         </div>
       </div>
     </>
