@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { gravarSalas, alterarSalas } from '../../../service/servicoSalas';
 
-export default function FormularioSalas({ atualizarLista, salasEmEdicao, cancelarEdicao, buscarPorCarteiras }) {
+export default function CadastrarSala({ atualizarLista, salasEmEdicao, cancelarEdicao, buscarPorCarteiras }) {
   const [ncarteiras, setNcarteiras] = useState(salasEmEdicao?.ncarteiras || '');
   const [busca, setBusca] = useState('');
 

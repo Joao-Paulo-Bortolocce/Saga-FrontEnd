@@ -11,6 +11,7 @@ import HomeMatricula from "./components/pages/HomeMatricula.jsx";
 import HomeReunioes from "./components/pages/HomeReunioes.jsx"
 import HomeSalas from "./components/pages/HomeSalas.jsx"
 import HomeAluno from "./components/pages/HomeAluno.jsx";
+import HomeGraduacao from "./components/pages/HomeGraduacao.jsx";
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
           <Route path="/cadastros/matricula" element={<HomeMatricula />} />
           <Route path="/cadastros/sala" element={<HomeSalas />}/>
           <Route path="/cadastros/reuniao" element={<HomeReunioes />} />
+          <Route path="/cadastros/graduacao" element={<HomeGraduacao />} />
           <Route path="/cadastros" element={<HomeCadastros />} />
           <Route path="/" element={<HomePage />} />
         </Routes> {/* A ordem das rotas é importante, por isso o Tela404 vem por ultimo com o * que significa que qualquer rota chama ele, e então deve ser o ultimo se não será chamado sempre*/}
