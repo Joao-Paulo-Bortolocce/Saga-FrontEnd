@@ -17,6 +17,7 @@ const cadastros = [
     { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor:"bg-blue-500", color:"text-blue-500"  },
     { nome: "Cadastro de Habilidades", href: "/cadastros/habilidade", tipo: "Acadêmico", icon: Dumbbell, bgcolor:"bg-blue-500", color:"text-blue-500"  },
     { nome: "Agendar reunião de pais", href: "/cadastros/reuniao", tipo: "Acadêmico", icon: CalendarClock, bgcolor:"bg-blue-500", color:"text-blue-500"  },
+    { nome: "Realizar Chamada", href: "/cadastros/frequencia", tipo: "Acadêmico", icon: Users, bgcolor:"bg-blue-500", color:"text-blue-500"  }
 ]
 
 export default function HomeCadastros(props) {

@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogPanel,
@@ -11,35 +11,38 @@ import {
     PopoverButton,
     PopoverGroup,
     PopoverPanel,
-} from '@headlessui/react'
-import {
-    ArrowPathIcon,
-    Bars3Icon,
-    ChartPieIcon,
-    CursorArrowRaysIcon,
-    FingerPrintIcon,
-    SquaresPlusIcon,
-    XMarkIcon,
-} from '@heroicons/react/24/outline'
-
-import { UserRoundSearch,BookOpenText,School,Earth   } from 'lucide-react';
-import { ChevronDownIcon, PhoneIcon, PlayCircleIcon } from '@heroicons/react/20/solid'
-
-import logoPrefeitura from "../../assets/images/logoPrefeitura.png"
+} from '@headlessui/react';
+import { Bars3Icon, ChevronDownIcon, PhoneIcon, PlayCircleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { UserRoundSearch, BookOpenText, School, Earth, Bell } from 'lucide-react'; // Importa o ícone do sino
+import logoPrefeitura from "../../assets/images/logoPrefeitura.png";
+import { consultarNotificacao } from '../../service/serviceNotificacao'; // Importa a função para consultar notificações
 
 const products = [
     { name: 'Pessoas', description: 'Adicionar pessoa (Aluno, Responsável ou profissional)', href: '/cadastros', icon: UserRoundSearch },
-    { name: 'Acadêmico', description: 'Adicionar algo do setor acadêmico (materias, habilidades, fichas e outros) ', href: '/cadastros', icon: BookOpenText },
+    { name: 'Acadêmico', description: 'Adicionar algo do setor acadêmico (materias, habilidades, fichas e outros)', href: '/cadastros', icon: BookOpenText },
     { name: 'Infraestrutura', description: 'Adicionar infraestrutura (salas, turmas, séries e outros)', href: '/cadastros', icon: School },
     { name: 'Todos', description: 'Todos os cadastros', href: '/cadastros', icon: Earth },
-]
+];
+
 const callsToAction = [
     { name: 'Watch demo', href: '#', icon: PlayCircleIcon },
     { name: 'Contact sales', href: '#', icon: PhoneIcon },
-]
+];
 
 export default function Menu() {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [notificacoesPendentes, setNotificacoesPendentes] = useState(false);
+
+    // Função para verificar se há notificações pendentes
+    const verificarNotificacoes = async () => {
+        const notificacoes = await consultarNotificacao(); // Chama a API de notificações
+        const pendentes = notificacoes.some((notificacao) => !notificacao.visualizada); // Verifica se existe alguma notificação não visualizada
+        setNotificacoesPendentes(pendentes);
+    };
+
+    useEffect(() => {
+        verificarNotificacoes(); // Verifica as notificações pendentes ao carregar
+    }, []);
 
     return (
         <header className="bg-white">
@@ -116,9 +119,18 @@ export default function Menu() {
                     </a>
                 </PopoverGroup>
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+                    {/* Ícone de Sino com Notificação */}
+                    <button className="relative">
+                        <Bell
+                            className={`h-6 w-6 ${notificacoesPendentes ? 'text-red-500' : 'text-gray-700'}`}
+                        />
+                        {notificacoesPendentes && (
+                            <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
+                        )}
+                    </button>
                     <a href="#" className="text-sm/6 font-semibold text-gray-900">
                         Log in <span aria-hidden="true">&rarr;</span>
-                    </a>
+                    </a>                   
                 </div>
             </nav>
             <Dialog open={mobileMenuOpen} onClose={setMobileMenuOpen} className="lg:hidden">
@@ -128,7 +140,7 @@ export default function Menu() {
                         <a href="#" className="-m-1.5 p-1.5">
                             <span className="sr-only">Your Company</span>
                             <img
-                                alt=""
+                                alt="Logo"
                                 src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=600"
                                 className="h-8 w-auto"
                             />
@@ -195,5 +207,5 @@ export default function Menu() {
                 </DialogPanel>
             </Dialog>
         </header>
-    )
+    );
 }

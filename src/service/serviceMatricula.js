@@ -34,7 +34,6 @@ export async function excluirMatricula(matricula) {
     })
     const resultado = await resposta.json();
     return resultado;
-
 }
 
 export async function consultarMatricula(termo) {
@@ -55,7 +54,7 @@ export async function consultarMatricula(termo) {
 }
 
 export async function consultarMatriculaFiltros(termos) {
-    const resposta = await fetch(urlBase + "/buscarTodasFiltradas?serie=" + termos.serie + "&anoLetivo=" + termos.anoLetivo, {
+    const resposta = await fetch(urlBase + "/buscarTodasFiltradas?serie=" + termos.serie.serieId + "&anoLetivo=" + termos.anoLetivo.id, {
         "method": "GET",
     });
     const resultado = await resposta.json();
