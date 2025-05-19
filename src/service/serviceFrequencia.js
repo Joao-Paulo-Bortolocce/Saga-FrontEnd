@@ -11,3 +11,11 @@ export async function gravarFrequencia(dados) {
     const resultado = await resposta.json();
     return await resultado;
 }
+
+export async function consultarFreqAluno(id) {
+  let resposta = await fetch(urlBase + "/" + id, {
+      method: "GET",
+    });
+  const resultado = await resposta.json();
+  return resultado.frequencias;
+}

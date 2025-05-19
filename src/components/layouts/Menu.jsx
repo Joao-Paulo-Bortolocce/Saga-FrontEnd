@@ -36,7 +36,8 @@ export default function Menu() {
     // Função para verificar se há notificações pendentes
     const verificarNotificacoes = async () => {
         const notificacoes = await consultarNotificacao(); // Chama a API de notificações
-        const pendentes = notificacoes.some((notificacao) => !notificacao.visualizada); // Verifica se existe alguma notificação não visualizada
+        console.log(notificacoes);
+        const pendentes = notificacoes.some((notificacao) => !notificacao.not_visto); // Verifica se existe alguma notificação não visualizada
         setNotificacoesPendentes(pendentes);
     };
 
@@ -120,14 +121,14 @@ export default function Menu() {
                 </PopoverGroup>
                 <div className="hidden lg:flex lg:flex-1 lg:justify-end">
                     {/* Ícone de Sino com Notificação */}
-                    <button className="relative">
+                    <a href='/notificacao' className="relative">
                         <Bell
                             className={`h-6 w-6 ${notificacoesPendentes ? 'text-red-500' : 'text-gray-700'}`}
                         />
                         {notificacoesPendentes && (
                             <span className="absolute top-0 right-0 block h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-white" />
                         )}
-                    </button>
+                    </a>
                     <a href="#" className="text-sm/6 font-semibold text-gray-900">
                         Log in <span aria-hidden="true">&rarr;</span>
                     </a>                   

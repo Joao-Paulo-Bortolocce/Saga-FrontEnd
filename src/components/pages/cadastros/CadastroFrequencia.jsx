@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { consultarMatriculaFiltros } from '../../../service/serviceMatricula.js';
-import { gravarFrequencia } from '../../../service/serviceFrequencia.js';
+import { gravarFrequencia, consultarFreqAluno } from '../../../service/serviceFrequencia.js';
+import { gravarNotificacao } from '../../../service/serviceNotificacao.js';
 
 export default function CadastroFrequencia(props) {
   const [alunos, setAlunos] = useState([]);
@@ -30,6 +31,42 @@ export default function CadastroFrequencia(props) {
     props.setExibirTabela(true);
   }
 
+  async function verificarFrequencia(aluno, dados) {
+  const frequencias = await consultarFreqAluno(dados.id);
+
+  const faltas = frequencias
+    .filter(f => !f.presente)
+    .sort((a, b) => new Date(a.data) - new Date(b.data));
+
+  let consecutivas = 1;
+  for (let i = 1; i < faltas.length && consecutivas < 3; i++) {
+    const anterior = new Date(faltas[i - 1].data);
+    const atual = new Date(faltas[i].data);
+    const diff = Math.floor((atual - anterior) / (1000 * 60 * 60 * 24));
+    if (diff === 1) {
+      consecutivas++;
+    } else {
+      consecutivas = 1;
+    }
+  }
+
+  let text;
+  if (consecutivas >= 3) {
+    text = `Aluno ${aluno.aluno.pessoa.nome} (RA ${aluno.aluno.ra}) atingiu 3 faltas consecutivas.`;
+  } else if (faltas.length >= 7) {
+    text = `Aluno ${aluno.aluno.pessoa.nome} (RA ${aluno.aluno.ra}) faltou em 7 aulas.`;
+  }
+
+  if (text) {
+    const notificacao = {
+      mensagem: text,
+      data: dados.data
+    };
+    await gravarNotificacao(notificacao);
+  }
+}
+
+
   async function confirmarPresenca() {
     if (!dataChamada) return alert("Por favor, selecione a data da chamada.");
     if (alunos.length === 0) return alert("Nenhum aluno disponível para registrar presença.");
@@ -37,9 +74,12 @@ export default function CadastroFrequencia(props) {
     let sucessoTotal = true;
 
     for (const aluno of alunos) {
+      const id = aluno.id;
+      const presente = !presencas[aluno.aluno.ra]; // checkbox marcado = falta
+
       const dados = {
-        id: aluno.id,
-        presente: presencas[aluno.aluno.ra] === true,
+        id: id,
+        presente: presente,
         data: dataChamada
       };
 
@@ -48,6 +88,8 @@ export default function CadastroFrequencia(props) {
         if (!resposta.status) {
           sucessoTotal = false;
           console.error(`Erro ao gravar frequência para RA ${aluno.aluno.ra}:`, resposta.mensagem);
+        } else if (!presente) {
+          await verificarFrequencia(aluno, dados);
         }
       } catch (error) {
         sucessoTotal = false;
@@ -55,9 +97,11 @@ export default function CadastroFrequencia(props) {
       }
     }
 
-    alert(sucessoTotal
-      ? `Presença registrada com sucesso para a turma ${props.turma.serie.serieDescr} - ${props.turma.letra} na data ${dataChamada}`
-      : "Ocorreram erros ao registrar uma ou mais presenças. Verifique o console.");
+    alert(
+      sucessoTotal
+        ? `Presença registrada com sucesso para a turma ${props.turma.serie.serieDescr} - ${props.turma.letra} na data ${dataChamada}`
+        : "Ocorreram erros ao registrar uma ou mais presenças. Verifique o console."
+    );
 
     voltar();
   }
@@ -89,7 +133,7 @@ export default function CadastroFrequencia(props) {
                 <tr>
                   <th className="px-6 py-3 text-left text-sm font-medium">RA</th>
                   <th className="px-6 py-3 text-left text-sm font-medium">Nome</th>
-                  <th className="px-6 py-3 text-center text-sm font-medium">Presente</th>
+                  <th className="px-6 py-3 text-center text-sm font-medium">Falta</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700">
