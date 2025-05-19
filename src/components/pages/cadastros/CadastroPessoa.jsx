@@ -6,6 +6,7 @@ import ESTADO from '../../../redux/estados.js';
 import { incluirPessoa, atualizarPessoa } from '../../../redux/pessoaReducer.js';
 import { formatarCEP, formatarCPF } from '../../../service/formatadores.js';
 import { consultarPessoa } from '../../../service/servicePessoa.js';
+import toast, { Toaster } from "react-hot-toast";
 
 function CadastroPessoa(props) {
   const [pessoa, setPessoa] = useState(props.pessoa);
@@ -20,7 +21,7 @@ function CadastroPessoa(props) {
       let atual = new Date();
       let dataInformada = new Date(valor);
       if (dataInformada > atual) {
-        alert("A data informada é inválida");
+        toast.error("A data informada é inválida");
         valor = dataInformada.toLocaleString().substring(0, 10);
       }
     }
@@ -51,7 +52,7 @@ function CadastroPessoa(props) {
     if(props.cadastrarPessoa){
       idade= atual.getFullYear() - dataInformada.getFullYear();
       if(idade>12){
-        alert("Você está cadastrando informações pessoais de um aluno, que portanto pode ter no maximo 12 anos de idade")
+        toast.error("Você está cadastrando informações pessoais de um aluno, que portanto pode ter no maximo 12 anos de idade")
         
         setPessoa({ ...pessoa, ["dataNascimento"]: "" });
       }
@@ -84,7 +85,7 @@ function CadastroPessoa(props) {
     
       consultarPessoa(pessoa.cpf).then((consulta) => {
         if (consulta != undefined && consulta != null && consulta != []) {
-          alert("O cpf: " + pessoa.cpf + " ja esta sendo utilizado");
+          toast.error("O cpf: " + pessoa.cpf + " ja esta sendo utilizado");
           setPessoa({ ...pessoa, ["cpf"]: "" });
         }
 
@@ -543,6 +544,7 @@ function CadastroPessoa(props) {
           </form>
         </div>
       </div>
+        <Toaster position="top-center" />
     </div>
   );
 }

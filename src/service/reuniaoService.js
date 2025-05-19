@@ -1,9 +1,18 @@
+function obterHeaders(contentType = true) {
+  const token = localStorage.getItem("token");
+  const headers = {
+    Authorization: `${token}`
+  };
+  if (contentType) headers["Content-type"] = "application/json";
+  return headers;
+}
+
 const urlBase = "http://localhost:8080/reuniao";
 
 export async function gravarReuniao(reuniao) {
     const resposta = await fetch("http://localhost:8080/reuniao/gravar", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: obterHeaders(),
       body: JSON.stringify(reuniao),
     });
     return await resposta.json();
@@ -12,7 +21,7 @@ export async function gravarReuniao(reuniao) {
   export async function alterarReuniao(reuniao) {
     const resposta = await fetch(`http://localhost:8080/reuniao/${reuniao.reuniaoId}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: obterHeaders(),
       body: JSON.stringify(reuniao),
     });
     return await resposta.json();

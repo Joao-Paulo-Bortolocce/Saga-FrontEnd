@@ -5,9 +5,7 @@ const urlBase = "http://localhost:8080/matricula";
 export async function gravarMatricula(matricula) {
     const resposta = await fetch(urlBase, {
         "method": "POST",
-        "headers": {
-            "Content-type": "application/json"
-        },
+        headers: obterHeaders(),
         "body": JSON.stringify(matricula)
     })
     const resultado = await resposta.json();
@@ -17,9 +15,7 @@ export async function gravarMatricula(matricula) {
 export async function alterarMatricula(matricula) {
     const resposta = await fetch(urlBase, {
         "method": "PUT",
-        "headers": {
-            "Content-type": "application/json"
-        },
+        headers: obterHeaders(),
         "body": JSON.stringify(matricula)
     })
     const resultado = await resposta.json();

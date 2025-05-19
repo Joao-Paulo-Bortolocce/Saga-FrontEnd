@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState,useContext } from 'react';
 import {
   PlusCircle, Pencil, Trash2, Search, UserPlus, AlertCircle, Loader2
 } from 'lucide-react';
@@ -9,9 +9,11 @@ import {
   buscarProfissionais
 } from '../../../redux/profissionalReducer';
 import toast from 'react-hot-toast';
+import { ContextoUsuario } from '../../../App';
 
 export default function TabelaProfissional(props) {
   const { estado, mensagem, listaDeProfissionais } = useSelector(state => state.profissional);
+  const { setUsuario, usuario } = useContext(ContextoUsuario);
   const dispatch = useDispatch();
   const [profissionaisFiltrados, setProfissionaisFiltrados] = useState([]);
   const [pesquisa, setPesquisa] = useState("");
@@ -108,11 +110,17 @@ export default function TabelaProfissional(props) {
       <div className="overflow-x-auto border rounded-2xl shadow">
         <table className="min-w-full text-sm text-left bg-white">
           <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-medium">
-            <tr>
+            {usuario.tipo==3?<tr>
               {['RA', 'Nome', 'CPF', 'Tipo', 'Data de Admissão', 'Usuário', 'Ações'].map((title, i) => (
                 <th key={i} className="px-6 py-3">{title}</th>
               ))}
+            </tr>:
+            <tr>
+              {['RA', 'Nome', 'CPF', 'Tipo', 'Data de Admissão', 'Usuário'].map((title, i) => (
+                <th key={i} className="px-6 py-3">{title}</th>
+              ))}
             </tr>
+            }
           </thead>
           <tbody className="divide-y divide-gray-100">
             {profissionaisFiltrados.length > 0 ? (
@@ -123,11 +131,16 @@ export default function TabelaProfissional(props) {
                   <td className="px-6 py-4">{profissional.profissional_pessoa.cpf}</td>
                   <td className="px-6 py-4">{getTipoProfissional(profissional.profissional_tipo)}</td>
                   <td className="px-6 py-4">
-                    {new Date(profissional.profissional_dataAdmissao).toLocaleDateString('pt-BR')}
+                    {new Date(
+                      new Date(profissional.profissional_dataAdmissao).setHours(
+                        new Date(profissional.profissional_dataAdmissao).getHours() + 3
+                      )
+                    ).toLocaleDateString('pt-BR')}
                   </td>
-                  <td className="px-6 py-4">{profissional.profissional_user}</td>
+
+                  <td className="px-6 py-4">{profissional.profissional_usuario}</td>
                   <td className="px-6 py-4">
-                    <div className="flex gap-2">
+                    {usuario.tipo==3 &&(<div className="flex gap-2">
                       <button
                         onClick={() => alterarProfissional(profissional)}
                         className="flex items-center gap-1 px-3 py-1 rounded-2xl bg-blue-600 text-white hover:bg-blue-700 transition"
@@ -144,7 +157,7 @@ export default function TabelaProfissional(props) {
                         <Trash2 className="w-4 h-4" />
                         Excluir
                       </button>
-                    </div>
+                    </div>)}
                   </td>
                 </tr>
               ))

@@ -17,7 +17,7 @@ export default function HomePessoas(props) {
                 cpf: "",
                 nome: "",
             },
-            profissional_user:"",
+            profissional_usuario:"",
             profissional_senha:""
     });
 

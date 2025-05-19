@@ -56,6 +56,7 @@ export default function HeaderMenu() {
     const { setUsuario, usuario } = useContext(ContextoUsuario);
 
     const handleLogout = () => {
+        localStorage.removeItem("token");
         localStorage.removeItem("usuario");
         setUsuario({ id: 0, username: '', senha: '', tipo: '', logado: false });
     };
@@ -84,7 +85,7 @@ export default function HeaderMenu() {
                 </div>
 
                 <PopoverGroup className="hidden lg:flex lg:gap-x-10">
-                    <Popover className="relative">
+                    {usuario.tipo % 2 == 1 ? <Popover className="relative">
                         <PopoverButton className="flex items-center gap-x-1 text-sm font-semibold text-gray-900">
                             Cadastros
                             <ChevronDownIcon className="w-5 h-5 text-gray-400" />
@@ -109,14 +110,19 @@ export default function HeaderMenu() {
                                 ))}
                             </div>
                         </PopoverPanel>
-                    </Popover>
+                    </Popover> :
+                        null}
 
                     <a href="/funcionalidades" className="text-sm font-semibold text-gray-900">
                         Funcionalidades
                     </a>
-                    <a href="/cadastros/chamada" className="text-sm font-semibold text-gray-900">
-                        Chamada
-                    </a>
+                    {
+                        usuario.tipo > 1 && (
+                            <a href="/cadastros/chamada" className="text-sm font-semibold text-gray-900">
+                                Chamada
+                            </a>)
+
+                    }
                 </PopoverGroup>
 
                 <div className="hidden lg:flex lg:items-center">

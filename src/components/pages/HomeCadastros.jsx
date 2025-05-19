@@ -16,7 +16,6 @@ const cadastros = [
   { nome: "Cadastro de Salas", href: "/cadastros/sala", tipo: "Infraestrutura", icon: DoorClosed, bgcolor: "bg-red-500", color: "text-red-500" },
   { nome: "Cadastro de Ano letivo", href: "/cadastros/anoLetivo", tipo: "Infraestrutura", icon: Calendar, bgcolor: "bg-red-500", color: "text-red-500" },
   { nome: "Cadastro de Graduação", href: "/cadastros/graduacao", tipo: "Infraestrutura", icon: GraduationCap, bgcolor: "bg-red-500", color: "text-red-500" },
-  { nome: "Agendar Reunião de Pais", href: "/cadastros/reuniao", tipo: "Infra", icon: Shapes, bgcolor: "bg-red-500", color: "text-red-500" },
   { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor: "bg-blue-500", color: "text-blue-500" },
   { nome: "Cadastro de Habilidades", href: "/cadastros/habilidade", tipo: "Acadêmico", icon: Dumbbell, bgcolor: "bg-blue-500", color: "text-blue-500" },
   { nome: "Agendar reunião de pais", href: "/cadastros/reuniao", tipo: "Acadêmico", icon: CalendarClock, bgcolor: "bg-blue-500", color: "text-blue-500" },

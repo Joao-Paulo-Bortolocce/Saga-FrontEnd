@@ -1,27 +1,39 @@
 const urlBase = 'http://localhost:8080/turma';
 
+function obterHeaders(contentType = true) {
+  const token = localStorage.getItem("token");
+  const headers = {
+    'Authorization': `${token}`
+  };
+  if (contentType) {
+    headers['Content-Type'] = 'application/json';
+  }
+  return headers;
+}
+
 export async function gravarTurmas(turma) {
   const resposta = await fetch(urlBase, {
     method: "POST",
-    headers: { 'Content-Type': "application/json" },
+    headers: obterHeaders(),
     body: JSON.stringify(turma),
   });
-  const resultado = await resposta.json();
-  return resultado;
+  return await resposta.json();
 }
 
 export async function alterarTurmas(id, turma) {
   const resposta = await fetch(`${urlBase}/${id}`, {
     method: "PUT",
-    headers: { 'Content-Type': "application/json" },
+    headers: obterHeaders(),
     body: JSON.stringify(turma),
   });
-  const resultado = await resposta.json();
-  return resultado;
+  return await resposta.json();
 }
 
 export async function excluirTurmas(turma) {
-  const resposta = await fetch(`${urlBase}/${turma.id}`, { method: "DELETE" });
+  const resposta = await fetch(`${urlBase}/${turma.id}`, {
+    method: "DELETE",
+    headers: obterHeaders(false)
+  });
   return await resposta.json();
 }
 
@@ -30,10 +42,12 @@ export async function consultarTurmas(termo) {
   if (termo === undefined)
     resposta = await fetch(urlBase + "/buscarTodos", {
       method: "GET",
+      headers: obterHeaders(false)
     });
   else
     resposta = await fetch(urlBase + "/" + termo, {
       method: "GET",
+      headers: obterHeaders(false)
     });
   const resultado = await resposta.json();
   return resultado.turmas;

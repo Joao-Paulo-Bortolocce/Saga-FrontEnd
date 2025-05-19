@@ -30,11 +30,13 @@ function CadastroProfissional(props) {
 
     useEffect(() => {
         dispatch(buscarPossiveisProfissionais());
+
     }, []);
 
     useEffect(() => {
         filtrar();
     }, [profissional, listaDePessoas]);
+
 
     function filtrar() {
         const cpf = profissional.profissional_pessoa.cpf.toLowerCase();
@@ -53,7 +55,8 @@ function CadastroProfissional(props) {
     }
 
     function manipularMudanca(event) {
-        const { id, value } = event.currentTarget;
+        const id = event.currentTarget.id;
+        let value = event.currentTarget.value;
         let novosValidos = [...validos];
 
         if (id.startsWith("pessoa.")) {
@@ -77,7 +80,23 @@ function CadastroProfissional(props) {
         } else {
             if (id === "profissional_ra") novosValidos[2] = true;
             if (id === "profissional_tipo") novosValidos[3] = true;
-            if (id === "profissional_dataAdmissao") novosValidos[4] = true;
+            if (id === "profissional_dataAdmissao") {
+                let atual = new Date();
+                let dataInformada = new Date(value);
+                if (dataInformada > atual) {
+                    toast.error("A data informada é inválida", { duration: 3000 });
+                    value = ""
+                }
+                else{
+
+                    if((atual-dataInformada)/(86400000*365)>50){
+                        toast.error("A data informada precisa ser mais recente", { duration: 3000 });
+                        value = ""
+                    }
+                    else
+                        novosValidos[4] = true;
+                }
+            }
             if (id === "profissional_graduacao") {
                 novosValidos[5] = true;
                 setProfissional((profAntigo) => ({
@@ -97,7 +116,7 @@ function CadastroProfissional(props) {
                     ...profAntigo,
                     [id]: value,
                 }));
-                if (id === "profissional_user") novosValidos[6] = true;
+                if (id === "profissional_usuario") novosValidos[6] = true;
             }
         }
         setValidos(novosValidos);
@@ -107,11 +126,11 @@ function CadastroProfissional(props) {
         props.setProfissional({
             profissional_ra: 0,
             profissional_tipo: 0,
-            profissional_dataAdmissao: "",
+            profissional_dataAdmissao: new Date().toISOString().substring(0, 10),
             profissional_graduacao: {
                 id: 0,
             },
-            profissional_user: "",
+            profissional_usuario: "",
             profissional_senha: "",
             profissional_pessoa: {
                 cpf: "",
@@ -177,7 +196,7 @@ function CadastroProfissional(props) {
             valido = false;
         }
 
-        if (!profissional.profissional_user || profissional.profissional_user.trim() === "") {
+        if (!profissional.profissional_usuario || profissional.profissional_usuario.trim() === "") {
             novosValidos[6] = false;
             valido = false;
         }
@@ -219,7 +238,7 @@ function CadastroProfissional(props) {
                         duration: 2000,
                         repeat: false
                     });
-                    
+
                     setTimeout(() => {
                         toast.error("NOME E(OU) CPF ERRADO(S)!", {
                             duration: 2000,
@@ -228,13 +247,21 @@ function CadastroProfissional(props) {
                     }, 2000);
 
                     setTimeout(() => {
-                        if (confirm("Deseja cadastrar as informações pessoais desse profissional para prosseguir com o cadastro?")) {
-                            cadastrarInfosPessoais();
-                        }
+                        toast("Cadastre as informações pessoais do profissional antes de prosseguir este cadastro", {
+                        duration: 3000,
+                        repeat: false,
+                        icon:'⚠'
+                        
+                    });
                     }, 4000);
                 }
             }
         }
+    }
+
+    function mensagemAutorizado(mensagem) {
+        if (props.modoEdicao)
+            toast.error("Voce não pode alterar " + mensagem + " do profissional ja cadastrado", { duration: 2000 })
     }
 
     if (estado === ESTADO.PENDENTE) {
@@ -269,7 +296,7 @@ function CadastroProfissional(props) {
                 <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 h-full flex flex-col">
                     <div className="flex flex-col items-center mb-6 md:mb-8">
                         <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 tracking-wide">Cadastro de Profissional</h2>
-                         <img src={logoPrefeitura} alt="Logo da Prefeitura" className="h-16 sm:h-20 md:h-24 w-auto" />
+                        <img src={logoPrefeitura} alt="Logo da Prefeitura" className="h-16 sm:h-20 md:h-24 w-auto" />
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -366,11 +393,11 @@ function CadastroProfissional(props) {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                                <label htmlFor="profissional_user" className={`text-sm ${validos[6] ? 'text-white' : 'text-red-500'}`}>Nome de usuário</label>
+                                <label htmlFor="profissional_usuario" className={`text-sm ${validos[6] ? 'text-white' : 'text-red-500'}`}>Nome de usuário</label>
                                 <input
                                     type="text"
-                                    id="profissional_user"
-                                    value={profissional.profissional_user}
+                                    id="profissional_usuario"
+                                    value={profissional.profissional_usuario}
                                     onChange={manipularMudanca}
                                     className={`w-full rounded-md p-2 sm:p-3 bg-gray-800 text-white ${!validos[6] ? 'border border-red-500' : ''}`}
                                 />
