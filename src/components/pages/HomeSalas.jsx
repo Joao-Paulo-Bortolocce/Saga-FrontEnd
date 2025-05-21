@@ -5,8 +5,8 @@ import CadastrarSala from './cadastros/CadastroSalas.jsx';
 
 export default function App() {
   const [sala, setSala] = useState({
-    id: "",
-    ncarteiras: "",
+    id: 0,
+    ncarteiras: 0,
     descr: ""
   });
   const [salaEdicao, setSalaEdicao] = useState(false);
@@ -31,7 +31,6 @@ export default function App() {
               salaEdicao={salaEdicao}
               sala={sala}
               setSala = {setSala}
-              cadastrarSala={false}
             />
           )}
         </div>        

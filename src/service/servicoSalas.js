@@ -1,31 +1,31 @@
-const urlBase = 'http://localhost:4000/salas';
+const urlBase = 'http://localhost:8080/sala';
 
-export async function gravarSalas(salas) {
+export async function gravarSala(sala) {
   const resposta = await fetch(urlBase, {
     method: "POST",
     headers: { 'Content-Type': "application/json" },
-    body: JSON.stringify(salas),
+    body: JSON.stringify(sala),
   });
   const resultado =await  resposta.json();
   return resultado;
 }
 
-export async function alterarSalas(id, salas) {
+export async function alterarSala(id, sala) {
   const resposta = await fetch(`${urlBase}/${id}`, {
     method: "PUT",
     headers: { 'Content-Type': "application/json" },
-    body: JSON.stringify(salas),
+    body: JSON.stringify(sala),
   });
   const resultado = await resposta.json();
   return resultado;
 }
 
-export async function excluirSalas(salas) {
-  const resposta = await fetch(`${urlBase}/${salas.id}`, { method: "DELETE" });
+export async function excluirSala(sala) {
+  const resposta = await fetch(`${urlBase}/${sala.id}`, { method: "DELETE" });
   return await resposta.json();
 }
 
-export async function consultarSalas(termo){
+export async function consultarSala(termo){
     let resposta
     if(termo==undefined)
         resposta = await fetch(urlBase+"/",{

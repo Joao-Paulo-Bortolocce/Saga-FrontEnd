@@ -1,28 +1,47 @@
-import { useState } from 'react';
-import { gravarSalas, alterarSalas } from '../../../service/servicoSalas';
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { incluirSalas, atualizarSalas, buscarSalas } from '../../../redux/salaReducer';
+import ESTADO from '../../../redux/estados';
 
-export default function CadastrarSala({ atualizarLista, salasEmEdicao, cancelarEdicao, buscarPorCarteiras }) {
-  const [ncarteiras, setNcarteiras] = useState(salasEmEdicao?.ncarteiras || '');
+export default function CadastroSalas(props) {
+  const { salaEmEdicao, setSalaEmEdicao, setExibirTabela } = props;
+  const [ncarteiras, setNcarteiras] = useState(salaEmEdicao?.ncarteiras || '');
   const [busca, setBusca] = useState('');
+  const { estado, mensagem } = useSelector(state => state.sala);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (salaEmEdicao) {
+      setNcarteiras(salaEmEdicao.ncarteiras);
+    } else {
+      setNcarteiras('');
+    }
+  }, [salaEmEdicao]);
 
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (salasEmEdicao) {
-      await alterarSalas(salasEmEdicao.id, { ncarteiras });
-      cancelarEdicao();
+    if (salaEmEdicao) {
+      await dispatch(atualizarSalas({ id: salaEmEdicao.id, ncarteiras }));
+      setSalaEmEdicao(null);
     } else {
-      await gravarSalas({ ncarteiras });
+      await dispatch(incluirSalas({ ncarteiras }));
     }
-
+    dispatch(buscarSalas());
+    setExibirTabela(true);
     setNcarteiras('');
-    atualizarLista();
   }
 
   function handleBuscaChange(e) {
     const termo = e.target.value;
     setBusca(termo);
-    buscarPorCarteiras(termo);
+    dispatch(buscarSalas(termo));
+  }
+
+  function cancelarEdicao() {
+    setSalaEmEdicao(null);
+    setExibirTabela(true);
+    setNcarteiras('');
   }
 
   return (
@@ -37,9 +56,9 @@ export default function CadastrarSala({ atualizarLista, salasEmEdicao, cancelarE
           required
         />
         <button type="submit" className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">
-          {salasEmEdicao ? 'Atualizar' : 'Cadastrar'}
+          {salaEmEdicao ? 'Atualizar' : 'Cadastrar'}
         </button>
-        {salasEmEdicao && (
+        {salaEmEdicao && (
           <button type="button" onClick={cancelarEdicao} className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded">
             Cancelar
           </button>
@@ -52,6 +71,12 @@ export default function CadastrarSala({ atualizarLista, salasEmEdicao, cancelarE
         onChange={handleBuscaChange}
         className="p-2 rounded bg-gray-800 border border-gray-700 w-72"
       />
+      {estado === ESTADO.PENDENTE && (
+        <div className="text-indigo-600 mt-2">Processando requisição...</div>
+      )}
+      {estado === ESTADO.ERRO && (
+        <div className="text-red-600 mt-2">Erro: {mensagem}</div>
+      )}
     </div>
   );
 }
