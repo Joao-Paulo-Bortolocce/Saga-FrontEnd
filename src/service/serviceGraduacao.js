@@ -42,7 +42,6 @@ export async function consultarGraduacao(termo) {
             "method": "GET",
         })
         const resultado = await resposta.json();
-        console.log(resultado.listaGraduacao);
         return resultado.listaGraduacao;
     }
     resposta = await fetch(urlBase + "/" + termo, {

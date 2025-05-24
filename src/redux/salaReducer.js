@@ -27,7 +27,7 @@ export const buscarSalas = createAsyncThunk('buscarSalas', async (termo) => {
   }
 });
 
-export const apagarSala = createAsyncThunk('apagarSalas', async (sala) => {
+export const apagarSalas = createAsyncThunk('apagarSalas', async (sala) => {
   const resultado = await excluirSala(sala);
   try {
     return {
@@ -43,7 +43,7 @@ export const apagarSala = createAsyncThunk('apagarSalas', async (sala) => {
   }
 });
 
-export const incluirSala = createAsyncThunk('incluirSala', async (sala) => {
+export const incluirSalas = createAsyncThunk('incluirSalas', async (sala) => {
   try {
     const resultado = await gravarSala(sala);
     if (resultado.status) {
@@ -66,7 +66,7 @@ export const incluirSala = createAsyncThunk('incluirSala', async (sala) => {
   }
 });
 
-export const atualizarSala = createAsyncThunk('atualizarSala', async (sala) => {
+export const atualizarSalas = createAsyncThunk('atualizarSalas', async (sala) => {
   try {
     const resultado = await alterarSala(sala.id, sala);
     if (resultado.status) {
@@ -107,11 +107,12 @@ const salaSlice = createSlice({
       .addCase(buscarSalas.fulfilled, (state, action) => {
         if (action.payload.status) {
           state.estado = ESTADO.OCIOSO;
+          state.listaSalas = action.payload.listaSalas;
         } else {
           state.estado = ESTADO.ERRO;
+          state.listaSalas = [];
         }
         state.mensagem = action.payload.mensagem;
-        state.listaSalas = action.payload.listaSalas;
       })
       .addCase(buscarSalas.rejected, (state, action) => {
         state.estado = ESTADO.ERRO;

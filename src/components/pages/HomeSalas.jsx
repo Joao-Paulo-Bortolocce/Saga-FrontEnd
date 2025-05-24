@@ -7,7 +7,7 @@ export default function App() {
   const [sala, setSala] = useState({
     id: 0,
     ncarteiras: 0,
-    descr: ""
+    descricao: ""
   });
   const [salaEdicao, setSalaEdicao] = useState(false);
   const [exibirTabela, setExibirTabela] = useState(true);
@@ -22,7 +22,7 @@ export default function App() {
             <TabelaSalas
               setExibirTabela={setExibirTabela}
               setSalaEdicao={setSalaEdicao}
-              setSalas={setSala}
+              setSala={setSala}
             />
           ) : (
             <CadastrarSala

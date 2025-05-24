@@ -33,16 +33,14 @@ export default function Menu() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [notificacoesPendentes, setNotificacoesPendentes] = useState(false);
 
-    // Função para verificar se há notificações pendentes
     const verificarNotificacoes = async () => {
-        const notificacoes = await consultarNotificacao(); // Chama a API de notificações
-        console.log(notificacoes);
-        const pendentes = notificacoes.some((notificacao) => !notificacao.not_visto); // Verifica se existe alguma notificação não visualizada
+        const notificacoes = await consultarNotificacao();
+        const pendentes = notificacoes.some((notificacao) => !notificacao.not_visto);
         setNotificacoesPendentes(pendentes);
     };
 
     useEffect(() => {
-        verificarNotificacoes(); // Verifica as notificações pendentes ao carregar
+        verificarNotificacoes();
     }, []);
 
     return (

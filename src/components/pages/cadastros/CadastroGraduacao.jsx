@@ -2,17 +2,12 @@ import React, { useState } from 'react';
 import { Hash, Loader2, AlertCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import logoPrefeitura from '../../../assets/images/logoPrefeitura.png';
-
 import ESTADO from '../../../redux/estados.js';
-import {
-  incluirGraduacao,
-  atualizarGraduacao,
-} from '../../../redux/graduacaoReducer.js';
+import { incluirGraduacao, atualizarGraduacao } from '../../../redux/graduacaoReducer.js';
 
 function CadastroGraduacao(props) {
   const dispatch = useDispatch();
   const { estado, mensagem } = useSelector((state) => state.graduacao);
-
   const [graduacao, setGraduacaoLocal] = useState(
     props.graduacao || { descricao: '' }
   );

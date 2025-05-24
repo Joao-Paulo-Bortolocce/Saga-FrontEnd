@@ -12,10 +12,30 @@ export async function gravarFrequencia(dados) {
     return await resultado;
 }
 
-export async function consultarFreqAluno(id) {
-  let resposta = await fetch(urlBase + "/" + id, {
-      method: "GET",
+export async function alterarFrequencia(dados) {
+    const resposta = await fetch(urlBase, {
+        "method": "PUT",
+        "headers": {
+            "Content-type": "application/json"
+        },
+        "body": JSON.stringify(dados)
+    })
+    const resultado = await resposta.json();
+    return resultado;
+}
+
+export async function excluirFrequencia(dados) {
+    const resposta = await fetch(urlBase + "/" + dados.id, {
+        "method": "DELETE",
+    })
+    const resultado = await resposta.json();
+    return resultado;
+}
+
+export async function consultarFreqAluno(dados) {
+    let resposta = await fetch(urlBase + "/" + dados.id + "/" + dados.data,{
+      method: "GET"
     });
-  const resultado = await resposta.json();
-  return resultado.frequencias;
+    const resultado = await resposta.json();
+    return resultado.frequencias;
 }

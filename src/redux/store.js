@@ -4,6 +4,8 @@ import matriculaReducer from "./matriculaReducer";
 import alunoReducer from "./alunoReducer";
 import graduacaoReducer from "./graduacaoReducer";
 import salaReducer from "./salaReducer"
+import frequenciaReducer from "./frequenciaReducer"
+import notificacaoReducer from "./notificacaoReducer"
 
 const store= configureStore({
     reducer:{
@@ -11,7 +13,9 @@ const store= configureStore({
         'matricula':matriculaReducer,
         'aluno':alunoReducer,
         'graduacao':graduacaoReducer,
-        'sala':salaReducer
+        'sala':salaReducer,
+        'frequencia': frequenciaReducer,
+        'notificacao': notificacaoReducer
     }
 })
 

@@ -9,7 +9,7 @@ export async function gravarNotificacao(notificacao) {
   return await resposta.json();
 }
 
-export async function VisualizarNotificacao(id) {
+export async function visualizarNotificacao(id) {
   const resposta = await fetch(`${urlBase}/${id}`, {
     method: "PUT",
     headers: { 'Content-Type': "application/json" }
