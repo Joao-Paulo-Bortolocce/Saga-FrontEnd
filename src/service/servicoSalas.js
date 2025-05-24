@@ -1,7 +1,6 @@
 const urlBase = 'http://localhost:8080/sala';
 
 export async function gravarSala(sala) {
-  console.log(sala);
   const resposta = await fetch(urlBase, {
     method: "POST",
     headers: { 'Content-Type': "application/json" },
@@ -11,8 +10,8 @@ export async function gravarSala(sala) {
   return resultado;
 }
 
-export async function alterarSala(sala) {
-  const resposta = await fetch(urlBase+"/"+sala.id, {
+export async function alterarSala(id, sala) {
+  const resposta = await fetch(urlBase+"/"+id, {
     method: "PUT",
     headers: { 'Content-Type': "application/json" },
     body: JSON.stringify(sala),

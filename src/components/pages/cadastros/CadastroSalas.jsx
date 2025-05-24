@@ -11,7 +11,7 @@ function CadastroSalas(props) {
   const { estado, mensagem } = useSelector((state) => state.sala);
 
   const [sala, setSalaLocal] = useState(
-    props.sala || { ncarteiras: 0, descricao: ''}
+    props.sala || { id :0, ncarteiras: 0, descricao: ''}
   );
 
   useEffect(() => {
@@ -22,11 +22,13 @@ function CadastroSalas(props) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setSalaLocal((prev) => ({ ...prev, [name]: value }));
+    const newValue = name === 'ncarteiras' ? parseInt(value, 10) : value;
+    setSalaLocal((prev) => ({ ...prev, [name]: newValue }));
   };
 
+
   const limparFormulario = () => {
-    const salaLimpa = { ncarteiras: 0, descricao: '' };
+    const salaLimpa = { id: 0, ncarteiras: 0, descricao: '' };
     props.setSala(salaLimpa);
     setSalaLocal(salaLimpa);
   };
@@ -36,6 +38,7 @@ function CadastroSalas(props) {
     if (sala.ncarteiras <= 0) {
       toast.error('Preencha todos os campos corretamente');
     }else{
+      console.log(sala);
       let resultAction;
       if (props.salaEdicao) {
         resultAction = await dispatch(atualizarSalas(sala));
