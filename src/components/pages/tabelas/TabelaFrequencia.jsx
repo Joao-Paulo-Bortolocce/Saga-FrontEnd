@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
-import { consultarTurmas } from "../../../service/serviceTurma.js";
+import { consultarTurmas } from "../../../service/servicoTurma";
 
 export default function TabelaFrequencia(props) {
   const [turmas, setTurmas] = useState([]);

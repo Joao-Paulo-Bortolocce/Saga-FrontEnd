@@ -3,6 +3,10 @@ import pessoaReducer from "./pessoaReducer";
 import matriculaReducer from "./matriculaReducer";
 import alunoReducer from "./alunoReducer"
 import profissionalReducer from './profissionalReducer'
+import graduacaoReducer from "./graduacaoReducer"
+import salaReducer from "./salaReducer"
+import frequenciaReducer from "./frequenciaReducer"
+import notificacaoReducer from "./notificacaoReducer"
 
 
 const store= configureStore({
@@ -10,7 +14,11 @@ const store= configureStore({
         'pessoa':pessoaReducer,
         'matricula':matriculaReducer,
         'aluno':alunoReducer,
-        'profissional':profissionalReducer
+        'profissional':profissionalReducer,
+         'graduacao':graduacaoReducer,
+        'sala':salaReducer,
+        'frequencia': frequenciaReducer,
+        'notificacao': notificacaoReducer
     }
 })
 

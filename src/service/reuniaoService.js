@@ -31,6 +31,7 @@ export async function gravarReuniao(reuniao) {
 export async function excluirReuniao(id) {
   const resposta = await fetch(`${urlBase}/${id}`, {
     method: "DELETE",
+    headers: obterHeaders(false),
   });
   return await resposta.json();
 }
@@ -38,6 +39,7 @@ export async function excluirReuniao(id) {
 export async function buscarTodasReunioes() {
   const resposta = await fetch(`${urlBase}/buscarTodos`, {
     method: "GET",
+    headers: obterHeaders(false),
   });
   return await resposta.json();
 }
@@ -45,11 +47,16 @@ export async function buscarTodasReunioes() {
 export async function buscarReunioesPorTermo(termo) {
   const resposta = await fetch(`${urlBase}/buscar/${termo}`, {
     method: "GET",
+    headers: obterHeaders(false),
   });
   return await resposta.json();
 }
 
 export async function buscarAnosLetivos() {
-    const resposta = await fetch("http://localhost:8080/anoletivo/buscarTodos");
+    const resposta = await fetch("http://localhost:8080/anoletivo/buscarTodos",
+      {
+        headers: obterHeaders(false),
+      }
+    );
     return await resposta.json();
   }

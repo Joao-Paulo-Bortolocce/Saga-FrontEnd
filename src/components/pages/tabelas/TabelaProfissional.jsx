@@ -125,8 +125,8 @@ export default function TabelaProfissional(props) {
           <tbody className="divide-y divide-gray-100">
             {profissionaisFiltrados.length > 0 ? (
               profissionaisFiltrados.map((profissional) => (
-                <tr key={profissional.profissional_ra} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">{profissional.profissional_ra}</td>
+                <tr key={profissional.profissional_rn} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">{profissional.profissional_rn}</td>
                   <td className="px-6 py-4">{profissional.profissional_pessoa.nome}</td>
                   <td className="px-6 py-4">{profissional.profissional_pessoa.cpf}</td>
                   <td className="px-6 py-4">{getTipoProfissional(profissional.profissional_tipo)}</td>

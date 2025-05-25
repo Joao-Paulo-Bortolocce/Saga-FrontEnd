@@ -78,7 +78,7 @@ function CadastroProfissional(props) {
                 },
             }));
         } else {
-            if (id === "profissional_ra") novosValidos[2] = true;
+            if (id === "profissional_rn") novosValidos[2] = true;
             if (id === "profissional_tipo") novosValidos[3] = true;
             if (id === "profissional_dataAdmissao") {
                 let atual = new Date();
@@ -124,7 +124,7 @@ function CadastroProfissional(props) {
 
     function zeraDados() {
         props.setProfissional({
-            profissional_ra: 0,
+            profissional_rn: 0,
             profissional_tipo: 0,
             profissional_dataAdmissao: new Date().toISOString().substring(0, 10),
             profissional_graduacao: {
@@ -176,7 +176,7 @@ function CadastroProfissional(props) {
             valido = false;
         }
 
-        if (!profissional.profissional_ra || profissional.profissional_ra === 0) {
+        if (!profissional.profissional_rn || profissional.profissional_rn === 0) {
             novosValidos[2] = false;
             valido = false;
         }
@@ -221,7 +221,7 @@ function CadastroProfissional(props) {
                 zeraDados();
             } else {
                 if (listaFiltrada.length === 1) {
-                    consultarProfissional(profissional.profissional_ra).then((aux) => {
+                    consultarProfissional(profissional.profissional_rn).then((aux) => {
                         if (aux === undefined || aux === null) {
                             dispatch(incluirProfissional(profissional));
                             props.setExibirTabela(true);
@@ -331,12 +331,12 @@ function CadastroProfissional(props) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                                <label htmlFor="profissional_ra" className={`text-sm ${validos[2] ? 'text-white' : 'text-red-500'}`}>RA</label>
+                                <label htmlFor="profissional_rn" className={`text-sm ${validos[2] ? 'text-white' : 'text-red-500'}`}>RA</label>
                                 <input
                                     disabled={props.modoEdicao}
                                     type="number"
-                                    id="profissional_ra"
-                                    value={profissional.profissional_ra}
+                                    id="profissional_rn"
+                                    value={profissional.profissional_rn}
                                     onChange={manipularMudanca}
                                     className={`w-full rounded-md p-2 sm:p-3 bg-gray-800 text-white ${!validos[2] ? 'border border-red-500' : ''}`}
                                 />

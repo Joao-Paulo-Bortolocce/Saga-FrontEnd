@@ -21,9 +21,7 @@ export async function gravarMateria(materia) {
 export async function alterarMateria(materia) {
     const res = await fetch(urlBase + "/" + materia.materia_id, {
         method: "PUT",
-        headers: {
-            "Content-Type": "application/json",
-        },
+        headers: obterHeaders(),
         body: JSON.stringify(materia),  
     })
     const result = await res.json();
@@ -33,6 +31,7 @@ export async function alterarMateria(materia) {
 export async function excluirMateria(materia) {
     const res = await fetch(urlBase + "/" + materia.materia_id, {
         method: "DELETE",
+        headers: obterHeaders(false),
     });
     const result = await res.json();
     return result;
@@ -40,7 +39,8 @@ export async function excluirMateria(materia) {
 
 export async function consultarMateria() {
     const res = await fetch(urlBase, {
-        method: "GET"
+        method: "GET",
+        headers: obterHeaders(false),
     });
     const result = await res.json();
     return result;

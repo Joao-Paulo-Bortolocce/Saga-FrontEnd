@@ -35,7 +35,6 @@ export async function alterarPessoa(pessoa){
 export async function excluirPessoa(pessoa){
     const resposta = await fetch(urlBase+"/"+ pessoa.cpf,{
         "method": "DELETE", "headers": obterHeaders(false),
-    
     })
     const resultado = await  resposta.json();
     return resultado;

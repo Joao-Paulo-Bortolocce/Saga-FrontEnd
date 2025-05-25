@@ -36,7 +36,8 @@ export async function alterarAluno(aluno){
 export async function excluirAluno(aluno){
     const resposta = await fetch(urlBase+ "/"+ aluno.ra,{
         "method": "DELETE", "headers": obterHeaders(false),
-    
+        headers: obterHeaders(false),
+        
     })
     const resultado = await  resposta.json();
     return resultado;
@@ -46,17 +47,19 @@ export async function excluirAluno(aluno){
 export async function consultarAluno(termo){
     let resposta
     if(termo==undefined){
-
+        
         resposta = await fetch(urlBase+"/buscarTodos",{
             "method": "GET", "headers": obterHeaders(false),
+            headers: obterHeaders(false),
         })
         const resultado =await  resposta.json();
         return resultado.listaDeAlunos;
     }
     else{
-
+        
         resposta = await fetch(urlBase+"/"+termo,{
             "method": "GET", "headers": obterHeaders(false),
+            headers: obterHeaders(false),
         })
         const resultado =await  resposta.json();
         return resultado.aluno;

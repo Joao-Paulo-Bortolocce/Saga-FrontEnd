@@ -8,6 +8,9 @@ import TelaLogin from "./components/pages/TelaLogin.jsx";
 import HomePage from "./components/pages/HomePage";
 import HomeCadastros from "./components/pages/HomeCadastros";
 import HomePessoas from "./components/pages/HomePessoas";
+import HomeGraduacao from "./components/pages/HomeGraduacao.jsx"
+import HomeNotificacao from "./components/pages/HomeNotificacao.jsx"
+import HomeFrequencia from "./components/pages/HomeFrequencia.jsx"
 import HomeAluno from "./components/pages/HomeAluno.jsx";
 import HomeProfissional from "./components/pages/HomeProfissional.jsx";
 import TabelaMateria from "./components/pages/tabelas/TabelaMateria.jsx";
@@ -16,8 +19,9 @@ import HomeSeries from "./components/pages/HomeSeries.jsx";
 import HomeMatricula from "./components/pages/HomeMatricula.jsx";
 import HomeReunioes from "./components/pages/HomeReunioes.jsx";
 import HomeSalas from "./components/pages/HomeSalas.jsx";
-import TabelaTurmasChamada from "./components/pages/tabelas/TabelaTurmasChamada.jsx";
+
 import RotasControle from "./components/Rotas/RotasControle.jsx";
+
 
 import toast, { Toaster } from "react-hot-toast";
 
@@ -106,7 +110,9 @@ export default function App() {
                             <Route path="/cadastros/matricula" element={<RotasControle permissao={[1, 3]}><HomeMatricula /></RotasControle>} />
                             <Route path="/cadastros/sala" element={<RotasControle permissao={[1, 3]}><HomeSalas /></RotasControle>} />
                             <Route path="/cadastros/reuniao" element={<RotasControle permissao={[1, 3]}><HomeReunioes /></RotasControle>} />
-                            <Route path="/cadastros/chamada" element={<RotasControle permissao={[1, 3]}><TabelaTurmasChamada /></RotasControle>} />
+                            <Route path="/cadastros/graduacao" element={<RotasControle permissao={[1,3]}><HomeGraduacao /></RotasControle>} />
+                            <Route path="/chamada" element={<RotasControle permissao={[2]}><HomeFrequencia /></RotasControle>} />
+                            <Route path="/notificacao" element={<RotasControle permissao={[1]}><HomeNotificacao /></RotasControle>} />
                         </Routes>
                     </BrowserRouter>
                     <Toaster position="top-center" />

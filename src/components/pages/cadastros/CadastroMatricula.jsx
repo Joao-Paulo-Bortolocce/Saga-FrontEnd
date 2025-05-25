@@ -191,10 +191,10 @@ function CadastroMatricula(props) {
 
   function nomeAno(id) {
       const ano = listaDeanosLetivos.filter((aux) => {
-        return aux.anoletivo_id == id;
+        return aux.id == id;
       })
   
-      return ano[0].anoletivo_inicio.substring(0, 4);
+      return ano[0].inicio.substring(0, 4);
     }
 
   if (estado === ESTADO.PENDENTE) {
@@ -246,8 +246,8 @@ function CadastroMatricula(props) {
                 >
                   <option value="0">Selecione</option>
                   {listaDeanosLetivos.map((ano) => (
-                    <option key={ano.anoletivo_id} value={ano.anoletivo_id}>
-                      {ano.anoletivo_inicio.substring(0, 4)}
+                    <option key={ano.id} value={ano.id}>
+                      {ano.inicio.substring(0, 4)}
                     </option>
                   ))}
                 </select>

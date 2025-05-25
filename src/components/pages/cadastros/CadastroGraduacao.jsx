@@ -47,7 +47,7 @@ function CadastroGraduacao(props) {
       limparFormulario();
       setTimeout(() => {
         props.setExibirTabela(true);
-      }, 4000);
+      }, 1000);
     }
   };
 
