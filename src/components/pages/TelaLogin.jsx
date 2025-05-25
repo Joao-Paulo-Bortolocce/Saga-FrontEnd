@@ -11,6 +11,7 @@ export default function TelaLogin() {
     ra: "",
     senha: ""
   });
+  
 
   function manipularMudanca(event) {
     const id = event.currentTarget.id;

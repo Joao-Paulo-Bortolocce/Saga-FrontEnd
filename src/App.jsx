@@ -65,11 +65,11 @@ export default function App() {
   useEffect(() => {
     const interval = setInterval(() => {
       const token = localStorage.getItem("token");
-      if (!token || tokenExpirado(token)) {
+      if (tokenExpirado(token) && usuario.logado) {
         toast.error("Sua conexão expirou, faça login novamente!");
       
       }
-    }, 30000); // verifica a cada 1 minuto
+    }, 10000); // verifica a cada 1 minuto
 
     return () => clearInterval(interval);
   }, []);
