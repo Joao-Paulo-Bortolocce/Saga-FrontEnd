@@ -1,11 +1,18 @@
+function obterHeaders(contentType = true) {
+  const token = localStorage.getItem("token");
+  const headers = {
+    Authorization: `${token}`
+  };
+  if (contentType) headers["Content-type"] = "application/json";
+  return headers;
+}
+
 const urlBase = "http://localhost:4000/materia";
 
 export async function gravarMateria(materia) {
     const res = await fetch(urlBase, {
         method: "POST",
-        headers: {
-            "Content-Type":"application/json"
-        },
+        headers: obterHeaders(),
         body: JSON.stringify(materia),
     });
     return res.json();

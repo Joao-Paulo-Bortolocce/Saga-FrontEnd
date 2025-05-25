@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 export default function FormularioReunioes({ reuniaoEmEdicao, salvarReuniao, cancelarEdicao }) {
   const [form, setForm] = useState(reuniaoEmEdicao || {});
@@ -56,7 +57,14 @@ export default function FormularioReunioes({ reuniaoEmEdicao, salvarReuniao, can
       className="bg-[#0e1629] text-white max-w-md mx-auto p-8 rounded-xl space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
-        salvarReuniao(form, !!reuniaoEmEdicao?.reuniaoId);
+
+        const dataHoje = new Date();
+        const dataSelecionada = new Date(form.data);
+
+        if(dataSelecionada < dataHoje)
+          toast.error('Voce está selecionando uma data anterior a atual!');
+        else
+          salvarReuniao(form, !!reuniaoEmEdicao?.reuniaoId);
       }}
     >
       <h1 className="text-2xl text-center font-bold mb-4">Agendar Reunião</h1>

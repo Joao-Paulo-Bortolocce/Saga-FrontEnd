@@ -1,9 +1,20 @@
 const urlBase = 'http://localhost:8080/serie';
 
+function obterHeaders(contentType = true) {
+  const token = localStorage.getItem("token");
+  const headers = {
+    'Authorization': `${token}`
+  };
+  if (contentType) {
+    headers['Content-Type'] = 'application/json';
+  }
+  return headers;
+}
+
 export async function gravarSerie(serie) {
   const resposta = await fetch(`${urlBase}/gravar`, {
     method: "POST",
-    headers: { 'Content-Type': "application/json" },
+    headers: obterHeaders(),
     body: JSON.stringify(serie),
   });
   return await resposta.json();
@@ -12,14 +23,17 @@ export async function gravarSerie(serie) {
 export async function alterarSerie(id, serie) {
   const resposta = await fetch(`${urlBase}/${id}`, {
     method: "PUT",
-    headers: { 'Content-Type': "application/json" },
+    headers: obterHeaders(),
     body: JSON.stringify(serie),
   });
   return await resposta.json();
 }
 
 export async function excluirSerie(serie) {
-  const resposta = await fetch(`${urlBase}/${serie.serieId}`, { method: "DELETE" });
+  const resposta = await fetch(`${urlBase}/${serie.serieId}`, {
+    method: "DELETE",
+    headers: obterHeaders(false)
+  });
   return await resposta.json();
 }
 
@@ -28,12 +42,18 @@ export async function consultarSerie(termo = "") {
     ? `${urlBase}/buscar/${termo}`
     : `${urlBase}/buscarTodos`;
 
-  const resposta = await fetch(url);
+  const resposta = await fetch(url, {
+    method: "GET",
+    headers: obterHeaders(false)
+  });
   const resultado = await resposta.json();
   return resultado.series || [];
 }
   
 export async function buscarSeries() {
-  const resposta = await fetch("http://localhost:8080/serie/buscarTodos");
+  const resposta = await fetch(`${urlBase}/buscarTodos`, {
+    method: "GET",
+    headers: obterHeaders(false)
+  });
   return await resposta.json();
 }

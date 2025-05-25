@@ -9,20 +9,38 @@ import toast, { Toaster } from "react-hot-toast";
 import { buscarAlunosSemMatricula } from '../../../redux/alunoReducer.js';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { formatarCPF } from "../../../service/formatadores.js"
+import {buscarAnosLetivos} from "../../../service/anoLetivoService.js";
+import {buscarSeries} from "../../../service/servicoSerie.js";
 
 function CadastroMatricula(props) {
   const [matricula, setMatricula] = useState(props.matricula);
   const { estado, mensagem, listaDeAlunos } = useSelector(state => state.aluno);
   const dispachante = useDispatch();
   const [listaFiltrada, setListaFiltrada] = useState([]);
+  const [listaDeanosLetivos,setListaDeanosLetivos]=useState([])
+  const [listaDeSeries,setListaDeSeries]=useState([])
   const [lenCpf, setLenCpf] = useState(0);
   const [validos, setValidos] = useState([true, true, true, true, true, true]);
   const[ano, setAno]= useState(0)
 
+  useEffect(()=>{
+    buscarAnosLetivos().then((resultado)=>{
+      if(resultado.status)
+        setListaDeanosLetivos(resultado.anoletivo);
+      else
+        toast.error("Não foi possível recuparar os anos do backend")
+    })
+    buscarSeries().then((resultado)=>{
+      if(resultado.status)
+        setListaDeSeries(resultado.series);
+      else
+        toast.error("Não foi possível recuparar as series")
+    })
+  },[])
+
   useEffect(() => {
     dispachante(buscarAlunosSemMatricula(ano));
   }, [ano,dispachante]);
-
 
 
   function manipularMudanca(event) {
@@ -247,8 +265,8 @@ function CadastroMatricula(props) {
                 >
                   <option value="0">Selecione</option>
                   {listaDeSeries.map((serie) => (
-                    <option key={serie.serie_id} value={serie.serie_id}>
-                      {serie.serie_descr}
+                    <option key={serie.serieId} value={serie.serieId}>
+                      {serie.serieDescr}
                     </option>
                   ))}
                 </select>

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ESTADO from "./estados.js";
-import { gravarPessoa,alterarPessoa,excluirPessoa,consultarPessoa , consultarPessoaSemAlunos} from "../service/servicePessoa.js";
+import { gravarPessoa,alterarPessoa,excluirPessoa,consultarPessoa , consultarPessoaSemAlunos, consultarPossivelProfissional} from "../service/servicePessoa.js";
 
 
 export const buscarPessoas = createAsyncThunk('buscarPessoas', async (termo) => {
@@ -30,6 +30,31 @@ export const buscarPessoas = createAsyncThunk('buscarPessoas', async (termo) => 
 
 export const buscarPessoasSemAlunos = createAsyncThunk('buscarPessoasSemAlunos', async (termo) => {
   const resultado = await consultarPessoaSemAlunos(termo);
+  try {
+    if (Array.isArray(resultado)) {
+      return {
+        "status": true,
+        "mensagem": "Pessoas recuperadas com sucesso",
+        "listaDePessoas": resultado
+      };
+    } else {
+      return {
+        "status": false,
+        "mensagem": "Erro ao recuperar as pessoas do backend",
+        "listaDePessoas": []
+      };
+    }
+  } catch (erro) {
+    return {
+      "status": false,
+      "mensagem": "Erro: " + erro.message,
+      "listaDePessoas": []
+    };
+  }
+});
+
+export const buscarPossiveisProfissionais = createAsyncThunk('buscarPossiveisProfissionais', async (termo) => {
+  const resultado = await consultarPossivelProfissional(termo);
   try {
     if (Array.isArray(resultado)) {
       return {
@@ -158,6 +183,24 @@ const pessoaSlice = createSlice({
         state.listaDePessoas = action.payload.listaDePessoas;
       })
       .addCase(buscarPessoasSemAlunos.rejected, (state, action) => {
+        state.estado = ESTADO.ERRO;
+        state.mensagem = action.payload.mensagem;
+        state.listaDePessoas = [];
+      })
+      .addCase(buscarPossiveisProfissionais.pending, (state) => {
+        state.estado = ESTADO.PENDENTE;
+        state.mensagem = "Processando requisição (buscando pessoas que não estão cadastradas como profissionais)";
+      })
+      .addCase(buscarPossiveisProfissionais.fulfilled, (state, action) => {
+        if (action.payload.status) {
+          state.estado = ESTADO.OCIOSO;
+        } else {
+          state.estado = ESTADO.ERRO;
+        }
+        state.mensagem = action.payload.mensagem;
+        state.listaDePessoas = action.payload.listaDePessoas;
+      })
+      .addCase(buscarPossiveisProfissionais.rejected, (state, action) => {
         state.estado = ESTADO.ERRO;
         state.mensagem = action.payload.mensagem;
         state.listaDePessoas = [];

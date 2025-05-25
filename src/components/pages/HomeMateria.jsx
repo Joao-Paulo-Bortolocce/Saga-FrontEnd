@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Timer, BookOpen } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
-import Page from "../layouts/Page";
 import logoPrefeitura from "../../assets/images/logoPrefeitura.png"
 import { useNavigate } from "react-router-dom";
 

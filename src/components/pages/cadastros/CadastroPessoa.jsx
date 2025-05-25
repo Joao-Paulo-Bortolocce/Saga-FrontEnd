@@ -6,6 +6,7 @@ import ESTADO from '../../../redux/estados.js';
 import { incluirPessoa, atualizarPessoa } from '../../../redux/pessoaReducer.js';
 import { formatarCEP, formatarCPF } from '../../../service/formatadores.js';
 import { consultarPessoa } from '../../../service/servicePessoa.js';
+import toast, { Toaster } from "react-hot-toast";
 
 function CadastroPessoa(props) {
   const [pessoa, setPessoa] = useState(props.pessoa);
@@ -20,8 +21,17 @@ function CadastroPessoa(props) {
       let atual = new Date();
       let dataInformada = new Date(valor);
       if (dataInformada > atual) {
-        alert("A data informada é inválida");
-        valor = dataInformada.toLocaleString().substring(0, 10);
+        toast.error("A data informada é inválida");
+        valor = "";
+      }
+      else{
+        let limite = new Date();
+        limite.setFullYear(atual.getFullYear() - 5);
+
+        if (dataInformada >= limite) {
+          toast.error("A idade informada deve ter pelo menos 5 anos");
+          valor = "";
+        }
       }
     }
 
@@ -51,7 +61,7 @@ function CadastroPessoa(props) {
     if(props.cadastrarPessoa){
       idade= atual.getFullYear() - dataInformada.getFullYear();
       if(idade>12){
-        alert("Você está cadastrando informações pessoais de um aluno, que portanto pode ter no maximo 12 anos de idade")
+        toast.error("Você está cadastrando informações pessoais de um aluno, que portanto pode ter no maximo 12 anos de idade")
         
         setPessoa({ ...pessoa, ["dataNascimento"]: "" });
       }
@@ -84,7 +94,7 @@ function CadastroPessoa(props) {
     
       consultarPessoa(pessoa.cpf).then((consulta) => {
         if (consulta != undefined && consulta != null && consulta != []) {
-          alert("O cpf: " + pessoa.cpf + " ja esta sendo utilizado");
+          toast.error("O cpf: " + pessoa.cpf + " ja esta sendo utilizado");
           setPessoa({ ...pessoa, ["cpf"]: "" });
         }
 
@@ -526,7 +536,7 @@ function CadastroPessoa(props) {
             </div>
             <button
               type="submit"
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
             >
               {props.modoEdicao ? "Alterar" : "Confirmar"}
             </button>
@@ -536,13 +546,14 @@ function CadastroPessoa(props) {
                 props.setExibirTabela(true);
               }}
 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
             >
              Voltar
             </button>
           </form>
         </div>
       </div>
+        <Toaster position="top-center" />
     </div>
   );
 }
