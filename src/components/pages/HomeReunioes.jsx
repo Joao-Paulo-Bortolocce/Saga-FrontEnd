@@ -9,7 +9,6 @@ import {
   gravarReuniao,
   alterarReuniao,
   excluirReuniao as excluirReuniaoService,
-  buscarReunioesPorTermo
 } from '../../service/reuniaoService.js';
 
 export default function HomeReunioes() {
@@ -22,8 +21,10 @@ export default function HomeReunioes() {
     async function carregar() {
       const resposta = await buscarTodasReunioes();
       if (resposta.status) {
-        setReunioes(resposta.reunioes);
-      } else {
+        const ordenadas = [...resposta.reunioes].sort((a, b) => new Date(a.reuniaoData) - new Date(b.reuniaoData));
+        setReunioes(ordenadas);
+      }
+      else {
         toast.error(resposta.mensagem);
       }
     }
@@ -31,13 +32,16 @@ export default function HomeReunioes() {
   }, []);
 
   function editarReuniao(reuniao) {
-    const data = new Date(reuniao.reuniaoData);
+    let data = new Date(reuniao.reuniaoData);
 
-    // Corrige para o fuso local (adiciona 3 horas, se estiver em -03:00)
-    // data.setMinutes(data.getMinutes() - data.getTimezoneOffset());
-    data.setHours(data.getHours + 3)
+    // Adiciona 3 horas
+    data.setHours(data.getHours() + 3);
 
-    const dataFormatada = data.toISOString().slice(0, 16); // yyyy-MM-ddTHH:mm
+    // Função para preencher com zero à esquerda
+    const pad = (num) => String(num).padStart(2, '0');
+
+    // Formata no padrão yyyy-MM-ddTHH:mm
+    const dataFormatada = `${data.getFullYear()}-${pad(data.getMonth() + 1)}-${pad(data.getDate())}T${pad(data.getHours())}:${pad(data.getMinutes())}`;
 
     setReuniaoEmEdicao({
       ...reuniao,
@@ -45,12 +49,14 @@ export default function HomeReunioes() {
       anoletivo_id: reuniao.anoLetivo?.id,
       letra: reuniao.turma?.letra || reuniao.letra,
       tipo: reuniao.reuniaoTipo,
-      data: dataFormatada,
+      reuniaoData: dataFormatada,
+      data: data
     });
 
     setMostrarFormulario(true);
     toast('Você está alterando uma reunião!', { icon: '⚠️' });
   }
+
 
   function excluirReuniao(id) {
     toast.promise(
@@ -102,25 +108,75 @@ export default function HomeReunioes() {
     );
   }
 
-  async function buscarPorLetra(termo) {
+  async function buscarPorTermo(termo) {
     setBusca(termo);
 
     if (termo.trim() === "") {
       const todas = await buscarTodasReunioes();
-      if (todas.status) setReunioes(todas.reunioes);
-      else toast.error(todas.mensagem);
+      if (todas.status) {
+        const ordenadas = [...todas.reunioes].sort(
+          (a, b) => new Date(a.reuniaoData) - new Date(b.reuniaoData)
+        );
+        setReunioes(ordenadas);
+      } 
+      else {
+        toast.error(todas.mensagem);
+      }
       return;
     }
 
-    if (/\d/.test(termo)) {
-      toast.error("A busca deve conter apenas letras.");
-      return;
+    // Se for data no formato brasileiro dd/mm/yyyy
+    const dataBR = termo.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (dataBR) {
+      const dataISO = `${dataBR[3]}-${dataBR[2]}-${dataBR[1]}`;
+      return filtrarPorData(dataISO);
     }
-
-    const resposta = await buscarReunioesPorTermo(termo);
-    if (resposta.status) setReunioes(resposta.reunioes);
-    else toast.error(resposta.mensagem);
   }
+
+  async function filtrarPorData(dataString) {
+    const todas = await buscarTodasReunioes();
+    if (!todas.status) {
+      toast.error(todas.mensagem);
+      return;
+    }
+
+    const reunioesFiltradas = todas.reunioes.filter((r) => {
+      const data = new Date(r.reuniaoData);
+      const dataFormatada = data.toISOString().slice(0, 10); // yyyy-mm-dd
+      return dataFormatada === dataString;
+    });
+
+    if (reunioesFiltradas.length === 0) {
+      toast('Nenhuma reunião encontrada para essa data!', { icon: '📅' });
+    }
+
+    setReunioes(reunioesFiltradas);
+  }
+
+  function confirmarExclusao(reuniaoId) {
+  toast.custom((t) => (
+    <div className="bg-gray-900 text-white p-4 rounded-xl shadow-lg flex flex-col gap-2 border border-red-600 w-[280px]">
+      <span className="text-sm">Deseja excluir esta reunião?</span>
+      <div className="flex justify-end gap-2 text-sm">
+        <button
+          onClick={() => {
+            toast.dismiss(t.id);
+            excluirReuniao(reuniaoId); 
+          }}
+          className="bg-red-600 px-3 py-1 rounded hover:bg-red-700"
+        >
+          Confirmar
+        </button>
+        <button
+          onClick={() => toast.dismiss(t.id)}
+          className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-600"
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  ));
+}
 
   return (
     <div>
@@ -141,9 +197,9 @@ export default function HomeReunioes() {
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Buscar por letra da turma ou tipo..."
+                    placeholder="Buscar por data (DD/MM/AAAA)..."
                     value={busca}
-                    onChange={(e) => buscarPorLetra(e.target.value)}
+                    onChange={(e) => buscarPorTermo(e.target.value)}
                     className="w-full px-4 py-2 pl-10 border border-gray-700 rounded-lg bg-gray-800/40 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -153,7 +209,7 @@ export default function HomeReunioes() {
                 <TabelaReunioes
                   reunioes={reunioes}
                   editarReuniao={editarReuniao}
-                  excluirReuniao={excluirReuniao}
+                  confirmarExclusao={confirmarExclusao}
                 />
               </div>
             </div>

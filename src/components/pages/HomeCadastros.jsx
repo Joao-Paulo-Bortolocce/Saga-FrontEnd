@@ -9,7 +9,8 @@ const cadastros = [
     { nome: "Cadastro de Pessoa", href: "/cadastros/pessoa", tipo: "Pessoas", icon: User, bgcolor:"bg-orange-500", color:"text-orange-500"},
     { nome: "Agendar Reunião de Pais", href: "/cadastros/reuniao", tipo: "Infra", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
     { nome: "Cadastro de Serie", href: "/cadastros/serie", tipo: "Infra", icon: Shapes, bgcolor:"bg-red-500", color:"text-red-500" },
-    { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor:"bg-blue-500", color:"text-blue-500"  }
+    { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor:"bg-blue-500", color:"text-blue-500"  },
+    { nome: "Povoar Turmas", href: "/cadastros/povoarTurma", tipo: "Infra", icon: Calculator, bgcolor:"bg-red-500", color:"text-red-500"  }
 ]
 
 export default function HomeCadastros(props) {

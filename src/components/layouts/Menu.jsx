@@ -31,7 +31,7 @@ const products = [
     { name: 'Pessoas', description: 'Adicionar pessoa (Aluno, Responsável ou profissional)', href: '/cadastros', icon: UserRoundSearch },
     { name: 'Acadêmico', description: 'Adicionar algo do setor acadêmico (materias, habilidades, fichas e outros) ', href: '/cadastros', icon: BookOpenText },
     { name: 'Infraestrutura', description: 'Adicionar infraestrutura (salas, turmas, séries e outros)', href: '/cadastros', icon: School },
-    { name: 'Tudo', description: 'Todos os cadastros', href: '/cadastros', icon: Earth },
+    { name: 'Tudo', description: 'Todos os cadastros', href: '/cadastros', icon: Earth }
 ]
 const callsToAction = [
     { name: 'Watch demo', href: '#', icon: PlayCircleIcon },
