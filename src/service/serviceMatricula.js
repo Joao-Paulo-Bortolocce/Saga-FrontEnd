@@ -57,6 +57,13 @@ export async function consultarMatricula(termo) {
 }
 
 export async function consultarMatriculaFiltros(termos) {
+    if(termos==undefined){
+        termos={
+            serie:0,
+            anoLetivo:0,
+            valido:0
+        }
+    }
     const resposta = await fetch(urlBase + "/buscarTodasFiltradas?serie=" + termos.serie + "&anoLetivo=" + termos.anoLetivo
         + "&valido=" + termos.valido, {
         "method": "GET",

@@ -3,8 +3,7 @@ import logoPrefeitura from "../../../assets/images/logoPrefeitura.png";
 import { useDispatch, useSelector } from 'react-redux';
 import ESTADO from '../../../redux/estados.js';
 import { incluirMatricula, atualizarMatricula } from '../../../redux/matriculaReducer.js';
-import { listaDeanosLetivos } from '../../../mockDados/mockAnoLetivo.js';
-import { listaDeSeries } from '../../../mockDados/mockSeries.js';
+import { gravarMatricula } from '../../../service/serviceMatricula.js';
 import toast, { Toaster } from "react-hot-toast";
 import { buscarAlunosSemMatricula } from '../../../redux/alunoReducer.js';
 import { AlertCircle, Loader2 } from 'lucide-react';
@@ -120,12 +119,16 @@ function CadastroMatricula(props) {
   }
 
   function zeraMatricula() {
+    document.getElementById("cpf").value="";
+    document.getElementById("nome").value="";
     props.setMatricula({
       ra: 0,
       anoLetivo_id: 0,
       serie_id: 0,
       data: new Date().toISOString().substring(0, 10)
     });
+    setMatricula(props.matricula);
+    filtrar();
   }
 
   function validaInfos() {
@@ -179,9 +182,20 @@ function CadastroMatricula(props) {
         zeraMatricula();
       } else {
         if (listaFiltrada.length === 1) {
-          dispachante(incluirMatricula(matricula));
-          props.setExibirTabela(true);
-          zeraMatricula();
+          // dispachante(incluirMatricula(matricula));
+          // props.setExibirTabela(true);
+          gravarMatricula(matricula).then((resultado)=>{
+              if(resultado.status){
+                toast.success("matricula inserida com sucesso!")
+                zeraMatricula();
+              }
+              else{
+                toast.error(resultado.mensagem)
+              }
+          })
+          .catch((erro)=>{
+            toast.error("Ocorreu um erro ao inserir esta matricula")
+          })
         } else {
           toast.error("As informações não correspondem a um aluno, preencha todos os campos corretamente", { duration: 5000, repeat: false });
         }
@@ -278,6 +292,7 @@ function CadastroMatricula(props) {
                 <input
                   type="date"
                   name="data"
+                  disabled={true}
                   id="data"
                   value={matricula.data.substr(0, 10)}
                   onChange={manipularMudanca}
