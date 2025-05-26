@@ -34,6 +34,6 @@ export async function consultarSerie(termo = "") {
 }
   
 export async function buscarSeries() {
-  const resposta = await fetch("http://localhost:8080/serie/buscarTodos");
+  const resposta = await fetch("http://localhost:8080/serie/buscarTodas");
   return await resposta.json();
 }

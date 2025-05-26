@@ -106,7 +106,7 @@ export default function Menu() {
                     </Popover>
 
                     <a href="/funcionalidades" className="text-sm/6 font-semibold text-gray-900">
-                        Funcionalidades
+                        Ficha
                     </a>
                     <a href="/cadastros/chamada" className="text-sm/6 font-semibold text-gray-900">
                         Chamada

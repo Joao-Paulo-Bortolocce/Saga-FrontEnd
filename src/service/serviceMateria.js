@@ -1,7 +1,9 @@
+
+
 const urlBase = "http://localhost:8080/materia";
 
 export async function gravarMateria(materia) {
-    const res = await fetch(urlBase, {
+    const res = await fetch(urlBase + "/gravar", {
         method: "POST",
         headers: {
             "Content-Type":"application/json"

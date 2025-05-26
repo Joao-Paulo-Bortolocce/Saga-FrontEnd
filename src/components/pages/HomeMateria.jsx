@@ -3,6 +3,7 @@ import { Timer, BookOpen } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 import logoPrefeitura from "../../assets/images/logoPrefeitura.png"
 import { useNavigate } from "react-router-dom";
+import { gravarMateria , consultarMateria } from "../../service/serviceMateria"
 
 export default function HomeMateria() {
 
@@ -10,47 +11,19 @@ export default function HomeMateria() {
     const [materia, setMateria] = useState({
         materia_id: 0,
         materia_nome: "",
-        materia_carga: null
+        materia_carga: 0
     });
 
     const [errors, setErrors] = useState({
         materia_nome: "",
-        materia_carga: ""
+        materia_carga: 0
     });
-
-    const [listaMaterias, setListaMaterias] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-
-    useEffect(() => {
-        async function carregarMaterias() {
-            try {
-                const materias = await consultarMateria();
-                setListaMaterias(materias);
-            } catch (erro) {
-                console.error("Erro ao carregar matérias:", erro);
-            }
-        }
-        carregarMaterias();
-    }, []);
-
-    const filteredMaterias = listaMaterias.filter(materia =>
-        materia.materia_nome.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    async function deleteSubject(materia) {
-        if (window.confirm("Deseja realmente excluir a matéria " + materia.materia_nome + "?")) {
-            await excluirMateria(materia);
-            const listaMatAtualizada = await consultarMateria();
-            setListaMaterias(listaMatAtualizada);
-            toast.success("Matéria excluída com sucesso!");
-        }
-    }
 
     function validateForm() {
         let isValid = true;
         const newErrors = {
             materia_nome: "",
-            materia_carga: ""
+            materia_carga: 0
         };
 
         if (!materia.materia_nome.trim()) {
@@ -104,12 +77,11 @@ export default function HomeMateria() {
                     await alterarMateria(materia);
                     toast.success("Matéria alterada com sucesso!");
                 } else {
+                    materia.materia_carga = parseInt(materia.materia_carga);
                     await gravarMateria(materia);
                     toast.success("Matéria cadastrada com sucesso!");
                 }
-                setMateria({ materia_id: 0, materia_nome: "", materia_carga: null });
-                const materiasAtualizadas = await consultarMateria();
-                setListaMaterias(materiasAtualizadas);
+                setMateria({ materia_id: 0, materia_nome: "", materia_carga: 0 });
             } catch (erro) {
                 toast.error("Erro ao salvar matéria!");
                 console.error("Erro ao gravar matéria:", erro);
@@ -119,7 +91,7 @@ export default function HomeMateria() {
 
     function changeSubject(materiaSelecionada) {
         setMateria(materiaSelecionada);
-        setErrors({ materia_nome: "", materia_carga: "" })
+        setErrors({ materia_nome: "", materia_carga: 0 })
     }
 
     return (
