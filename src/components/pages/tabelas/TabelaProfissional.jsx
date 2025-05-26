@@ -111,12 +111,12 @@ export default function TabelaProfissional(props) {
         <table className="min-w-full text-sm text-left bg-white">
           <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-medium">
             {usuario.tipo==3?<tr>
-              {['RA', 'Nome', 'CPF', 'Tipo', 'Data de Admissão', 'Usuário', 'Ações'].map((title, i) => (
+              {['RN', 'Nome', 'CPF', 'Tipo', 'Data de Admissão', 'Usuário', 'Ações'].map((title, i) => (
                 <th key={i} className="px-6 py-3">{title}</th>
               ))}
             </tr>:
             <tr>
-              {['RA', 'Nome', 'CPF', 'Tipo', 'Data de Admissão', 'Usuário'].map((title, i) => (
+              {['RN', 'Nome', 'CPF', 'Tipo', 'Data de Admissão', 'Usuário'].map((title, i) => (
                 <th key={i} className="px-6 py-3">{title}</th>
               ))}
             </tr>

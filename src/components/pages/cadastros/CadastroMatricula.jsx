@@ -188,6 +188,7 @@ function CadastroMatricula(props) {
               if(resultado.status){
                 toast.success("matricula inserida com sucesso!")
                 zeraMatricula();
+                setAno(0);
               }
               else{
                 toast.error(resultado.mensagem)

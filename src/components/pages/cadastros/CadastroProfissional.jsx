@@ -227,7 +227,7 @@ function CadastroProfissional(props) {
                             props.setExibirTabela(true);
                             zeraDados();
                         } else {
-                            toast.error("Este RA já está cadastrado", {
+                            toast.error("Este RN já está cadastrado", {
                                 duration: 3000,
                                 repeat: false
                             });
@@ -331,7 +331,7 @@ function CadastroProfissional(props) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                                <label htmlFor="profissional_rn" className={`text-sm ${validos[2] ? 'text-white' : 'text-red-500'}`}>RA</label>
+                                <label htmlFor="profissional_rn" className={`text-sm ${validos[2] ? 'text-white' : 'text-red-500'}`}>RN</label>
                                 <input
                                     disabled={props.modoEdicao}
                                     type="number"
