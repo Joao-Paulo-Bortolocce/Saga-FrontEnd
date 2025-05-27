@@ -1,14 +1,11 @@
 const urlBase = 'http://localhost:8080/turma';
-
 function obterHeaders(contentType = true) {
-  const token = localStorage.getItem("token");
-  const headers = {
-    'Authorization': `${token}`
-  };
-  if (contentType) {
-    headers['Content-Type'] = 'application/json';
-  }
-  return headers;
+    const token = localStorage.getItem("token");
+    const headers = {
+        Authorization: `${token}`
+    };
+    if (contentType) headers["Content-type"] = "application/json";
+    return headers;
 }
 
 export async function gravarTurmas(turma) {

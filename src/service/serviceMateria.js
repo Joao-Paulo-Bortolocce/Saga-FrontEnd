@@ -1,16 +1,17 @@
+
+
+const urlBase = "http://localhost:8080/materia";
 function obterHeaders(contentType = true) {
-  const token = localStorage.getItem("token");
-  const headers = {
-    Authorization: `${token}`
-  };
-  if (contentType) headers["Content-type"] = "application/json";
-  return headers;
+    const token = localStorage.getItem("token");
+    const headers = {
+        Authorization: `${token}`
+    };
+    if (contentType) headers["Content-type"] = "application/json";
+    return headers;
 }
 
-const urlBase = "http://localhost:4000/materia";
-
 export async function gravarMateria(materia) {
-    const res = await fetch(urlBase, {
+    const res = await fetch(urlBase + "/gravar", {
         method: "POST",
         headers: obterHeaders(),
         body: JSON.stringify(materia),
@@ -19,28 +20,28 @@ export async function gravarMateria(materia) {
 }
 
 export async function alterarMateria(materia) {
-    const res = await fetch(urlBase + "/" + materia.materia_id, {
+    const res = await fetch(urlBase + "/" + materia.id, {
         method: "PUT",
         headers: obterHeaders(),
-        body: JSON.stringify(materia),  
+        body: JSON.stringify(materia),
     })
     const result = await res.json();
     return result;
 }
 
 export async function excluirMateria(materia) {
-    const res = await fetch(urlBase + "/" + materia.materia_id, {
+    const res = await fetch(urlBase + "/apagar/" + materia.id, {
         method: "DELETE",
-        headers: obterHeaders(false),
+        headers: obterHeaders(false)
     });
     const result = await res.json();
     return result;
 }
 
 export async function consultarMateria() {
-    const res = await fetch(urlBase, {
+    const res = await fetch(urlBase + "/buscarTodas", {
         method: "GET",
-        headers: obterHeaders(false),
+        headers: obterHeaders(false)
     });
     const result = await res.json();
     return result;

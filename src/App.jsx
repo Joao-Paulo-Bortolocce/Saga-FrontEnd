@@ -25,7 +25,7 @@ import HomeAnoLetivo from "./components/pages/HomeAnoLetivo.jsx";
 import HomeFuncionalidades from "./components/pages/HomeFuncionalidades.jsx";
 import FichaMontagem from "./components/pages/FichaMontagem.jsx";
 import FichasCriadas from "./components/pages/FichasCriadas.jsx";
-import HomeHabilidades from "./components/pages/HomeHabilidades.jsx"
+import HomeHabilidades from "./components/pages/HomeHabilidades.jsx";
 
 import RotasControle from "./components/Rotas/RotasControle.jsx";
 
@@ -115,11 +115,11 @@ export default function App() {
                             <Route path="/cadastros/materia/cad-materia" element={<RotasControle permissao={[1, 3]}><HomeMateria /></RotasControle>} />
                             <Route path="/cadastros/serie" element={<RotasControle permissao={[1, 3]}><HomeSeries /></RotasControle>} />
                             <Route path="/cadastros/matricula" element={<RotasControle permissao={[1, 3]}><HomeMatricula /></RotasControle>} />
-                            <Route path="cadastros/habilidade" element={<HomeHabilidades />} />
+                            <Route path="cadastros/habilidade" element={<RotasControle permissao={[1,3]}><HomeHabilidades /></RotasControle>} />
                             <Route path="/cadastros/sala" element={<RotasControle permissao={[1, 3]}><HomeSalas /></RotasControle>} />
                             <Route path="/cadastros/reuniao" element={<RotasControle permissao={[1, 3]}><HomeReunioes /></RotasControle>} />
-                            <Route path="/cadastros/povoarTurma" element={<HomePovoarTurma />} />
-                            <Route path="/cadastros/turma" element={<HomeTurmas />} />
+                            <Route path="/cadastros/povoarTurma" element={<RotasControle permissao={[1,3]}><HomePovoarTurma /></RotasControle>} />
+                            <Route path="/cadastros/turma" element={<RotasControle permissao={[1,3]}><HomeTurmas /></RotasControle>} />
                             <Route path="/cadastros/graduacao" element={<RotasControle permissao={[1, 3]}><HomeGraduacao /></RotasControle>} />
                             <Route path="/cadastros/anoletivo" element={<RotasControle permissao={[1, 3]}><HomeAnoLetivo /></RotasControle>} />
                             <Route path="/funcionalidades" element={<RotasControle permissao={[1, 3]}><HomeFuncionalidades /></RotasControle>} />
