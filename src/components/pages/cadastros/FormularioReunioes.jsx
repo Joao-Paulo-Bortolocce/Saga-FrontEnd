@@ -33,9 +33,9 @@ export default function FormularioReunioes({ reuniaoEmEdicao, salvarReuniao, can
       .then(res => res.json())
       .then(data => setSeries(data.series));
 
-    fetch("http://localhost:8080/anoletivo/buscarTodos")
+    fetch("http://localhost:8080/anoletivo")
       .then(res => res.json())
-      .then(data => setAnos(data.anos));
+      .then(data => setAnos(data.anoletivo));
   }, []);
 
   useEffect(() => {

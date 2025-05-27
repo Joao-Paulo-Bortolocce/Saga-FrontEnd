@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Search, Plus } from "lucide-react";
 import { Toaster, toast } from "react-hot-toast";
 import Page from "../layouts/Page";
-import FormularioReunioes from "./cadastros/FormularioReuniao";
+import FormularioReunioes from "./cadastros/FormularioReunioes.jsx";
 import TabelaReunioes from "./tabelas/TabelaReuniao";
 import {
   buscarTodasReunioes,

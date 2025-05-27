@@ -28,7 +28,7 @@ export default function FormularioTurma({ turmaEmEdicao, salvarTurma, cancelarEd
             ]);
 
             setSeries(dados[0].series || []);
-            setAnos(dados[1].anos || []);
+            setAnos(dados[1].anoletivo || []);
             setProfissionais(dados[2].listaDeProfissionais || []);
             setSalas(dados[3].salas || []);
             console.log(dados);
