@@ -8,7 +8,8 @@ import store from "./redux/store.js";
 import imagemFundoPrefeitura from "./assets/images/imagemFundoPrefeitura.png";
 import HomeSeries from "./components/pages/HomeSeries.jsx";
 import HomeReunioes from "./components/pages/HomeReunioes.jsx";
-import HomePovoarTurma from "./components/HomePovoarTurma.jsx";
+import HomePovoarTurma from "./components/pages/HomePovoarTurma.jsx";
+import HomeTurmas from "./components/pages/HomeTurmas.jsx";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/cadastros/reuniao" element={<HomeReunioes />} />
           <Route path="/cadastros" element={<HomeCadastros />} />
           <Route path="/cadastros/povoarTurma" element={<HomePovoarTurma/>}/>
+          <Route path="/cadastros/turma" element={<HomeTurmas/>}/>
           <Route path="/" element={<HomePage />} />
         </Routes> {/* A ordem das rotas é importante, por isso o Tela404 vem por ultimo com o * que significa que qualquer rota chama ele, e então deve ser o ultimo se não será chamado sempre*/}
       </BrowserRouter>
