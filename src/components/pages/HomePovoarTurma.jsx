@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Toaster, toast } from "react-hot-toast";
 import { Plus, Pencil } from "lucide-react";
-import FormularioPovoarTurma from "./cadastros/FormularioPovarTurma";
+import FormularioPovoarTurma from "./cadastros/FormularioPovoarTurma";
 import FormularioEditarTurma from "./cadastros/FormularioEditarTurma";
 import TabelaTurmas from "./tabelas/TabelaPovoarTurmas";
 import Page from "../layouts/Page";

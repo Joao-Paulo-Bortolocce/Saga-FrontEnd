@@ -34,7 +34,7 @@ export const apagarProfissional = createAsyncThunk('apagarProfissional', async (
     return {
       "status": resultado.status,
       "mensagem": resultado.mensagem,
-      "profissional_ra": profissional.profissional_ra
+      "profissional_rn": profissional.profissional_rn
     };
   } catch (erro) {
     return {
@@ -127,7 +127,7 @@ const profissionalSlice = createSlice({
         state.mensagem = action.payload.mensagem;
         if (action.payload.status) {
           state.estado = ESTADO.OCIOSO;
-          state.listaDeProfissionais = state.listaDeProfissionais.filter((profissional) => profissional.profissional_ra !== action.payload.profissional_ra);
+          state.listaDeProfissionais = state.listaDeProfissionais.filter((profissional) => profissional.profissional_rn !== action.payload.profissional_rn);
         } else {
           state.estado = ESTADO.ERRO;
         }
@@ -163,7 +163,7 @@ const profissionalSlice = createSlice({
         if (action.payload.status) {
           state.estado = ESTADO.OCIOSO;
           state.listaDeProfissionais = state.listaDeProfissionais.map((item) => 
-            item.profissional_ra === action.payload.profissional.profissional_ra ? action.payload.profissional : item
+            item.profissional_rn === action.payload.profissional.profissional_rn ? action.payload.profissional : item
           );
         } else {
           state.estado = ESTADO.ERRO;

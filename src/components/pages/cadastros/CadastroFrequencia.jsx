@@ -12,23 +12,28 @@ export default function CadastroFrequencia(props) {
   const [alunos, setAlunos] = useState([]);
   const [presencas, setPresencas] = useState({});
   const [dataChamada, setDataChamada] = useState("");
-  const {status, mensagem, listaFrequencia} = useSelector((state)=> state.frequencia);
-  const {listaDeMatriculas} = useSelector((state)=> state.matricula);
+  const {status, mensagem} = useSelector((state)=> state.frequencia);
+  const {matStatus, listaDeMatriculas} = useSelector((state)=> state.matricula);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(buscarMatriculasFiltros(props.turma));
+    const termos={
+      serie: props.turma.serie.serieId,
+      anoLetivo: props.turma.anoLetivo.id,
+      valido: 1
+    }
+    dispatch(buscarMatriculasFiltros(termos));
   }, [props.turma, dispatch]);
-
+  
   useEffect(() => {
-    if (listaDeMatriculas.length > 0) {
+    if (matStatus === ESTADO.SUCESSO && listaDeMatriculas.length > 0) {
       buscarAlunos(props.turma, listaDeMatriculas);
     }
-  }, [listaDeMatriculas, props.turma]);
+  }, [matStatus, listaDeMatriculas, props.turma]);
 
   async function buscarAlunos(turma, listaDeMatriculas) {
     const listaFiltrada = listaDeMatriculas
-      .filter(item => item.turma.letra.toLowerCase() === turma.letra.toLowerCase())
+      .filter(matricula => matricula.turma && matricula.turma.letra?.toLowerCase() === turma.letra?.toLowerCase())
       .sort((a, b) => a.aluno.pessoa.nome.toLowerCase() - b.aluno.pessoa.nome.toLowerCase());
     setAlunos(listaFiltrada ?? []);
   }
@@ -60,7 +65,7 @@ export default function CadastroFrequencia(props) {
     let text;
     if (consecutivas >= 3) {
       text = `Aluno(a) ${aluno.aluno.pessoa.nome} (RA ${aluno.aluno.ra}) atingiu ${consecutivas} faltas consecutivas.`;
-    } else if (faltas.length == 7) { 
+    } else if (faltas.length === 7) { 
       text = `Aluno(a) ${aluno.aluno.pessoa.nome} (RA ${aluno.aluno.ra}) faltou em 7 aulas.`;
     }
 
@@ -91,17 +96,19 @@ export default function CadastroFrequencia(props) {
         await dispatch(incluirFrequencia(dados));
         if (status == ESTADO.ERRO) {
           toast.error(`Erro ao gravar frequência para RA ${aluno.aluno.ra}:`, mensagem);
-        } else if (!presente) {
+        } if(status == ESTADO.OCIOSO && !presente) {
           await verificarFrequencia(aluno, dados);
         }
       } catch (error) {
         toast.error(`Erro de conexão para RA ${aluno.aluno.ra}:`, error);
       }
     }
-    toast.success(`Presença registrada com sucesso para a turma ${props.turma.serie.serieDescr} - ${props.turma.letra} na data ${dataChamada}`);
-    setTimeout(() => {
-      voltar();
-    }, 4000);
+    if(status == ESTADO.OCIOSO){
+      toast.success(`Presença registrada com sucesso para a turma ${props.turma.serie.serieDescr} - ${props.turma.letra} na data ${dataChamada}`);
+      setTimeout(() => {
+        voltar();
+      }, 2000);
+    }
   }
 
   if (status === ESTADO.PENDENTE) {

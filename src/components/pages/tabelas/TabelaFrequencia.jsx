@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect , useContext} from 'react';
 import { Search } from 'lucide-react';
 import { consultarTurmas } from "../../../service/servicoTurma";
+import { ContextoUsuario } from '../../../App';
 
 export default function TabelaFrequencia(props) {
   const [turmas, setTurmas] = useState([]);
   const [buscaSerie, setBuscaSerie] = useState("");
+  const { setUsuario, usuario } = useContext(ContextoUsuario);
 
   useEffect(() => {
     buscarTurma();
@@ -20,7 +22,8 @@ export default function TabelaFrequencia(props) {
 
   async function buscarTurma() {
     const lista = await consultarTurmas();
-    setTurmas(lista ?? []);
+    const listaProf = lista.filter((turma)=>turma.profissional.profissional_usuario.includes(usuario.username))
+    setTurmas(listaProf ?? []);
   }
 
   async function buscarPorSerie(termo) {
