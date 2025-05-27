@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import logoPrefeitura from "../../../assets/images/logoPrefeitura.png";
-import { useDispatch, useSelector } from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import ESTADO from '../../../redux/estados.js';
-import { incluirAluno, atualizarAluno, buscarAlunos } from '../../../redux/alunoReducer.js';
-import toast, { Toaster } from "react-hot-toast";
-import { buscarPessoasSemAlunos } from '../../../redux/pessoaReducer.js';
-import { AlertCircle, Loader2 } from 'lucide-react';
-import { formatarCPF } from "../../../service/formatadores.js";
-import { consultarAluno } from '../../../service/serviceAluno.js';
+import {incluirAluno, atualizarAluno, buscarAlunos} from '../../../redux/alunoReducer.js';
+import toast, {Toaster} from "react-hot-toast";
+import {buscarPessoasSemAlunos} from '../../../redux/pessoaReducer.js';
+import {AlertCircle, Loader2} from 'lucide-react';
+import {formatarCPF} from "../../../service/formatadores.js";
+import {consultarAluno} from '../../../service/serviceAluno.js';
 
 
 function CadastroAluno(props) {
     const [aluno, setAluno] = useState(props.aluno)
-    const { estado, mensagem, listaDePessoas } = useSelector(state => state.pessoa);
+    const {estado, mensagem, listaDePessoas} = useSelector(state => state.pessoa);
     const dispatch = useDispatch();
     const [listaFiltrada, setListaFiltrada] = useState([]);
     const [validos, setValidos] = useState([true, true, true, true]);
@@ -27,12 +27,11 @@ function CadastroAluno(props) {
 
     useEffect(() => {
         setAlunos();
-      }, [listaDePessoas]);
-      
+    }, [listaDePessoas]);
 
 
     function manipularMudanca(event) {
-        const { id, value } = event.currentTarget;
+        const {id, value} = event.currentTarget;
 
         setValidos((prevValidos) => {
             const novosValidos = [...prevValidos];
@@ -102,7 +101,7 @@ function CadastroAluno(props) {
             pessoa: {
                 nome: pessoa.nome,
                 cpf: pessoa.cpf,
-                dataNascimento:pessoa.dataNascimento
+                dataNascimento: pessoa.dataNascimento
             }
         });
         filtrar();
@@ -112,7 +111,7 @@ function CadastroAluno(props) {
         props.setAluno({
             ra: "",
             restricaoMedica: "",
-            pessoa: { nome: "", cpf: "" , dataNascimento:""},
+            pessoa: {nome: "", cpf: "", dataNascimento: ""},
         });
     }
 
@@ -194,8 +193,7 @@ function CadastroAluno(props) {
                             dispatch(incluirAluno(aluno));
                             props.setExibirTabela(true);
                             zeraDados();
-                        }
-                        else {
+                        } else {
                             let novosValidos = validos;
                             novosValidos[0] = false;
                             setValidos(novosValidos)
@@ -217,18 +215,19 @@ function CadastroAluno(props) {
                     });
                     setTimeout(() => {
                         toast.error("NOME E(OU) CPF ERRADO(S)!", {
-                            duration: 2000,
-                            repeat: false
-                        }
+                                duration: 2000,
+                                repeat: false
+                            }
                         );
                     }, 2000)
 
-                    setTimeout(() => {
-                        if (confirm("Deseja cadastrar as informações pessoais desse aluno para prosseguir cadastro?")) {
-                            cadastrarInfosPessoais();
-                        }
-                    }, 4000)
-
+                    if (!props.modoEdicao) {
+                        setTimeout(() => {
+                            if (confirm("Deseja cadastrar as informações pessoais desse aluno para prosseguir cadastro?")) {
+                                cadastrarInfosPessoais();
+                            }
+                        }, 4000)
+                    }
                 }
             }
         }
@@ -237,7 +236,7 @@ function CadastroAluno(props) {
     if (estado === ESTADO.PENDENTE) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4 space-y-4">
-                <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+                <Loader2 className="w-8 h-8 text-indigo-600 animate-spin"/>
                 <div className="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 rounded">{mensagem}</div>
             </div>
         );
@@ -247,7 +246,7 @@ function CadastroAluno(props) {
         return (
             <div className="flex flex-col items-center justify-center min-h-screen p-4 space-y-4">
                 <div className="flex items-center bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
-                    <AlertCircle className="w-5 h-5 mr-2" />
+                    <AlertCircle className="w-5 h-5 mr-2"/>
                     {mensagem}
                 </div>
                 <button
@@ -261,19 +260,22 @@ function CadastroAluno(props) {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative p-4" >
-            <div className="absolute inset-0 bg-black/40" />
+        <div className="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat relative p-4">
+            <div className="absolute inset-0 bg-black/40"/>
             <div className="relative z-10 w-full max-w-screen-lg overflow-hidden">
-                <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 h-full flex flex-col">
+                <div
+                    className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 h-full flex flex-col">
                     <div className="flex flex-col items-center mb-6 md:mb-8">
-                        <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 tracking-wide">Registro de Matrícula</h2>
-                        <img src={logoPrefeitura} alt="Logo da Prefeitura" className="h-16 sm:h-20 md:h-24 w-auto" />
+                        <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 tracking-wide">Registro de
+                            Matrícula</h2>
+                        <img src={logoPrefeitura} alt="Logo da Prefeitura" className="h-16 sm:h-20 md:h-24 w-auto"/>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                                <label htmlFor="pessoa.nome" className={`text-sm ${validos[3] ? 'text-white' : 'text-red-500'}`}>Nome</label>
+                                <label htmlFor="pessoa.nome"
+                                       className={`text-sm ${validos[3] ? 'text-white' : 'text-red-500'}`}>Nome</label>
                                 <input
                                     disabled={props.modoEdicao}
                                     type="text"
@@ -286,7 +288,8 @@ function CadastroAluno(props) {
                             </div>
 
                             <div className="flex flex-col">
-                                <label htmlFor="pessoa.cpf" className={`text-sm ${validos[2] ? 'text-white' : 'text-red-500'}`}>CPF</label>
+                                <label htmlFor="pessoa.cpf"
+                                       className={`text-sm ${validos[2] ? 'text-white' : 'text-red-500'}`}>CPF</label>
                                 <input
                                     disabled={props.modoEdicao}
                                     type="text"
@@ -302,7 +305,8 @@ function CadastroAluno(props) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                                <label htmlFor="ra" className={`text-sm ${validos[0] ? 'text-white' : 'text-red-500'}`}>RA</label>
+                                <label htmlFor="ra"
+                                       className={`text-sm ${validos[0] ? 'text-white' : 'text-red-500'}`}>RA</label>
                                 <input
                                     disabled={props.modoEdicao}
                                     type="number"
@@ -315,7 +319,9 @@ function CadastroAluno(props) {
                             </div>
 
                             <div className="flex flex-col">
-                                <label htmlFor="restricaoMedica" className={`text-sm ${validos[1] ? 'text-white' : 'text-red-500'}`}>Restrição médica</label>
+                                <label htmlFor="restricaoMedica"
+                                       className={`text-sm ${validos[1] ? 'text-white' : 'text-red-500'}`}>Restrição
+                                    médica</label>
                                 <textarea
                                     id="restricaoMedica"
                                     maxLength={300}
@@ -328,13 +334,15 @@ function CadastroAluno(props) {
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-                            <button
+                            {!props.modoEdicao && (<button
                                 type="button"
-                                onClick={() => { cadastrarInfosPessoais() }}
+                                onClick={() => {
+                                    cadastrarInfosPessoais()
+                                }}
                                 className="w-full p-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
                             >
                                 Cadastrar informações pessoais
-                            </button>
+                            </button>)}
                             <button
                                 type="submit"
                                 className="w-full p-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors"
@@ -343,7 +351,11 @@ function CadastroAluno(props) {
                             </button>
                             <button
                                 type="button"
-                                onClick={() => { zeraDados(); props.setExibirTabela(true); props.setModoEdicao(false); }}
+                                onClick={() => {
+                                    zeraDados();
+                                    props.setExibirTabela(true);
+                                    props.setModoEdicao(false);
+                                }}
                                 className="w-full p-2 rounded-md bg-red-600 text-white hover:bg-red-700 transition-colors"
                             >
                                 Voltar
@@ -356,41 +368,44 @@ function CadastroAluno(props) {
                         <table className="min-w-full divide-y divide-gray-700">
                             <thead className="sticky top-0 z-10 bg-gray-800">
 
-                                <tr>
-                                    <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300 uppercase bg-gray-800">Nome</th>
-                                    <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300 uppercase bg-gray-800">CPF</th>
-                                    <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300 uppercase bg-gray-800">Data de Nascimento</th>
-                                    <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300 uppercase bg-gray-800">Selecionar</th>
-                                </tr>
+                            <tr>
+                                <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300 uppercase bg-gray-800">Nome</th>
+                                <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300 uppercase bg-gray-800">CPF</th>
+                                <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300 uppercase bg-gray-800">Data
+                                    de Nascimento
+                                </th>
+                                <th className="px-4 py-3 text-left text-xs sm:text-sm font-semibold text-gray-300 uppercase bg-gray-800">Selecionar</th>
+                            </tr>
                             </thead>
                             <tbody className="bg-gray-800/40 divide-y divide-gray-700">
-                                {listaFiltrada.length > 0 ? (
-                                    listaFiltrada.map((pessoa) => (
-                                        <tr key={pessoa.cpf} className="hover:bg-gray-700/50 transition-colors">
-                                            <td className="px-4 py-3 text-sm text-gray-300 break-words">{pessoa.nome}</td>
-                                            <td className="px-4 py-3 text-sm text-gray-300 break-words">{pessoa.cpf}</td>
-                                            <td className="px-4 py-3 text-sm text-gray-300 break-words">{new Date(pessoa.dataNascimento).toLocaleDateString()}</td>
-                                            <td className="px-4 py-3">
-                                                <button
-                                                    onClick={() => setarValores(pessoa)}
-                                                    className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600 transition"
-                                                >
-                                                    Selecionar
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={4} className="text-center text-gray-300 py-4">Nenhum aluno encontrado</td>
+                            {listaFiltrada.length > 0 ? (
+                                listaFiltrada.map((pessoa) => (
+                                    <tr key={pessoa.cpf} className="hover:bg-gray-700/50 transition-colors">
+                                        <td className="px-4 py-3 text-sm text-gray-300 break-words">{pessoa.nome}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-300 break-words">{pessoa.cpf}</td>
+                                        <td className="px-4 py-3 text-sm text-gray-300 break-words">{new Date(pessoa.dataNascimento).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3">
+                                            <button
+                                                onClick={() => setarValores(pessoa)}
+                                                className="px-3 py-1 text-sm rounded-md bg-blue-500 text-white hover:bg-blue-600 transition"
+                                            >
+                                                Selecionar
+                                            </button>
+                                        </td>
                                     </tr>
-                                )}
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={4} className="text-center text-gray-300 py-4">Nenhum aluno encontrado
+                                    </td>
+                                </tr>
+                            )}
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
-            <Toaster position="top-center" />
+            <Toaster position="top-center"/>
         </div>
 
     );

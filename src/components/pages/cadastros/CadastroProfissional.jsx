@@ -8,21 +8,11 @@ import { buscarPossiveisProfissionais } from '../../../redux/pessoaReducer';
 import { atualizarProfissional, incluirProfissional } from "../../../redux/profissionalReducer";
 import { formatarCPF } from "../../../service/formatadores";
 import { consultarProfissional } from '../../../service/serviceProfissional';
+import {consultarGraduacao} from "../../../service/serviceGraduacao.js";
 
 function CadastroProfissional(props) {
     const [profissional, setProfissional] = useState(props.profissional);
-    const [listaDegraduacao, setListaDeGraduacao] = useState([
-        { graduacao_id: 1, graduacao_descricao: "Ensino Fundamental Incompleto" },
-        { graduacao_id: 2, graduacao_descricao: "Ensino Fundamental Completo" },
-        { graduacao_id: 3, graduacao_descricao: "Ensino Médio Incompleto" },
-        { graduacao_id: 4, graduacao_descricao: "Ensino Médio Completo" },
-        { graduacao_id: 5, graduacao_descricao: "Ensino Superior Incompleto" },
-        { graduacao_id: 6, graduacao_descricao: "Ensino Superior Completo" },
-        { graduacao_id: 7, graduacao_descricao: "Pós-graduação" },
-        { graduacao_id: 8, graduacao_descricao: "Mestrado" },
-        { graduacao_id: 9, graduacao_descricao: "Doutorado" },
-        { graduacao_id: 10, graduacao_descricao: "Pós-doutorado" }
-    ]);
+    const [listaDegraduacao, setListaDeGraduacao] = useState([]);
     const { estado, mensagem, listaDePessoas } = useSelector(state => state.pessoa);
     const dispatch = useDispatch();
     const [listaFiltrada, setListaFiltrada] = useState([]);
@@ -30,7 +20,12 @@ function CadastroProfissional(props) {
 
     useEffect(() => {
         dispatch(buscarPossiveisProfissionais());
-
+        consultarGraduacao().then((resultado)=>{
+            if(Array.isArray(resultado))
+                setListaDeGraduacao(resultado);
+            else
+                toast.error("Erro ao recuperar as graduações!")
+        })
     }, []);
 
     useEffect(() => {
@@ -383,8 +378,8 @@ function CadastroProfissional(props) {
                                 >
                                     <option value="0">Selecione</option>
                                     {listaDegraduacao.map(g => (
-                                        <option key={g.graduacao_id} value={g.graduacao_id}>
-                                            {g.graduacao_descricao}
+                                        <option key={g.id} value={g.id}>
+                                            {g.descricao}
                                         </option>
                                     ))}
                                 </select>

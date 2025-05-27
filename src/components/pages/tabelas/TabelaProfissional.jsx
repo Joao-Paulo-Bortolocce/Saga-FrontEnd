@@ -25,7 +25,6 @@ export default function TabelaProfissional(props) {
   function excluirProfissional(profissional) {
     if (window.confirm(`Deseja realmente excluir ${profissional.profissional_pessoa.nome}?`)) {
       dispatch(apagarProfissional(profissional));
-      toast.success("Profissional excluído com sucesso!");
     }
   }
 
