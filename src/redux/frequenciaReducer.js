@@ -28,9 +28,7 @@ export const buscarFrequenciasAluno = createAsyncThunk("buscarFrequenciasAluno",
   }
 );
 
-export const apagarFrequencia = createAsyncThunk(
-  "apagarFrequencia",
-  async (frequencia) => {
+export const apagarFrequencia = createAsyncThunk("apagarFrequencia", async (frequencia) => {
     try {
       const resultado = await excluirFrequencia(frequencia);
       return {
@@ -71,8 +69,7 @@ export const incluirFrequencia = createAsyncThunk("incluirFrequencia", async (fr
   }
 );
 
-export const atualizarFrequencia = createAsyncThunk("atualizarFrequencia",
-  async (frequencia) => {
+export const atualizarFrequencia = createAsyncThunk("atualizarFrequencia", async (frequencia) => {
     try {
       const resultado = await alterarFrequencia(frequencia);
       if (resultado.status) {

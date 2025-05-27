@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-//import { consultarMatriculaFiltros } from '../../../service/serviceMatricula.js';
-//import { gravarFrequencia, consultarFreqAluno } from '../../../service/serviceFrequencia.js';
 import { incluirFrequencia, buscarFrequenciasAluno } from "../../../redux/frequenciaReducer.js";
 import { buscarMatriculasFiltros } from "../../../redux/matriculaReducer.js"
 import { incluirNotificacao } from '../../../redux/notificacaoReducer.js';
@@ -48,25 +46,35 @@ export default function CadastroFrequencia(props) {
 
   async function verificarFrequencia(aluno, dados) {
     const resultado = await dispatch(buscarFrequenciasAluno(dados));
+    if (!resultado.payload || !resultado.payload.listaFrequencia) {
+      toast.error('Erro ao buscar frequências');
+      return;
+    }
     const frequencias = resultado.payload.listaFrequencia;
     const faltas = frequencias.filter(f => !f.presente).sort((a, b) => new Date(a.data) - new Date(b.data));
+    
     let consecutivas = 1;
-    for (let i = 1; i < faltas.length && consecutivas < 3; i++) {
+    let maxConsecutivas = 1;
+
+    for (let i = 1; i < faltas.length; i++) {
       const anterior = new Date(faltas[i - 1].data);
       const atual = new Date(faltas[i].data);
       const diff = Math.floor((atual - anterior) / (1000 * 60 * 60 * 24));
+
       if (diff === 1) {
         consecutivas++;
+        maxConsecutivas = Math.max(maxConsecutivas, consecutivas);
       } else {
         consecutivas = 1;
       }
     }
 
     let text;
-    if (consecutivas >= 3) {
-      text = `Aluno(a) ${aluno.aluno.pessoa.nome} (RA ${aluno.aluno.ra}) atingiu ${consecutivas} faltas consecutivas.`;
-    } else if (faltas.length === 7) { 
-      text = `Aluno(a) ${aluno.aluno.pessoa.nome} (RA ${aluno.aluno.ra}) faltou em 7 aulas.`;
+    if (maxConsecutivas >= 3) {
+      text = `Aluno(a) ${aluno.aluno.pessoa.nome} (RA ${aluno.aluno.ra}) apresenta ${maxConsecutivas} faltas consecutivas.`;
+    } 
+    if (faltas.length === 7) {
+      text = `Aluno(a) ${aluno.aluno.pessoa.nome} (RA ${aluno.aluno.ra}) já acumulou 7 faltas.`;
     }
 
     if (text) {
@@ -74,7 +82,6 @@ export default function CadastroFrequencia(props) {
         mensagem: text,
         data: dados.data
       };
-      console.log(notificacao);
       dispatch(incluirNotificacao(notificacao));
     }
   }
@@ -96,19 +103,17 @@ export default function CadastroFrequencia(props) {
         await dispatch(incluirFrequencia(dados));
         if (status == ESTADO.ERRO) {
           toast.error(`Erro ao gravar frequência para RA ${aluno.aluno.ra}:`, mensagem);
-        } if(status == ESTADO.OCIOSO && !presente) {
+        } else if(!presente) {
           await verificarFrequencia(aluno, dados);
         }
       } catch (error) {
         toast.error(`Erro de conexão para RA ${aluno.aluno.ra}:`, error);
       }
     }
-    if(status == ESTADO.OCIOSO){
-      toast.success(`Presença registrada com sucesso para a turma ${props.turma.serie.serieDescr} - ${props.turma.letra} na data ${dataChamada}`);
-      setTimeout(() => {
-        voltar();
-      }, 2000);
-    }
+    toast.success(`Presença registrada com sucesso para a turma ${props.turma.serie.serieDescr} - ${props.turma.letra} na data ${dataChamada}`);
+    setTimeout(() => {
+      voltar();
+    }, 2000);
   }
 
   if (status === ESTADO.PENDENTE) {

@@ -21,6 +21,7 @@ import HomeReunioes from "./components/pages/HomeReunioes.jsx";
 import HomeSalas from "./components/pages/HomeSalas.jsx";
 import HomePovoarTurma from "./components/pages/HomePovoarTurma.jsx";
 import HomeTurmas from "./components/pages/HomeTurmas.jsx";
+import HomeAnoLetivo from "./components/pages/HomeAnoLetivo.jsx";
 
 import RotasControle from "./components/Rotas/RotasControle.jsx";
 
@@ -115,6 +116,7 @@ export default function App() {
                             <Route path="/cadastros/povoarTurma" element={<HomePovoarTurma/>}/>
                             <Route path="/cadastros/turma" element={<HomeTurmas/>}/>
                             <Route path="/cadastros/graduacao" element={<RotasControle permissao={[1,3]}><HomeGraduacao /></RotasControle>} />
+                            <Route path="/cadastros/anoletivo" element={<RotasControle permissao={[1,3]}><HomeAnoLetivo /></RotasControle>} />
                             <Route path="/chamada" element={<RotasControle permissao={[2]}><HomeFrequencia /></RotasControle>} />
                             <Route path="/notificacao" element={<RotasControle permissao={[1]}><HomeNotificacao /></RotasControle>} />
                         </Routes>

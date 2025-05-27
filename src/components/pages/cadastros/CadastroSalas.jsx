@@ -142,7 +142,7 @@ function CadastroSalas(props) {
 
               <button
                 type="submit"
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
               >
                 {props.salaEdicao ? 'Alterar' : 'Confirmar'}
               </button>
@@ -154,7 +154,7 @@ function CadastroSalas(props) {
                   props.setSalaEdicao(false);
                   props.setExibirTabela(true);
                 }}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
               >
                 Voltar
               </button>

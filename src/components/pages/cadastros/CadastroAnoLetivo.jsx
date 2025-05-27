@@ -1,49 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Hash, Loader2, AlertCircle } from 'lucide-react';
 import { useDispatch, useSelector } from 'react-redux';
 import logoPrefeitura from '../../../assets/images/logoPrefeitura.png';
-import ESTADO from '../../../redux/estados.js';
-import { incluirGraduacao, atualizarGraduacao } from '../../../redux/graduacaoReducer.js';
+import ESTADO from '../../../redux/estados';
+import { incluirAnoLetivo, atualizarAnoLetivo } from '../../../redux/anoLetivoReducer';
 import toast, { Toaster } from 'react-hot-toast';
 
-function CadastroGraduacao(props) {
+function CadastroAnoLetivo(props) {
   const dispatch = useDispatch();
-  const { estado, mensagem } = useSelector((state) => state.graduacao);
-  const [graduacao, setGraduacaoLocal] = useState(
-    props.graduacao || { descricao: '' }
+  const { estado, mensagem } = useSelector((state) => state.anoLetivo);
+  const [ano, setAnoLocal] = useState(
+    props.anoLetivo || { id :0, inicio: "", fim: "" }
   );
+
+  useEffect(() => {
+    if (props.anoLetivo) {
+      setAnoLocal(props.anoLetivo);
+    }
+  }, [props.anoLetivo]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setGraduacaoLocal((prev) => ({ ...prev, [name]: value }));
+    setAnoLocal((prev) => ({ ...prev, [name]: value }));
   };
 
+
   const limparFormulario = () => {
-    const graduacaoLimpa = { descricao: '' };
-    props.setGraduacao(graduacaoLimpa);
-    setGraduacaoLocal(graduacaoLimpa);
+    const Limpa = { id :0, inicio: "", fim: "" };
+    props.setAnoLetivo(Limpa);
+    setAnoLocal(Limpa);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!graduacao.descricao || graduacao.descricao.trim() === '') {
-      toast.error('Preencha o campo Graduação corretamente');
-      return;
-    }
-
-    let resultAction;
-    if (props.modoEdicao) {
-      resultAction = await dispatch(atualizarGraduacao(graduacao));
-      props.setModoEdicao(false);
-    } else {
-      resultAction = await dispatch(incluirGraduacao(graduacao));
-    }
-
-    if (resultAction.error) {
-      toast.error('Erro: ' + (resultAction.error.message || 'Falha na operação'));
-    } else {
-      toast.success('Operação realizada com sucesso!');
+    if (!ano.inicio || !ano.fim) {
+      toast.error('Preencha todos os campos corretamente');
+    }else{
+      let resultAction;
+      if (props.modoEdicao) {
+        resultAction = await dispatch(atualizarAnoLetivo(ano));
+        props.setModoEdicao(false);
+      } else {
+        console.log(ano);
+        resultAction = await dispatch(incluirAnoLetivo(ano));
+      }
+      if (resultAction.error) {
+        toast.error('Erro: ' + (resultAction.error.message || 'Falha na operação'));
+      } else {
+        toast.success('Operação realizada com sucesso!');
+      }
       limparFormulario();
       setTimeout(() => {
         props.setExibirTabela(true);
@@ -88,7 +93,7 @@ function CadastroGraduacao(props) {
           <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8">
             <div className="flex flex-col items-center mb-6 md:mb-8">
               <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 tracking-wide">
-                {props.modoEdicao ? 'Editar Graduação' : 'Cadastrar Graduação'}
+                {props.modoEdicao ? 'Editar Ano Letivo' : 'Cadastrar Ano Letivo'}
               </h2>
               <img
                 src={logoPrefeitura}
@@ -103,17 +108,27 @@ function CadastroGraduacao(props) {
                   <div>
                     <label className="flex items-center gap-2 text-sm font-medium text-white mb-1">
                       <Hash className="w-4 h-4" />
-                      Graduação
+                      Data Inicio do Ano Letivo
+                    </label>
+                     <input
+                        type="date"
+                        id="inicio"
+                        name="inicio"
+                        value={ano.inicio}
+                        onChange={handleInputChange}
+                        className="block mt-1 p-2 border border-gray-700 rounded bg-white text-black w-full"
+                      />
+                    <label className="flex items-center gap-2 text-sm font-medium text-white mb-1">
+                      <Hash className="w-4 h-4" />
+                      Data Fim do Ano Letivo
                     </label>
                     <input
-                      type="text"
-                      name="descricao"
-                      id="descricao"
-                      required
-                      value={graduacao.descricao}
+                      type="date"
+                      id="fim"
+                      name="fim"
+                      value={ano.fim}
                       onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                      placeholder="Digite a graduação"
+                      className="block mt-1 p-2 border border-gray-700 rounded bg-white text-black w-full"
                     />
                   </div>
                 </div>
@@ -121,7 +136,7 @@ function CadastroGraduacao(props) {
 
               <button
                 type="submit"
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
+                className="w-full bg-green-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
               >
                 {props.modoEdicao ? 'Alterar' : 'Confirmar'}
               </button>
@@ -133,7 +148,7 @@ function CadastroGraduacao(props) {
                   props.setModoEdicao(false);
                   props.setExibirTabela(true);
                 }}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
+                className="w-full bg-red-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
               >
                 Voltar
               </button>
@@ -141,8 +156,8 @@ function CadastroGraduacao(props) {
           </div>
         </div>
       </div>
-    </>
+    </> 
   );
 }
 
-export default CadastroGraduacao;
+export default CadastroAnoLetivo;
