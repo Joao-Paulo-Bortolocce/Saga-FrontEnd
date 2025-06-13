@@ -44,7 +44,12 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
       setIsEditing(true);
       setCurrentFichaId(editingFicha.ficha_id);
       setShowSkillSelector(false);
+      
+      // IMPORTANTE: Limpar habilidades selecionadas ao trocar de ficha
+      setSelectedSkills([]);
+      
       console.log('Ficha ID set:', editingFicha.ficha_id);
+      console.log('Habilidades selecionadas limpas ao trocar de ficha');
     } else {
       resetForm();
     }
@@ -64,12 +69,13 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
   const resetForm = () => {
     setSelectedSerie(null);
     setSelectedBimestre(null);
-    setSelectedSkills([]);
+    setSelectedSkills([]); // Limpar habilidades selecionadas
     setIsEditing(false);
     setCurrentFichaId(null);
     setShowSkillSelector(false);
     setSuccess(false);
     setError(null);
+    console.log('Formulário resetado - habilidades selecionadas limpas');
   };
 
   const validateFicha = async () => {
@@ -243,6 +249,10 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
                 console.log("Habilidade já existe:", objetoHabFicha);
               }
             }
+            
+            // Limpar habilidades selecionadas após salvar
+            setSelectedSkills([]);
+            console.log('Habilidades selecionadas limpas após salvar');
           }
 
           toast.success(isEditing ? "Ficha atualizada com sucesso!" : "Ficha criada com sucesso!");

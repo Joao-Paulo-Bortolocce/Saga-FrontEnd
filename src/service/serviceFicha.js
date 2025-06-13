@@ -1,5 +1,3 @@
-
-
 const urlBase = "http://localhost:8080/ficha";
 
 function obterHeaders(contentType = true) {
