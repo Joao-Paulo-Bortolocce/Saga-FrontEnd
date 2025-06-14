@@ -63,10 +63,12 @@ export default function TabelaNotificacao() {
         </thead>
         <tbody className="divide-y divide-gray-700">
           {listaDeNotificacoes.length > 0 ? (
-            listaDeNotificacoes.map((notificacao) => (
+            [...listaDeNotificacoes]
+              .sort((a, b) => new Date(b.not_data) - new Date(a.not_data))
+              .map((notificacao) => (
               <tr key={notificacao.not_id} className="cursor-pointer hover:bg-gray-700">
                 <td className="px-10 py-4">
-                  {notificacao.not_data}
+                  {new Date(notificacao.not_data).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                 </td>
                 <td className="px-6 py-4">
                   <button onClick={() => handleDelete(notificacao)} 

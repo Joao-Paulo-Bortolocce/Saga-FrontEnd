@@ -1,10 +1,36 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import ESTADO from "./estados.js";
-import { gravarFrequencia, alterarFrequencia, excluirFrequencia, consultarFreqAluno} from "../service/serviceFrequencia.js";
+import { gravarFrequencia, alterarFrequencia, excluirFrequencia, consultarFreqAluno, consultarFreqData} from "../service/serviceFrequencia.js";
 
 export const buscarFrequenciasAluno = createAsyncThunk("buscarFrequenciasAluno", async (dados) => {
     try {
       const resultado = await consultarFreqAluno(dados);
+      if (Array.isArray(resultado)) {
+        return {
+          status: true,
+          mensagem: "Frequências recuperadas com sucesso",
+          listaFrequencia: resultado,
+        };
+      } else {
+        return {
+          status: false,
+          mensagem: "Erro ao recuperar as frequências do backend",
+          listaFrequencia: [],
+        };
+      }
+    } catch (erro) {
+      return {
+        status: false,
+        mensagem: "Erro: " + erro.message,
+        listaFrequencia: [],
+      };
+    }
+  }
+);
+
+export const buscarFrequenciasData = createAsyncThunk("buscarFrequenciasData", async (dados) => {
+    try {
+      const resultado = await consultarFreqData(dados);
       if (Array.isArray(resultado)) {
         return {
           status: true,
@@ -119,6 +145,25 @@ const frequenciaSlice = createSlice({
         state.mensagem = action.payload.mensagem;
       })
       .addCase(buscarFrequenciasAluno.rejected, (state, action) => {
+        state.estado = ESTADO.ERRO;
+        state.mensagem = action.payload?.mensagem || "Erro ao buscar frequências.";
+        state.listaFrequencia = [];
+      })
+      .addCase(buscarFrequenciasData.pending, (state) => {
+        state.estado = ESTADO.PENDENTE;
+        state.mensagem = "Processando requisição (buscando frequências)";
+      })
+      .addCase(buscarFrequenciasData.fulfilled, (state, action) => {
+        if (action.payload.status) {
+          state.estado = ESTADO.OCIOSO;
+          state.listaFrequencia = action.payload.listaFrequencia;
+        } else {
+          state.estado = ESTADO.ERRO;
+          state.listaFrequencia = [];
+        }
+        state.mensagem = action.payload.mensagem;
+      })
+      .addCase(buscarFrequenciasData.rejected, (state, action) => {
         state.estado = ESTADO.ERRO;
         state.mensagem = action.payload?.mensagem || "Erro ao buscar frequências.";
         state.listaFrequencia = [];

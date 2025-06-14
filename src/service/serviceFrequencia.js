@@ -43,10 +43,19 @@ export async function excluirFrequencia(dados) {
 }
 
 export async function consultarFreqAluno(dados) {
-    let resposta = await fetch(urlBase + "/" + dados.id + "/" + dados.data,{
-      method: "GET",
-      headers: obterHeaders(false),
-    });
-    const resultado = await resposta.json();
-    return resultado.frequencias;
+  let resposta = await fetch(urlBase + "/" + dados.id + "/" + dados.data,{
+    method: "GET",
+    headers: obterHeaders(false),
+  });
+  const resultado = await resposta.json();
+  return resultado.frequencias;
+}
+
+export async function consultarFreqData(data) {
+  let resposta = await fetch(urlBase+"/date/"+data,{
+    method: "GET",
+    headers: obterHeaders(false),
+  });
+  const resultado = await resposta.json();
+  return resultado.frequencias;
 }

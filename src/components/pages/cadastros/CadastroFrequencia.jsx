@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { incluirFrequencia, buscarFrequenciasAluno } from "../../../redux/frequenciaReducer.js";
+import { incluirFrequencia, buscarFrequenciasAluno, buscarFrequenciasData, atualizarFrequencia } from "../../../redux/frequenciaReducer.js";
 import { buscarMatriculasFiltros } from "../../../redux/matriculaReducer.js"
 import { incluirNotificacao } from '../../../redux/notificacaoReducer.js';
 import toast, { Toaster } from "react-hot-toast";
@@ -10,6 +10,8 @@ export default function CadastroFrequencia(props) {
   const [alunos, setAlunos] = useState([]);
   const [presencas, setPresencas] = useState({});
   const [dataChamada, setDataChamada] = useState("");
+  const [edicao, setEdicao] = useState(false);
+  const [presencasOriginais, setPresencasOriginais] = useState({});
   const {status, mensagem} = useSelector((state)=> state.frequencia);
   const {matStatus, listaDeMatriculas} = useSelector((state)=> state.matricula);
   const dispatch = useDispatch();
@@ -36,12 +38,56 @@ export default function CadastroFrequencia(props) {
     setAlunos(listaFiltrada ?? []);
   }
 
-  function marcarPresenca(ra, presente) {
-    setPresencas(prev => ({ ...prev, [ra]: presente }));
+  function marcarPresenca(id, presente) {
+    setPresencas(prev => ({ ...prev, [id]: presente }));
   }
 
   function voltar() {
     props.setExibirTabela(true);
+  }
+
+  async function validaData(dataStr) {
+    const data = new Date(dataStr);
+    const diaSemana = data.getDay();
+    if (diaSemana === 5 || diaSemana === 6) 
+      toast.error("Data selecionada pertence a um final de semana.");
+    else{
+      const dataAtual = new Date();
+      dataAtual.setHours(0, 0, 0, 0);
+      if (data > dataAtual)
+        toast.error("A data selecionada está no futuro. Selecione a atual ou uma anterior.");
+      else{
+        setDataChamada(dataStr);
+        try {
+          const resultado = await dispatch(buscarFrequenciasData(dataStr));
+          const frequencias = resultado.payload.listaFrequencia;
+          console.log(frequencias);
+          if(frequencias.length > 0){
+            const presencasRegistradas = {};
+            for (const freq of frequencias) {
+              const matriculaId = freq.matricula?.id;
+              if (matriculaId) {
+                presencasRegistradas[matriculaId] = !freq.presente;
+              } else {
+                console.warn("Matrícula não encontrada:", freq);
+              }
+            }
+            setPresencas(presencasRegistradas);
+            setPresencasOriginais(presencasRegistradas);
+            setEdicao(true);
+          }else{
+            const presencasRegistradas = {};
+            for (const a of alunos) {
+              presencasRegistradas[a.id] = false;
+            }
+            setPresencas(presencasRegistradas);
+            setEdicao(false);
+          }
+        } catch (error) {
+          toast.error(`Erro de conexão para consultar presenças:`, error);
+        }
+      }
+    }
   }
 
   async function verificarFrequencia(aluno, dados) {
@@ -51,33 +97,33 @@ export default function CadastroFrequencia(props) {
       return;
     }
     const frequencias = resultado.payload.listaFrequencia;
-    const faltas = frequencias.filter(f => !f.presente).sort((a, b) => new Date(a.data) - new Date(b.data));
-    
+    const faltas = frequencias.filter(f => !f.presente && new Date(f.data) <= new Date(dados.data)).sort((a, b) => new Date(a.data) - new Date(b.data));
+    let text;
+    if (faltas.length === 7) {
+      text = `Aluno(a) ${aluno.aluno.pessoa.nome} (RA ${aluno.aluno.ra}) já acumulou 7 faltas.`;
+      const notificacao = {
+        mensagem: text,
+        data: dados.data
+      };
+      dispatch(incluirNotificacao(notificacao));
+    }
+
     let consecutivas = 1;
     let maxConsecutivas = 1;
 
-    for (let i = 1; i < faltas.length; i++) {
+    for (let i = faltas.length-1; i > 0 && consecutivas!=0; i--) {
       const anterior = new Date(faltas[i - 1].data);
       const atual = new Date(faltas[i].data);
       const diff = Math.floor((atual - anterior) / (1000 * 60 * 60 * 24));
-
       if (diff === 1) {
         consecutivas++;
         maxConsecutivas = Math.max(maxConsecutivas, consecutivas);
       } else {
-        consecutivas = 1;
+        consecutivas = 0;
       }
     }
-
-    let text;
     if (maxConsecutivas >= 3) {
       text = `Aluno(a) ${aluno.aluno.pessoa.nome} (RA ${aluno.aluno.ra}) apresenta ${maxConsecutivas} faltas consecutivas.`;
-    } 
-    if (faltas.length === 7) {
-      text = `Aluno(a) ${aluno.aluno.pessoa.nome} (RA ${aluno.aluno.ra}) já acumulou 7 faltas.`;
-    }
-
-    if (text) {
       const notificacao = {
         mensagem: text,
         data: dados.data
@@ -92,19 +138,34 @@ export default function CadastroFrequencia(props) {
 
     for (const aluno of alunos) {
       const id = aluno.id;
-      const presente = !presencas[aluno.aluno.ra];
+      const presente = !presencas[aluno.id];
       const dados = {
         id: id,
         presente: presente,
         data: dataChamada
       };
-
       try {
-        await dispatch(incluirFrequencia(dados));
-        if (status == ESTADO.ERRO) {
-          toast.error(`Erro ao gravar frequência para RA ${aluno.aluno.ra}:`, mensagem);
-        } else if(!presente) {
-          await verificarFrequencia(aluno, dados);
+        if(!edicao){
+          await dispatch(incluirFrequencia(dados));
+          if (status == ESTADO.ERRO) {
+            toast.error(`Erro ao gravar frequência para RA ${aluno.aluno.ra}:`, mensagem);
+          } else if(!presente)
+            await verificarFrequencia(aluno, dados);
+        }
+        else{
+          await dispatch(atualizarFrequencia(dados));
+          
+          if (status == ESTADO.ERRO) {
+            toast.error(`Erro ao gravar frequência para RA ${aluno.aluno.ra}:`, mensagem);
+          } else if(!presente){
+            const original = presencasOriginais[id];
+            const atual = presencas[id];
+
+            const mudouParaFalta = original !== undefined && original === false && atual === true;
+            if (mudouParaFalta) {
+              await verificarFrequencia(aluno, dados);
+            }
+          }
         }
       } catch (error) {
         toast.error(`Erro de conexão para RA ${aluno.aluno.ra}:`, error);
@@ -113,7 +174,7 @@ export default function CadastroFrequencia(props) {
     toast.success(`Presença registrada com sucesso para a turma ${props.turma.serie.serieDescr} - ${props.turma.letra} na data ${dataChamada}`);
     setTimeout(() => {
       voltar();
-    }, 2000);
+    }, 1000);
   }
 
   if (status === ESTADO.PENDENTE) {
@@ -159,8 +220,8 @@ export default function CadastroFrequencia(props) {
               <input
                 type="date"
                 id="data"
-                value={dataChamada}
-                onChange={(e) => setDataChamada(e.target.value)}
+                value={dataChamada || ""}
+                onChange={(e) => validaData(e.target.value) }
                 className="block mt-1 p-2 border border-gray-700 rounded bg-white text-black w-full"
               />
             </div>
@@ -183,8 +244,8 @@ export default function CadastroFrequencia(props) {
                         <td className="px-6 py-4 text-center">
                           <input
                             type="checkbox"
-                            checked={presencas[aluno.aluno.ra] || false}
-                            onChange={(e) => marcarPresenca(aluno.aluno.ra, e.target.checked)}
+                            checked={presencas[aluno.id] || false}
+                            onChange={(e) => marcarPresenca(aluno.id, e.target.checked)}
                           />
                         </td>
                       </tr>
