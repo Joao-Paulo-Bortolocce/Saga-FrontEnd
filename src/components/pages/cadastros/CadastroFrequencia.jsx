@@ -206,36 +206,34 @@ export default function CadastroFrequencia(props) {
   return (
     <>
       <Toaster position="top-right" reverseOrder={false} />
-      <div className="min-h-screen py-12 flex flex-col items-center justify-start bg-cover bg-center bg-no-repeat relative"
-        style={{ backgroundImage: `url('/src/assets/images/imagemFundoPrefeitura.png')` }}>
-        <div className="absolute inset-0 bg-black/40" />
-        <div className="relative z-10 w-full max-w-4xl px-4">
-          <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
-            <h2 className="text-2xl font-bold text-white mb-6">
+      <div className="py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-white shadow overflow-hidden sm:rounded-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
               Chamada - {props.turma.serie.serieDescr} - {props.turma.letra}
             </h2>
 
             <div className="mb-4">
-              <label htmlFor="data" className="text-white">Escolha a data:</label>
+              <label htmlFor="data" className="block text-gray-700 font-medium mb-1">Escolha a data:</label>
               <input
                 type="date"
                 id="data"
                 value={dataChamada || ""}
                 onChange={(e) => validaData(e.target.value) }
-                className="block mt-1 p-2 border border-gray-700 rounded bg-white text-black w-full"
+                className="block w-full mt-1 p-2 border border-gray-300 rounded text-black"
               />
             </div>
 
             <div className="overflow-x-auto">
-              <table className="min-w-full text-white divide-y divide-gray-700">
-                <thead className="bg-gray-800">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-sm font-medium">RA</th>
-                    <th className="px-6 py-3 text-left text-sm font-medium">Nome</th>
-                    <th className="px-6 py-3 text-center text-sm font-medium">Falta</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">RA</th>
+                    <th className="px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase">Nome</th>
+                    <th className="px-6 py-3 text-center text-sm font-medium text-gray-500 uppercase">Falta</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-700">
+                <tbody className="bg-white divide-y divide-gray-200">
                   {alunos.length > 0 ? (
                     alunos.map((aluno) => (
                       <tr key={aluno.id}>

@@ -1,5 +1,5 @@
 import { useState, useEffect , useContext} from 'react';
-import { Search } from 'lucide-react';
+import { Search, DoorOpen } from 'lucide-react';
 import { consultarTurmas } from "../../../service/servicoTurma";
 import { ContextoUsuario } from '../../../App';
 
@@ -41,14 +41,17 @@ export default function TabelaFrequencia(props) {
   }
 
   return (
-    <div className="min-h-screen py-12 flex flex-col items-center justify-start bg-cover bg-center bg-no-repeat relative"
-      style={{ backgroundImage: `url('/src/assets/images/imagemFundoPrefeitura.png')` }}>
-      <div className="absolute inset-0 bg-black/40" />
-      <div className="relative z-10 w-full max-w-4xl px-4">
-        <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Lista de Turmas</h2>
+    <div className="py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="sm:flex sm:items-center sm:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Lista de Turmas</h1>
+            <p className="mt-2 text-sm text-gray-700">Lista de turmas disponíveis para seleção</p>
+          </div>
+        </div>
 
-          <div className="relative mb-4">
+        <div className="mt-8">
+          <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-gray-400" />
             </div>
@@ -61,27 +64,28 @@ export default function TabelaFrequencia(props) {
             />
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-white divide-y divide-gray-700">
-              <thead className="bg-gray-800">
+          <div className="mt-6 overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-medium">Turma</th>
-                  <th className="px-6 py-3 text-left text-sm font-medium">Série</th>
-                  <th className="px-6 py-3 text-right text-sm font-medium">Ação</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Turma</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Série</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Ação</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-700">
+              <tbody className="bg-white divide-y divide-gray-200">
                 {turmas.length > 0 ? (
                   turmas.map((turma) => (
                     <tr key={turma.letra + turma.serie.serieId}>
-                      <td className="px-6 py-4">{turma.letra}</td>
-                      <td className="px-6 py-4">{turma.serie.serieDescr}</td>
-                      <td className="px-6 py-4 text-right">
+                      <td className="px-6 py-4 whitespace-nowrap">{turma.letra}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">{turma.serie.serieDescr}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
                         <button
                           onClick={() => selecionarTurma(turma)}
-                          className="bg-green-500 hover:bg-green-600 text-white px-4 py-1 rounded"
+                          className="text-indigo-600 hover:text-indigo-900"
+                          aria-label="Selecionar Turma"
                         >
-                          Selecionar
+                          <DoorOpen className="h-5 w-5" />
                         </button>
                       </td>
                     </tr>
