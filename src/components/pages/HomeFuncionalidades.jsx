@@ -30,6 +30,15 @@ const funcionalidades = [
     color: "text-purple-800",
     description: "Visualizar fichas existentes"
   },
+  {
+    nome: "Validar Fichas",
+    href: "/validar-ficha",
+    tipo: "Validar",
+    icon: FolderOpen,
+    bgcolor: "bg-purple-800",
+    color: "text-purple-800",
+    description: "Validar fichas pendentes"
+  },
 ];
 
 function HomeFuncionalidades() {
@@ -71,6 +80,7 @@ function HomeFuncionalidades() {
             <option value="Criação">Criação</option>
             <option value="Avaliação">Avaliação</option>
             <option value="Consulta">Consulta</option>
+            <option value="Validar">Validar</option>
           </select>
         </section>
 
