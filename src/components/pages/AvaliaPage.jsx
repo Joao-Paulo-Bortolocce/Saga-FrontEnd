@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Printer, GraduationCap, User, Save, FileDown } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { Printer, GraduationCap, User, Save, FileDown, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { consultarMatricula } from "../../service/serviceMatricula.js"
 import { consultarSerie } from "../../service/servicoSerie.js"
 import { consultarFicha } from "../../service/serviceFicha.js"
@@ -9,6 +9,7 @@ import { consultarBimestre } from "../../service/serviceBimestre.js"
 import { consultarHabMat } from "../../service/serviceHabilidade.js"
 import AssessmentButton from "../AssessmentButton.jsx"
 import RecoveryModal from '../RecoveryModal';
+import ConfirmationModal from '../ConfirmationModal';
 
 function AvaliaPage() {
   const [series, setSeries] = useState([]);
@@ -26,6 +27,16 @@ function AvaliaPage() {
   const [recuperando, setRecuperando] = useState(false);
   const [assessmentRecords, setAssessmentRecords] = useState([]);
   const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(false);
+  
+  // Estados para controle de alterações
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [originalAssessments, setOriginalAssessments] = useState({});
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
+  const [assessmentsLoaded, setAssessmentsLoaded] = useState(false);
+
+  // Ref para controlar se estamos navegando programaticamente
+  const isNavigatingProgrammatically = useRef(false);
 
   useEffect(() => {
     async function carregarDadosIniciais() {
@@ -39,8 +50,6 @@ function AvaliaPage() {
           consultarBimestre()
         ]);
         
-        console.log('Resposta completa dos bimestres:', responseBimestres);
-        
         // Extrair a lista de bimestres da resposta
         let listaBimestres = [];
         if (responseBimestres && responseBimestres.listaDeBimestres) {
@@ -48,8 +57,6 @@ function AvaliaPage() {
         } else if (Array.isArray(responseBimestres)) {
           listaBimestres = responseBimestres;
         }
-        
-        console.log('Lista de bimestres processada:', listaBimestres);
         
         setSeries(listaSeries || []);
         setMatriculas(listaMatriculas || []);
@@ -71,6 +78,7 @@ function AvaliaPage() {
       
       try {
         setLoadingHabilidades(true);
+        setAssessmentsLoaded(false);
         const response = await consultarHabilidadesDaFicha(fichaAtiva.ficha_id);
         
         let habilidadesDaFicha = [];
@@ -130,20 +138,46 @@ function AvaliaPage() {
       if (!matriculaSelecionada || !fichaAtiva || habilidades.length === 0) return;
 
       try {
-        const avaliacoes = await buscarAvaliacoesDeMat(parseInt(matriculaSelecionada));
+        const response = await buscarAvaliacoesDeMat(parseInt(matriculaSelecionada));
         
-        if (avaliacoes && Array.isArray(avaliacoes)) {
+        let avaliacoes = [];
+        if (response && response.status && response.listaDeAvaliacoes) {
+          avaliacoes = response.listaDeAvaliacoes;
+        } else if (response && Array.isArray(response)) {
+          avaliacoes = response;
+        }
+
+        if (avaliacoes && avaliacoes.length > 0) {
           const novasHabilidades = habilidades.map(hab => {
             const avaliacao = avaliacoes.find(av => 
-              av.avaliacaodamatricula_habilidade_id === hab.habilidadesDaFicha_habilidades_id
+              av.avaHabId === hab.habilidadesDaFicha_id
             );
             return {
               ...hab,
-              assessment: avaliacao ? avaliacao.avaliacaodamatricula_valor : null
+              assessment: avaliacao ? avaliacao.avaAv : null
             };
           });
           setHabilidades(novasHabilidades);
+          
+          // Salvar estado original das avaliações
+          const originalState = {};
+          novasHabilidades.forEach(hab => {
+            originalState[hab.habilidadesDaFicha_id] = hab.assessment;
+          });
+          setOriginalAssessments(originalState);
+        } else {
+          // Salvar estado original vazio
+          const originalState = {};
+          habilidades.forEach(hab => {
+            originalState[hab.habilidadesDaFicha_id] = null;
+          });
+          setOriginalAssessments(originalState);
         }
+        
+        // Marcar que as avaliações foram carregadas
+        setAssessmentsLoaded(true);
+        // Reset do estado de alterações
+        setHasUnsavedChanges(false);
       } catch (error) {
         console.error("Erro ao carregar avaliações:", error);
       }
@@ -151,39 +185,82 @@ function AvaliaPage() {
     carregarAvaliacoes();
   }, [matriculaSelecionada, fichaAtiva, habilidades.length]);
 
+  // Verificar se há alterações não salvas
+  const checkForUnsavedChanges = () => {
+    // Só verificar alterações se as avaliações foram carregadas e há habilidades
+    if (!assessmentsLoaded || habilidades.length === 0) return false;
+    
+    return habilidades.some(hab => {
+      const originalValue = originalAssessments[hab.habilidadesDaFicha_id];
+      const currentValue = hab.assessment;
+      return originalValue !== currentValue;
+    });
+  };
+
+  // Atualizar estado de alterações quando habilidades mudam
+  useEffect(() => {
+    const hasChanges = checkForUnsavedChanges();
+    setHasUnsavedChanges(hasChanges);
+  }, [habilidades, originalAssessments, assessmentsLoaded]);
+
+  // Interceptar mudanças de seleção
+  const handleChangeWithConfirmation = (changeFunction, ...args) => {
+    if (hasUnsavedChanges && !isNavigatingProgrammatically.current) {
+      setPendingAction(() => () => changeFunction(...args));
+      setIsConfirmationModalOpen(true);
+    } else {
+      changeFunction(...args);
+    }
+  };
+
   const handleChangeSerie = (e) => {
     const serieId = e.target.value;
+    isNavigatingProgrammatically.current = true;
     setSerieSelecionada(serieId);
     setMatriculaSelecionada("");
     setBimestreSelecionado("");
     setFichaAtiva(null);
     setHabilidades([]);
+    setOriginalAssessments({});
+    setHasUnsavedChanges(false);
+    setAssessmentsLoaded(false);
+    isNavigatingProgrammatically.current = false;
   };
 
   const handleChangeBimestre = (e) => {
     const bimestreId = e.target.value;
+    isNavigatingProgrammatically.current = true;
     setBimestreSelecionado(bimestreId);
     setMatriculaSelecionada("");
     setFichaAtiva(null);
     setHabilidades([]);
+    setOriginalAssessments({});
+    setHasUnsavedChanges(false);
+    setAssessmentsLoaded(false);
     
     if (serieSelecionada && bimestreId) {
-      const fichaParaSerieBimestre = fichas.listaDeFichas.find(f => 
+      const fichaParaSerieBimestre = fichas.listaDeFichas?.find(f => 
         f.ficha_bimestre_serie_id === parseInt(serieSelecionada) && 
         f.ficha_bimestre_id === parseInt(bimestreId)
       );
       setFichaAtiva(fichaParaSerieBimestre || null);
     }
+    isNavigatingProgrammatically.current = false;
   };
 
   const handleChangeMatricula = (e) => {
-    setMatriculaSelecionada(e.target.value);
+    const matriculaId = e.target.value;
+    isNavigatingProgrammatically.current = true;
+    setMatriculaSelecionada(matriculaId);
+    setHasUnsavedChanges(false);
+    setAssessmentsLoaded(false);
+    isNavigatingProgrammatically.current = false;
   };
 
   const handleAssessmentChange = (habilidadeId, value) => {
     setHabilidades(prevHabilidades => 
       prevHabilidades.map(hab => {
-        if (hab.habilidadesDaFicha_habilidades_id === habilidadeId) {
+        if (hab.habilidadesDaFicha_id === habilidadeId) {
           return {
             ...hab,
             assessment: hab.assessment === value ? null : value
@@ -195,46 +272,40 @@ function AvaliaPage() {
   };
 
   const salvarAvaliacao = async () => {
-    if (!matriculaSelecionada || !fichaAtiva) {
+    if (!matriculaSelecionada || !fichaAtiva || habilidades.length === 0) {
       alert("Selecione uma matrícula, série e bimestre para salvar");
       return;
     }
 
     try {
       setSalvando(true);
-      let sucessos = 0;
-      let erros = 0;
 
-      for (const habilidade of habilidades) {
-        if (habilidade.assessment) {
-          const avaliacaoData = {
-            avaliacaodamatricula_matricula_id: parseInt(matriculaSelecionada),
-            avaliacaodamatricula_habilidade_id: habilidade.habilidadesDaFicha_habilidades_id,
-            avaliacaodamatricula_valor: habilidade.assessment
-          };
+      // Preparar arrays para o backend
+      const habilidadeIds = habilidades.map(hab => hab.habilidadesDaFicha_id);
+      const avaliacoes = habilidades.map(hab => hab.assessment || "0"); // Usar "0" para valores null
 
-          try {
-            const resultado = await gravarAvaliacao(avaliacaoData);
-            if (resultado) {
-              sucessos++;
-            } else {
-              erros++;
-            }
-          } catch (error) {
-            console.error("Erro ao salvar avaliação:", error);
-            erros++;
-          }
-        }
-      }
+      const avaliacaoData = {
+        avaliacaodamatricula_matricula_matricula_id: parseInt(matriculaSelecionada),
+        avaliacaodamatricula_habilidadesdaficha_habilidadesdaficha_id: habilidadeIds,
+        avaliacaodamatricula_av: avaliacoes
+      };
 
-      if (sucessos === 0 && erros === 0) {
-        alert("Nenhuma avaliação para salvar");
-      } else if (erros === 0) {
-        alert(`${sucessos} avaliação(ões) salva(s) com sucesso`);
-      } else if (sucessos === 0) {
-        alert(`Erro ao salvar ${erros} avaliação(ões)`);
+      console.log('Dados sendo enviados:', avaliacaoData);
+
+      const resultado = await gravarAvaliacao(avaliacaoData);
+      
+      if (resultado && resultado.status) {
+        alert(resultado.mensagem || "Avaliações salvas com sucesso!");
+        
+        // Atualizar estado original após salvar
+        const newOriginalState = {};
+        habilidades.forEach(hab => {
+          newOriginalState[hab.habilidadesDaFicha_id] = hab.assessment;
+        });
+        setOriginalAssessments(newOriginalState);
+        setHasUnsavedChanges(false);
       } else {
-        alert(`${sucessos} avaliação(ões) salva(s) com sucesso e ${erros} erro(s)`);
+        alert(resultado.mensagem || "Erro ao salvar avaliações");
       }
     } catch (error) {
       console.error("Erro ao salvar avaliações:", error);
@@ -245,11 +316,23 @@ function AvaliaPage() {
   };
 
   const recuperarFichas = async () => {
+    if (hasUnsavedChanges) {
+      setPendingAction(() => () => executeRecuperarFichas());
+      setIsConfirmationModalOpen(true);
+      return;
+    }
+    executeRecuperarFichas();
+  };
+
+  const executeRecuperarFichas = async () => {
     try {
       setRecuperando(true);
       const result = await consultarTodos();
       
-      if (Array.isArray(result) && result.length > 0) {
+      if (result && result.status && result.listaDeAvaliacoes && result.listaDeAvaliacoes.length > 0) {
+        setAssessmentRecords(result.listaDeAvaliacoes);
+        setIsRecoveryModalOpen(true);
+      } else if (Array.isArray(result) && result.length > 0) {
         setAssessmentRecords(result);
         setIsRecoveryModalOpen(true);
       } else {
@@ -265,15 +348,64 @@ function AvaliaPage() {
 
   const handleSelectRecord = (record) => {
     setIsRecoveryModalOpen(false);
-    const matricula = matriculas.find(m => m.id === record.avaliacaodamatricula_matricula_id);
+    const matricula = matriculas.find(m => m.id === record.avaMatId);
     
     if (matricula) {
+      isNavigatingProgrammatically.current = true;
       setSerieSelecionada(matricula.serie.serieId.toString());
       setMatriculaSelecionada(matricula.id.toString());
+      setHasUnsavedChanges(false);
+      setAssessmentsLoaded(false);
+      isNavigatingProgrammatically.current = false;
     } else {
-      alert(`Matrícula ${record.avaliacaodamatricula_matricula_id} não encontrada`);
+      alert(`Matrícula ${record.avaMatId} não encontrada`);
     }
   };
+
+  const handleConfirmSave = async () => {
+    setIsConfirmationModalOpen(false);
+    await salvarAvaliacao();
+    if (pendingAction) {
+      pendingAction();
+      setPendingAction(null);
+    }
+  };
+
+  const handleDiscardChanges = () => {
+    setIsConfirmationModalOpen(false);
+    setHasUnsavedChanges(false);
+    if (pendingAction) {
+      pendingAction();
+      setPendingAction(null);
+    }
+  };
+
+  const handleCancelAction = () => {
+    setIsConfirmationModalOpen(false);
+    setPendingAction(null);
+  };
+
+  const handleGoBack = () => {
+    if (hasUnsavedChanges) {
+      setPendingAction(() => () => window.location.href = '/funcionalidades');
+      setIsConfirmationModalOpen(true);
+    } else {
+      window.location.href = '/funcionalidades';
+    }
+  };
+
+  // Interceptar tentativas de sair da página
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   const matriculasFiltradas = serieSelecionada
     ? matriculas.filter(m => m.serie.serieId === parseInt(serieSelecionada))
@@ -312,6 +444,13 @@ function AvaliaPage() {
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
+              <button
+                onClick={handleGoBack}
+                className="flex items-center gap-2 px-3 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <ArrowLeft size={20} />
+                <span>Voltar</span>
+              </button>
               <div className="bg-blue-600 text-white p-2 rounded-lg">
                 <GraduationCap size={24} />
               </div>
@@ -319,6 +458,12 @@ function AvaliaPage() {
                 <h1 className="text-xl font-bold text-gray-800">Sistema de Avaliação</h1>
                 <p className="text-sm text-gray-600">Avaliação de Matrícula</p>
               </div>
+              {hasUnsavedChanges && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
+                  <AlertTriangle size={16} />
+                  <span>Alterações não salvas</span>
+                </div>
+              )}
             </div>
             <div className="flex gap-2">
               <button
@@ -340,7 +485,7 @@ function AvaliaPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Série:</label>
               <select
                 value={serieSelecionada}
-                onChange={handleChangeSerie}
+                onChange={(e) => handleChangeWithConfirmation(handleChangeSerie, e)}
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                 disabled={loading}
               >
@@ -356,7 +501,7 @@ function AvaliaPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Bimestre:</label>
               <select
                 value={bimestreSelecionado}
-                onChange={handleChangeBimestre}
+                onChange={(e) => handleChangeWithConfirmation(handleChangeBimestre, e)}
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                 disabled={loading || !serieSelecionada}
               >
@@ -372,7 +517,7 @@ function AvaliaPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Aluno:</label>
               <select
                 value={matriculaSelecionada}
-                onChange={handleChangeMatricula}
+                onChange={(e) => handleChangeWithConfirmation(handleChangeMatricula, e)}
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
                 disabled={loading || !serieSelecionada || !bimestreSelecionado}
               >
@@ -499,19 +644,19 @@ function AvaliaPage() {
                             <AssessmentButton
                               value="NA"
                               currentValue={habilidade.assessment}
-                              onClick={() => handleAssessmentChange(habilidade.habilidadesDaFicha_habilidades_id, 'NA')}
+                              onClick={() => handleAssessmentChange(habilidade.habilidadesDaFicha_id, 'NA')}
                               color="red"
                             />
                             <AssessmentButton
                               value="EC"
                               currentValue={habilidade.assessment}
-                              onClick={() => handleAssessmentChange(habilidade.habilidadesDaFicha_habilidades_id, 'EC')}
+                              onClick={() => handleAssessmentChange(habilidade.habilidadesDaFicha_id, 'EC')}
                               color="yellow"
                             />
                             <AssessmentButton
                               value="A"
                               currentValue={habilidade.assessment}
-                              onClick={() => handleAssessmentChange(habilidade.habilidadesDaFicha_habilidades_id, 'A')}
+                              onClick={() => handleAssessmentChange(habilidade.habilidadesDaFicha_id, 'A')}
                               color="green"
                             />
                           </div>
@@ -527,7 +672,11 @@ function AvaliaPage() {
               <button
                 onClick={salvarAvaliacao}
                 disabled={salvando || loading || loadingHabilidades}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`px-4 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed text-white ${
+                  hasUnsavedChanges 
+                    ? 'bg-orange-600 hover:bg-orange-700 animate-pulse' 
+                    : 'bg-blue-600 hover:bg-blue-700'
+                }`}
               >
                 {salvando ? (
                   <div className="w-5 h-5 border-t-2 border-r-2 border-white rounded-full animate-spin"></div>
@@ -584,6 +733,13 @@ function AvaliaPage() {
         onSelectRecord={handleSelectRecord}
         series={series}
         matriculas={matriculas}
+      />
+
+      <ConfirmationModal
+        isOpen={isConfirmationModalOpen}
+        onConfirmSave={handleConfirmSave}
+        onDiscardChanges={handleDiscardChanges}
+        onCancel={handleCancelAction}
       />
     </div>
   );

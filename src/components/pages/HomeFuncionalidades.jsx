@@ -1,62 +1,101 @@
-import { BookText } from "lucide-react";
+import { useState } from "react";
+import { BookText, FileText, UserCheck, FolderOpen } from "lucide-react";
 import Page from "../layouts/Page";
-import { useNavigate } from "react-router-dom";
 
-export default function HomeFuncionalidades() {
-  const navigate = useNavigate();
+const funcionalidades = [
+  {
+    nome: "Montar Ficha",
+    href: "/ficha-montagem",
+    tipo: "Criação",
+    icon: BookText,
+    bgcolor: "bg-purple-800",
+    color: "text-purple-800",
+    description: "Criar e configurar fichas"
+  },
+  {
+    nome: "Avaliar Matrícula",
+    href: "/avalia-matricula",
+    tipo: "Avaliação",
+    icon: UserCheck,
+    bgcolor: "bg-purple-800",
+    color: "text-purple-800",
+    description: "Análise de matrículas"
+  },
+  {
+    nome: "Fichas Cadastradas",
+    href: "/ficha-criadas",
+    tipo: "Consulta",
+    icon: FolderOpen,
+    bgcolor: "bg-purple-800",
+    color: "text-purple-800",
+    description: "Visualizar fichas existentes"
+  },
+];
+
+function HomeFuncionalidades() {
+  const [filtro, setFiltro] = useState("");
+  const [tipo, setTipo] = useState("Todos");
+
+  function manipularSelect(e) {
+    setTipo(e.target.value);
+  }
+
+  function manipularInput(e) {
+    setFiltro(e.target.value);
+  }
+
+  const funcionalidadesFiltradas = funcionalidades.filter(f =>
+    f.nome.toLowerCase().includes(filtro.toLowerCase()) &&
+    (tipo === "Todos" || f.tipo === tipo)
+  );
 
   return (
     <>
-      <Page />
-      <main>
-        <section style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <section className="justify-evenly flex row" style={{ width: "75%" }}>
-            <button
-              onClick={() => navigate("/ficha-montagem")}
-              className="max-h-[150px] transform hover:scale-105 transition-transform bg-white rounded-xl shadow-lg overflow-hidden"
-            >
-              <div>
-                <div className="bg-yellow-600 h-2"></div>
-                <div className="p-6">
-                  <BookText className="w-12 h-12 mx-auto mb-4 text-yellow-600" />
-                  <p className="text-center font-semibold text-gray-800 text-lg">
-                    Montar Ficha
+    <Page />
+      <main className="flex flex-col items-center px-4 py-6">
+        {/* Filtros */}
+        <section className="flex flex-wrap gap-4 justify-center w-full max-w-6xl mb-8">
+          <input
+            type="text"
+            placeholder="Digite um filtro..."
+            className="flex-1 min-w-[200px] px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={filtro}
+            onChange={manipularInput}
+          />
+          <select
+            className="min-w-[150px] px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={tipo}
+            onChange={manipularSelect}
+          >
+            <option value="Todos">Todos</option>
+            <option value="Criação">Criação</option>
+            <option value="Avaliação">Avaliação</option>
+            <option value="Consulta">Consulta</option>
+          </select>
+        </section>
+
+        {/* Cards */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl">
+          {funcionalidadesFiltradas.map((funcionalidade, idx) => (
+            <a key={idx} href={funcionalidade.href}>
+              <div className="transition-all duration-200 hover:scale-[1.03] bg-white rounded-xl shadow-md hover:shadow-xl overflow-hidden">
+                <div className={`${funcionalidade.bgcolor} h-2 w-full`} />
+                <div className="p-5 flex flex-col items-center">
+                  <funcionalidade.icon className={`w-10 h-10 mb-4 ${funcionalidade.color}`} />
+                  <p className="text-center font-semibold text-gray-800 text-base">
+                    {funcionalidade.nome}
                   </p>
                 </div>
               </div>
-            </button>
-                        <button
-              onClick={() => navigate("/avalia-matricula")}
-              className="max-h-[150px] transform hover:scale-105 transition-transform bg-white rounded-xl shadow-lg overflow-hidden"
-            >
-              <div>
-                <div className="bg-yellow-600 h-2"></div>
-                <div className="p-6">
-                  <BookText className="w-12 h-12 mx-auto mb-4 text-yellow-600" />
-                  <p className="text-center font-semibold text-gray-800 text-lg">
-                    Avaliar Matrícula
-                  </p>
-                </div>
-              </div>
-            </button>
-            <button
-              onClick={() => navigate("/ficha-criadas")}
-              className="max-h-[150px] transform hover:scale-105 transition-transform bg-white rounded-xl shadow-lg overflow-hidden"
-            >
-              <div>
-                <div className="bg-yellow-600 h-2"></div>
-                <div className="p-6">
-                  <BookText className="w-12 h-12 mx-auto mb-4 text-yellow-600" />
-                  <p className="text-center font-semibold text-gray-800 text-lg">
-                    Fichas Cadastradas
-                  </p>
-                </div>
-              </div>
-            </button>
-            <div className="w-1/5"></div>
-          </section>
+            </a>
+          ))}
+          {funcionalidadesFiltradas.length === 0 && (
+            <p className="col-span-full text-center text-gray-500">Nenhuma funcionalidade encontrada.</p>
+          )}
         </section>
       </main>
     </>
   );
 }
+
+export default HomeFuncionalidades;
