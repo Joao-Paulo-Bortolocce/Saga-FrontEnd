@@ -20,7 +20,7 @@ export default function TabelaTurmas({ turmas, editarTurma, confirmarExclusao })
           turmas.map((turma, index) => (
             <tr
               key={index}
-              className="hover:bg-gray-100 transition-colors duration-150"
+              className="hover:bg-gray-200 transition-colors duration-150"
             >
               <td className="px-6 py-4 text-sm text-black">{turma.letra}</td>
               <td className="px-6 py-4 text-sm text-black">

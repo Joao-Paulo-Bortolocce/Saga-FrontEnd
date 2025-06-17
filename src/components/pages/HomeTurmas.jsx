@@ -140,7 +140,7 @@ export default function HomeTurmas() {
                 <div className="" />
                 <div className="relative z-10 w-full max-w-4xl px-4 space-y-8">
                     {!mostrarFormulario && (
-                        <div className="bg-white rounded-2xl shadow-2xl p-5 w-full border border-black">
+                        <div className="bg-white rounded-2xl shadow-2xl p-5 w-full border border-gray">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-2xl font-bold text-black">Turmas Cadastradas</h2>
                                 <button onClick={criarTurma} className="flex p-4 gap-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-900">
@@ -148,7 +148,7 @@ export default function HomeTurmas() {
                                 </button>
                             </div>
 
-                            <div className="overflow-x-auto rounded-xl border border-black">
+                            <div className="overflow-x-auto rounded-xl border border-gray">
                                 <TabelaTurmas
                                     turmas={turmas}
                                     editarTurma={editarTurma}

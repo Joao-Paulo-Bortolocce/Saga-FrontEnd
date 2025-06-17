@@ -18,7 +18,7 @@ export default function TabelaReuniao({ reunioes, editarReuniao, confirmarExclus
           reunioes.map((reuniao) => (
             <tr
               key={reuniao.reuniaoId}
-              className="hover:bg-gray-100 transition-colors duration-150"
+              className="hover:bg-gray-200 transition-colors duration-150"
             >
               <td className="px-6 py-4 text-sm text-center text-gray-700">
                 {reuniao.reuniaoId}
