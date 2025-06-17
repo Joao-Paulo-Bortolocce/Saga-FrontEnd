@@ -7,8 +7,8 @@ import { consultarHabilidadesDaFicha } from "../../service/serviceHabilidadesDaF
 import { gravarAvaliacao, consultarTodos, buscarAvaliacoesDeMat } from "../../service/serviceAvaliacaoDaMatricula.js"
 import { consultarBimestre } from "../../service/serviceBimestre.js"
 import { consultarHabMat } from "../../service/serviceHabilidade.js"
+import { gravarFichaDaMatricula, consultarFichaDaMatricula, alterarFichaDaMatricula } from '../../service/serviceFichaDaMatricula.js';
 import AssessmentButton from "../AssessmentButton.jsx"
-import RecoveryModal from '../RecoveryModal';
 import ConfirmationModal from '../ConfirmationModal';
 
 function AvaliaPage() {
@@ -27,7 +27,8 @@ function AvaliaPage() {
   const [recuperando, setRecuperando] = useState(false);
   const [assessmentRecords, setAssessmentRecords] = useState([]);
   const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(false);
-  
+  const [enviandoValidacao, setEnviandoValidacao] = useState(false);
+
   // Estados para controle de alterações
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [originalAssessments, setOriginalAssessments] = useState({});
@@ -49,7 +50,7 @@ function AvaliaPage() {
           consultarTodos(),
           consultarBimestre()
         ]);
-        
+
         // Extrair a lista de bimestres da resposta
         let listaBimestres = [];
         if (responseBimestres && responseBimestres.listaDeBimestres) {
@@ -57,7 +58,7 @@ function AvaliaPage() {
         } else if (Array.isArray(responseBimestres)) {
           listaBimestres = responseBimestres;
         }
-        
+
         setSeries(listaSeries || []);
         setMatriculas(listaMatriculas || []);
         setFichas(listaFichas || []);
@@ -75,12 +76,12 @@ function AvaliaPage() {
   useEffect(() => {
     async function carregarHabilidades() {
       if (!fichaAtiva) return;
-      
+
       try {
         setLoadingHabilidades(true);
         setAssessmentsLoaded(false);
         const response = await consultarHabilidadesDaFicha(fichaAtiva.ficha_id);
-        
+
         let habilidadesDaFicha = [];
         if (response && response.status && response.listaDeHabilidadesDaFicha) {
           habilidadesDaFicha = response.listaDeHabilidadesDaFicha;
@@ -139,7 +140,7 @@ function AvaliaPage() {
 
       try {
         const response = await buscarAvaliacoesDeMat(parseInt(matriculaSelecionada));
-        
+
         let avaliacoes = [];
         if (response && response.status && response.listaDeAvaliacoes) {
           avaliacoes = response.listaDeAvaliacoes;
@@ -149,7 +150,7 @@ function AvaliaPage() {
 
         if (avaliacoes && avaliacoes.length > 0) {
           const novasHabilidades = habilidades.map(hab => {
-            const avaliacao = avaliacoes.find(av => 
+            const avaliacao = avaliacoes.find(av =>
               av.avaHabId === hab.habilidadesDaFicha_id
             );
             return {
@@ -158,7 +159,7 @@ function AvaliaPage() {
             };
           });
           setHabilidades(novasHabilidades);
-          
+
           // Salvar estado original das avaliações
           const originalState = {};
           novasHabilidades.forEach(hab => {
@@ -173,7 +174,7 @@ function AvaliaPage() {
           });
           setOriginalAssessments(originalState);
         }
-        
+
         // Marcar que as avaliações foram carregadas
         setAssessmentsLoaded(true);
         // Reset do estado de alterações
@@ -189,12 +190,60 @@ function AvaliaPage() {
   const checkForUnsavedChanges = () => {
     // Só verificar alterações se as avaliações foram carregadas e há habilidades
     if (!assessmentsLoaded || habilidades.length === 0) return false;
-    
+
     return habilidades.some(hab => {
       const originalValue = originalAssessments[hab.habilidadesDaFicha_id];
       const currentValue = hab.assessment;
       return originalValue !== currentValue;
     });
+  };
+
+  const enviarFichaParaValidacao = async () => {
+    if (!matriculaSelecionada || !fichaAtiva || habilidades.length === 0) {
+      alert("Selecione uma matrícula, série e bimestre para enviar para validação");
+      return;
+    }
+
+    // Verificar se há avaliações preenchidas
+    const avaliacoesPreenchidas = habilidades.filter(hab => hab.assessment && hab.assessment !== "0");
+    if (avaliacoesPreenchidas.length === 0) {
+      alert("Preencha pelo menos uma avaliação antes de enviar para validação");
+      return;
+    }
+
+    try {
+      setEnviandoValidacao(true);
+
+      // Aqui você pode implementar a lógica para enviar para validação
+      // Por exemplo, chamar um serviço específico para mudar o status da ficha
+
+      // Simulação de envio (substitua pela sua lógica real)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      alert("Ficha enviada para validação com sucesso!");
+
+      // Aqui você pode atualizar algum estado ou recarregar dados se necessário
+
+    } catch (error) {
+      console.error("Erro ao enviar ficha para validação:", error);
+      alert("Erro ao enviar ficha para validação");
+    } finally {
+      setEnviandoValidacao(false);
+    }
+  };
+
+
+  const handleRecordUpdated = async () => {
+    console.log('Registro atualizado, recarregando dados...');
+    // Recarregar dados se necessário
+    try {
+      const result = await consultarTodos();
+      if (result && result.status && result.listaDeAvaliacoes) {
+        setAssessmentRecords(result.listaDeAvaliacoes);
+      }
+    } catch (error) {
+      console.error("Erro ao recarregar dados:", error);
+    }
   };
 
   // Atualizar estado de alterações quando habilidades mudam
@@ -237,10 +286,10 @@ function AvaliaPage() {
     setOriginalAssessments({});
     setHasUnsavedChanges(false);
     setAssessmentsLoaded(false);
-    
+
     if (serieSelecionada && bimestreId) {
-      const fichaParaSerieBimestre = fichas.listaDeFichas?.find(f => 
-        f.ficha_bimestre_serie_id === parseInt(serieSelecionada) && 
+      const fichaParaSerieBimestre = fichas.listaDeFichas?.find(f =>
+        f.ficha_bimestre_serie_id === parseInt(serieSelecionada) &&
         f.ficha_bimestre_id === parseInt(bimestreId)
       );
       setFichaAtiva(fichaParaSerieBimestre || null);
@@ -258,7 +307,7 @@ function AvaliaPage() {
   };
 
   const handleAssessmentChange = (habilidadeId, value) => {
-    setHabilidades(prevHabilidades => 
+    setHabilidades(prevHabilidades =>
       prevHabilidades.map(hab => {
         if (hab.habilidadesDaFicha_id === habilidadeId) {
           return {
@@ -290,13 +339,55 @@ function AvaliaPage() {
         avaliacaodamatricula_av: avaliacoes
       };
 
-      console.log('Dados sendo enviados:', avaliacaoData);
+      console.log('Dados da avaliação sendo enviados:', avaliacaoData);
 
       const resultado = await gravarAvaliacao(avaliacaoData);
-      
+
       if (resultado && resultado.status) {
-        alert(resultado.mensagem || "Avaliações salvas com sucesso!");
-        
+        console.log('Avaliação salva com sucesso, verificando FichaDaMatricula...');
+
+        // Verificar se já existe uma FichaDaMatricula para esta matrícula e ficha
+        try {
+          const fichasDaMatricula = await consultarFichaDaMatricula();
+          console.log('Fichas da matrícula consultadas:', fichasDaMatricula);
+
+          // Verificar se já existe um registro para esta matrícula e ficha
+          const fichaExistente = fichasDaMatricula?.find(f =>
+            f.matricula_id === parseInt(matriculaSelecionada) &&
+            f.ficha_id === fichaAtiva.ficha_id
+          );
+
+          if (fichaExistente) {
+            console.log('FichaDaMatricula já existe:', fichaExistente);
+            alert(resultado.mensagem || "Avaliação salva com sucesso!");
+          } else {
+            console.log('FichaDaMatricula não existe, criando nova...');
+
+            // Criar registro na FichaDaMatricula
+
+            const fichaDaMatriculaData = {
+              ficha: { ficha_id: fichaAtiva.ficha_id },
+              matricula: { id: parseInt(matriculaSelecionada) },
+              observacao: "sem observacao",
+              status: 1
+            };
+
+            console.log('Dados da FichaDaMatricula sendo enviados:', fichaDaMatriculaData);
+
+            const resultadoFicha = await gravarFichaDaMatricula(fichaDaMatriculaData);
+            console.log('Resultado da criação da FichaDaMatricula:', resultadoFicha);
+
+            if (resultadoFicha && (resultadoFicha.status || resultadoFicha.success)) {
+              alert(resultado.mensagem || "Avaliação e ficha da matrícula salvas com sucesso!");
+            } else {
+              alert((resultado.mensagem || "Avaliação salva com sucesso!") + "\nAviso: " + (resultadoFicha.mensagem || "Erro ao criar ficha da matrícula"));
+            }
+          }
+        } catch (fichaError) {
+          console.error("Erro ao verificar/criar ficha da matrícula:", fichaError);
+          alert((resultado.mensagem || "Avaliação salva com sucesso!") + "\nAviso: Erro ao verificar ficha da matrícula");
+        }
+
         // Atualizar estado original após salvar
         const newOriginalState = {};
         habilidades.forEach(hab => {
@@ -315,20 +406,74 @@ function AvaliaPage() {
     }
   };
 
-  const recuperarFichas = async () => {
-    if (hasUnsavedChanges) {
-      setPendingAction(() => () => executeRecuperarFichas());
-      setIsConfirmationModalOpen(true);
-      return;
+const enviarValidacao = async () => {
+  if (hasUnsavedChanges) {
+    setPendingAction(() => () => executeRecuperarFichas());
+    setIsConfirmationModalOpen(true);
+    return;
+  }
+
+  if (!matriculaSelecionada || !fichaAtiva) {
+    alert("Selecione uma matrícula e série para enviar validação");
+    return;
+  }
+
+  try {
+    // Verificar se já existe uma FichaDaMatricula para esta matrícula e ficha
+    console.log('Verificando FichaDaMatricula existente...');
+    
+    const fichasDaMatricula = await consultarFichaDaMatricula();
+    console.log('Fichas da matrícula consultadas:', fichasDaMatricula);
+
+    // Verificar se já existe um registro para esta matrícula e ficha
+    const fichaExistente = fichasDaMatricula?.find(f =>
+      f.matricula_id === parseInt(matriculaSelecionada) &&
+      f.ficha_id === fichaAtiva.ficha_id
+    );
+
+    const fichaDaMatriculaData = {
+      ficha: { ficha_id: fichaAtiva.ficha_id },
+      matricula: { id: parseInt(matriculaSelecionada) },
+      observacao: "aguardando validação",
+      status: 2
+    };
+
+    if (fichaExistente) {
+      console.log('FichaDaMatricula já existe, atualizando:', fichaExistente);
+      // Se já existe, usar alterarFichaDaMatricula
+      const resultado = await alterarFichaDaMatricula(fichaDaMatriculaData);
+      
+      if (resultado && (resultado.status || resultado.success)) {
+        alert(resultado.mensagem || "Validação enviada com sucesso!");
+      } else {
+        alert(resultado.mensagem || "Erro ao enviar validação");
+      }
+    } else {
+      console.log('FichaDaMatricula não existe, criando nova...');
+      // Se não existe, criar novo registro
+      console.log('Dados da FichaDaMatricula sendo enviados:', fichaDaMatriculaData);
+      
+      const resultado = await alterarFichaDaMatricula(fichaDaMatriculaData);
+      console.log('Resultado da criação da FichaDaMatricula:', resultado);
+      
+      if (resultado && (resultado.status || resultado.success)) {
+        alert(resultado.mensagem || "Validação enviada com sucesso!");
+      } else {
+        alert(resultado.mensagem || "Erro ao enviar validação");
+      }
     }
-    executeRecuperarFichas();
-  };
+
+  } catch (error) {
+    console.error("Erro ao enviar validação:", error);
+    alert("Erro ao enviar validação");
+  }
+};
 
   const executeRecuperarFichas = async () => {
     try {
       setRecuperando(true);
       const result = await consultarTodos();
-      
+
       if (result && result.status && result.listaDeAvaliacoes && result.listaDeAvaliacoes.length > 0) {
         setAssessmentRecords(result.listaDeAvaliacoes);
         setIsRecoveryModalOpen(true);
@@ -349,7 +494,7 @@ function AvaliaPage() {
   const handleSelectRecord = (record) => {
     setIsRecoveryModalOpen(false);
     const matricula = matriculas.find(m => m.id === record.avaMatId);
-    
+
     if (matricula) {
       isNavigatingProgrammatically.current = true;
       setSerieSelecionada(matricula.serie.serieId.toString());
@@ -602,7 +747,7 @@ function AvaliaPage() {
                   <p className="text-xs font-medium text-blue-600">AVALIAÇÃO DAS HABILIDADES</p>
                 </div>
               </div>
-              
+
               <div className="p-6">
                 <div className="mb-4 grid grid-cols-7 gap-4">
                   <div className="col-span-4">
@@ -616,7 +761,7 @@ function AvaliaPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   {habilidades.length === 0 ? (
                     <div className="text-center py-8">
@@ -672,11 +817,10 @@ function AvaliaPage() {
               <button
                 onClick={salvarAvaliacao}
                 disabled={salvando || loading || loadingHabilidades}
-                className={`px-4 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed text-white ${
-                  hasUnsavedChanges 
-                    ? 'bg-orange-600 hover:bg-orange-700 animate-pulse' 
-                    : 'bg-blue-600 hover:bg-blue-700'
-                }`}
+                className={`px-4 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed text-white ${hasUnsavedChanges
+                  ? 'bg-orange-600 hover:bg-orange-700 animate-pulse'
+                  : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
               >
                 {salvando ? (
                   <div className="w-5 h-5 border-t-2 border-r-2 border-white rounded-full animate-spin"></div>
@@ -707,7 +851,7 @@ function AvaliaPage() {
 
         <div className="fixed bottom-8 left-8 print:hidden">
           <button
-            onClick={recuperarFichas}
+            onClick={enviarValidacao}
             disabled={recuperando || loading}
             className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -716,7 +860,7 @@ function AvaliaPage() {
             ) : (
               <FileDown size={20} />
             )}
-            <span>{recuperando ? 'Recuperando...' : 'Recuperar Avaliação'}</span>
+            <span>{recuperando ? 'Enviando...' : 'Enviar para Validação'}</span>
           </button>
         </div>
 
@@ -725,15 +869,6 @@ function AvaliaPage() {
           <p className="mt-2 text-sm">Assinatura do Responsável</p>
         </div>
       </main>
-
-      <RecoveryModal
-        isOpen={isRecoveryModalOpen}
-        onClose={() => setIsRecoveryModalOpen(false)}
-        assessmentRecords={assessmentRecords}
-        onSelectRecord={handleSelectRecord}
-        series={series}
-        matriculas={matriculas}
-      />
 
       <ConfirmationModal
         isOpen={isConfirmationModalOpen}

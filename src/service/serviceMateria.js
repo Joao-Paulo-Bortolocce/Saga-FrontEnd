@@ -20,7 +20,7 @@ export async function gravarMateria(materia) {
 }
 
 export async function alterarMateria(materia) {
-    const res = await fetch(urlBase + "/" + materia.id, {
+    const res = await fetch(urlBase + "/alterar" + materia.id, {
         method: "PUT",
         headers: obterHeaders(),
         body: JSON.stringify(materia),
