@@ -24,10 +24,11 @@ function CadastroMatricula(props) {
 
   useEffect(()=>{
     buscarAnosLetivos().then((resultado)=>{
-      if(resultado.status)
-        setListaDeanosLetivos(resultado.anoletivo);
-      else
-        toast.error("Não foi possível recuparar os anos do backend")
+      
+      setListaDeanosLetivos(resultado);
+      // if(resultado.status){
+      // else
+      //   toast.error("Não foi possível recuparar os anos do backend")
     })
     buscarSeries().then((resultado)=>{
       if(resultado.status)
