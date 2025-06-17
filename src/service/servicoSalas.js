@@ -1,53 +1,58 @@
-const urlBase = 'http://localhost:4000/salas';
+const urlBase = 'http://localhost:8080/sala';
 
 function obterHeaders(contentType = true) {
   const token = localStorage.getItem("token");
   const headers = {
     'Authorization': `${token}`
   };
+
   if (contentType) {
-    headers['Content-Type'] = 'application/json';
+    headers['Content-type'] = 'application/json';
   }
+
   return headers;
 }
 
-export async function gravarSalas(salas) {
+export async function gravarSala(sala) {
   const resposta = await fetch(urlBase, {
     method: "POST",
     headers: obterHeaders(),
-    body: JSON.stringify(salas),
+    body: JSON.stringify(sala),
   });
-  return await resposta.json();
+  const resultado =await  resposta.json();
+  return resultado;
 }
 
-export async function alterarSalas(id, salas) {
-  const resposta = await fetch(`${urlBase}/${id}`, {
+export async function alterarSala(id, sala) {
+  const resposta = await fetch(urlBase+"/"+id, {
     method: "PUT",
     headers: obterHeaders(),
-    body: JSON.stringify(salas),
+    body: JSON.stringify(sala),
   });
-  return await resposta.json();
+  const resultado = await resposta.json();
+  return resultado;
 }
 
-export async function excluirSalas(salas) {
-  const resposta = await fetch(`${urlBase}/${salas.id}`, {
+export async function excluirSala(sala) {
+  const resposta = await fetch(urlBase+"/"+sala.id, { 
     method: "DELETE",
-    headers: obterHeaders(false)
-  });
+    headers: obterHeaders(false),
+    });
   return await resposta.json();
 }
 
-export async function consultarSalas(termo) {
-  let resposta;
-  if (termo == undefined)
-    resposta = await fetch(urlBase + "/", {
-      method: "GET",
-      headers: obterHeaders(false)
-    });
-  else
-    resposta = await fetch(urlBase + "/" + termo, {
-      method: "GET",
-      headers: obterHeaders(false)
-    });
-  return await resposta.json();
+export async function consultarSala(termo){
+    let resposta
+    if(termo==undefined)
+        resposta = await fetch(urlBase,{
+            method: "GET",
+            headers: obterHeaders(false)
+        })
+    else
+        resposta = await fetch(urlBase+"/"+termo,{
+            "method": "GET",
+            headers: obterHeaders(false)
+        })
+    const resultado = await resposta.json();
+    return resultado.salas;
 }

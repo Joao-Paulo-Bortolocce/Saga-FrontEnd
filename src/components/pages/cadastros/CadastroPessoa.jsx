@@ -22,7 +22,16 @@ function CadastroPessoa(props) {
       let dataInformada = new Date(valor);
       if (dataInformada > atual) {
         toast.error("A data informada é inválida");
-        valor = dataInformada.toLocaleString().substring(0, 10);
+        valor = "";
+      }
+      else{
+        let limite = new Date();
+        limite.setFullYear(atual.getFullYear() - 5);
+
+        if (dataInformada >= limite) {
+          toast.error("A idade informada deve ter pelo menos 5 anos");
+          valor = "";
+        }
       }
     }
 
@@ -527,7 +536,7 @@ function CadastroPessoa(props) {
             </div>
             <button
               type="submit"
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
+              className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
             >
               {props.modoEdicao ? "Alterar" : "Confirmar"}
             </button>
@@ -537,7 +546,7 @@ function CadastroPessoa(props) {
                 props.setExibirTabela(true);
               }}
 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
+              className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors duration-200"
             >
              Voltar
             </button>

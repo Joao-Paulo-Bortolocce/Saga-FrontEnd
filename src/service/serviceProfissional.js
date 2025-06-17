@@ -34,7 +34,7 @@ export async function alterarProfissional(profissional) {
 }
 
 export async function excluirProfissional(profissional) {
-  const resposta = await fetch(`${urlBase}/${profissional.profissional_ra}`, {
+  const resposta = await fetch(`${urlBase}/${profissional.profissional_rn}`, {
     method: "DELETE",
     headers: obterHeaders(false)
   });

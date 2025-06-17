@@ -1,4 +1,4 @@
-export default function TabelaReuniao({ reunioes, editarReuniao, excluirReuniao }) {
+export default function TabelaReuniao({ reunioes, editarReuniao, confirmarExclusao }) {
   return (
     <table className="min-w-full divide-y divide-gray-700">
       <thead>
@@ -34,7 +34,7 @@ export default function TabelaReuniao({ reunioes, editarReuniao, excluirReuniao 
               <td className="px-6 py-4 text-sm text-center text-gray-300">{reuniao.reuniaoTipo}</td>
               <td className="px-6 py-4 text-sm text-center text-gray-300">
                 <button onClick={() => editarReuniao(reuniao)} className="p-1.5 rounded-lg bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20">Editar</button>{' '}
-                <button onClick={() => excluirReuniao(reuniao.reuniaoId)} className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20">Excluir</button>
+                <button onClick={() => confirmarExclusao(reuniao.reuniaoId)} className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20">Excluir</button>
               </td>
             </tr>
           ))

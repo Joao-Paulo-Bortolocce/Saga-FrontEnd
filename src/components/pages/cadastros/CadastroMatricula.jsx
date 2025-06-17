@@ -3,26 +3,44 @@ import logoPrefeitura from "../../../assets/images/logoPrefeitura.png";
 import { useDispatch, useSelector } from 'react-redux';
 import ESTADO from '../../../redux/estados.js';
 import { incluirMatricula, atualizarMatricula } from '../../../redux/matriculaReducer.js';
-import { listaDeanosLetivos } from '../../../mockDados/mockAnoLetivo.js';
-import { listaDeSeries } from '../../../mockDados/mockSeries.js';
+import { gravarMatricula } from '../../../service/serviceMatricula.js';
 import toast, { Toaster } from "react-hot-toast";
 import { buscarAlunosSemMatricula } from '../../../redux/alunoReducer.js';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { formatarCPF } from "../../../service/formatadores.js"
+import {buscarAnosLetivos} from "../../../service/anoLetivoService.js";
+import {buscarSeries} from "../../../service/servicoSerie.js";
 
 function CadastroMatricula(props) {
   const [matricula, setMatricula] = useState(props.matricula);
   const { estado, mensagem, listaDeAlunos } = useSelector(state => state.aluno);
   const dispachante = useDispatch();
   const [listaFiltrada, setListaFiltrada] = useState([]);
+  const [listaDeanosLetivos,setListaDeanosLetivos]=useState([])
+  const [listaDeSeries,setListaDeSeries]=useState([])
   const [lenCpf, setLenCpf] = useState(0);
   const [validos, setValidos] = useState([true, true, true, true, true, true]);
   const[ano, setAno]= useState(0)
 
+  useEffect(()=>{
+    buscarAnosLetivos().then((resultado)=>{
+      
+      setListaDeanosLetivos(resultado);
+      // if(resultado.status){
+      // else
+      //   toast.error("Não foi possível recuparar os anos do backend")
+    })
+    buscarSeries().then((resultado)=>{
+      if(resultado.status)
+        setListaDeSeries(resultado.series);
+      else
+        toast.error("Não foi possível recuparar as series")
+    })
+  },[])
+
   useEffect(() => {
     dispachante(buscarAlunosSemMatricula(ano));
   }, [ano,dispachante]);
-
 
 
   function manipularMudanca(event) {
@@ -102,12 +120,16 @@ function CadastroMatricula(props) {
   }
 
   function zeraMatricula() {
+    document.getElementById("cpf").value="";
+    document.getElementById("nome").value="";
     props.setMatricula({
       ra: 0,
       anoLetivo_id: 0,
       serie_id: 0,
       data: new Date().toISOString().substring(0, 10)
     });
+    setMatricula(props.matricula);
+    filtrar();
   }
 
   function validaInfos() {
@@ -161,9 +183,21 @@ function CadastroMatricula(props) {
         zeraMatricula();
       } else {
         if (listaFiltrada.length === 1) {
-          dispachante(incluirMatricula(matricula));
-          props.setExibirTabela(true);
-          zeraMatricula();
+          // dispachante(incluirMatricula(matricula));
+          // props.setExibirTabela(true);
+          gravarMatricula(matricula).then((resultado)=>{
+              if(resultado.status){
+                toast.success("matricula inserida com sucesso!")
+                zeraMatricula();
+                setAno(0);
+              }
+              else{
+                toast.error(resultado.mensagem)
+              }
+          })
+          .catch((erro)=>{
+            toast.error("Ocorreu um erro ao inserir esta matricula")
+          })
         } else {
           toast.error("As informações não correspondem a um aluno, preencha todos os campos corretamente", { duration: 5000, repeat: false });
         }
@@ -173,10 +207,10 @@ function CadastroMatricula(props) {
 
   function nomeAno(id) {
       const ano = listaDeanosLetivos.filter((aux) => {
-        return aux.anoletivo_id == id;
+        return aux.id == id;
       })
   
-      return ano[0].anoletivo_inicio.substring(0, 4);
+      return ano[0].inicio.substring(0, 4);
     }
 
   if (estado === ESTADO.PENDENTE) {
@@ -228,8 +262,8 @@ function CadastroMatricula(props) {
                 >
                   <option value="0">Selecione</option>
                   {listaDeanosLetivos.map((ano) => (
-                    <option key={ano.anoletivo_id} value={ano.anoletivo_id}>
-                      {ano.anoletivo_inicio.substring(0, 4)}
+                    <option key={ano.id} value={ano.id}>
+                      {ano.inicio.substring(0, 4)}
                     </option>
                   ))}
                 </select>
@@ -247,8 +281,8 @@ function CadastroMatricula(props) {
                 >
                   <option value="0">Selecione</option>
                   {listaDeSeries.map((serie) => (
-                    <option key={serie.serie_id} value={serie.serie_id}>
-                      {serie.serie_descr}
+                    <option key={serie.serieId} value={serie.serieId}>
+                      {serie.serieDescr}
                     </option>
                   ))}
                 </select>
@@ -260,6 +294,7 @@ function CadastroMatricula(props) {
                 <input
                   type="date"
                   name="data"
+                  disabled={true}
                   id="data"
                   value={matricula.data.substr(0, 10)}
                   onChange={manipularMudanca}

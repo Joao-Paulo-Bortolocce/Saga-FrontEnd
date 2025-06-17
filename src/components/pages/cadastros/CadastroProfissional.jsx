@@ -8,21 +8,11 @@ import { buscarPossiveisProfissionais } from '../../../redux/pessoaReducer';
 import { atualizarProfissional, incluirProfissional } from "../../../redux/profissionalReducer";
 import { formatarCPF } from "../../../service/formatadores";
 import { consultarProfissional } from '../../../service/serviceProfissional';
+import {consultarGraduacao} from "../../../service/serviceGraduacao.js";
 
 function CadastroProfissional(props) {
     const [profissional, setProfissional] = useState(props.profissional);
-    const [listaDegraduacao, setListaDeGraduacao] = useState([
-        { graduacao_id: 1, graduacao_descricao: "Ensino Fundamental Incompleto" },
-        { graduacao_id: 2, graduacao_descricao: "Ensino Fundamental Completo" },
-        { graduacao_id: 3, graduacao_descricao: "Ensino Médio Incompleto" },
-        { graduacao_id: 4, graduacao_descricao: "Ensino Médio Completo" },
-        { graduacao_id: 5, graduacao_descricao: "Ensino Superior Incompleto" },
-        { graduacao_id: 6, graduacao_descricao: "Ensino Superior Completo" },
-        { graduacao_id: 7, graduacao_descricao: "Pós-graduação" },
-        { graduacao_id: 8, graduacao_descricao: "Mestrado" },
-        { graduacao_id: 9, graduacao_descricao: "Doutorado" },
-        { graduacao_id: 10, graduacao_descricao: "Pós-doutorado" }
-    ]);
+    const [listaDegraduacao, setListaDeGraduacao] = useState([]);
     const { estado, mensagem, listaDePessoas } = useSelector(state => state.pessoa);
     const dispatch = useDispatch();
     const [listaFiltrada, setListaFiltrada] = useState([]);
@@ -30,7 +20,12 @@ function CadastroProfissional(props) {
 
     useEffect(() => {
         dispatch(buscarPossiveisProfissionais());
-
+        consultarGraduacao().then((resultado)=>{
+            if(Array.isArray(resultado))
+                setListaDeGraduacao(resultado);
+            else
+                toast.error("Erro ao recuperar as graduações!")
+        })
     }, []);
 
     useEffect(() => {
@@ -78,7 +73,7 @@ function CadastroProfissional(props) {
                 },
             }));
         } else {
-            if (id === "profissional_ra") novosValidos[2] = true;
+            if (id === "profissional_rn") novosValidos[2] = true;
             if (id === "profissional_tipo") novosValidos[3] = true;
             if (id === "profissional_dataAdmissao") {
                 let atual = new Date();
@@ -124,7 +119,7 @@ function CadastroProfissional(props) {
 
     function zeraDados() {
         props.setProfissional({
-            profissional_ra: 0,
+            profissional_rn: 0,
             profissional_tipo: 0,
             profissional_dataAdmissao: new Date().toISOString().substring(0, 10),
             profissional_graduacao: {
@@ -176,7 +171,7 @@ function CadastroProfissional(props) {
             valido = false;
         }
 
-        if (!profissional.profissional_ra || profissional.profissional_ra === 0) {
+        if (!profissional.profissional_rn || profissional.profissional_rn === 0) {
             novosValidos[2] = false;
             valido = false;
         }
@@ -221,13 +216,13 @@ function CadastroProfissional(props) {
                 zeraDados();
             } else {
                 if (listaFiltrada.length === 1) {
-                    consultarProfissional(profissional.profissional_ra).then((aux) => {
+                    consultarProfissional(profissional.profissional_rn).then((aux) => {
                         if (aux === undefined || aux === null) {
                             dispatch(incluirProfissional(profissional));
                             props.setExibirTabela(true);
                             zeraDados();
                         } else {
-                            toast.error("Este RA já está cadastrado", {
+                            toast.error("Este RN já está cadastrado", {
                                 duration: 3000,
                                 repeat: false
                             });
@@ -331,12 +326,12 @@ function CadastroProfissional(props) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                                <label htmlFor="profissional_ra" className={`text-sm ${validos[2] ? 'text-white' : 'text-red-500'}`}>RA</label>
+                                <label htmlFor="profissional_rn" className={`text-sm ${validos[2] ? 'text-white' : 'text-red-500'}`}>RN</label>
                                 <input
                                     disabled={props.modoEdicao}
                                     type="number"
-                                    id="profissional_ra"
-                                    value={profissional.profissional_ra}
+                                    id="profissional_rn"
+                                    value={profissional.profissional_rn}
                                     onChange={manipularMudanca}
                                     className={`w-full rounded-md p-2 sm:p-3 bg-gray-800 text-white ${!validos[2] ? 'border border-red-500' : ''}`}
                                 />
@@ -383,8 +378,8 @@ function CadastroProfissional(props) {
                                 >
                                     <option value="0">Selecione</option>
                                     {listaDegraduacao.map(g => (
-                                        <option key={g.graduacao_id} value={g.graduacao_id}>
-                                            {g.graduacao_descricao}
+                                        <option key={g.id} value={g.id}>
+                                            {g.descricao}
                                         </option>
                                     ))}
                                 </select>

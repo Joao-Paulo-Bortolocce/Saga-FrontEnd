@@ -25,7 +25,6 @@ export default function TabelaProfissional(props) {
   function excluirProfissional(profissional) {
     if (window.confirm(`Deseja realmente excluir ${profissional.profissional_pessoa.nome}?`)) {
       dispatch(apagarProfissional(profissional));
-      toast.success("Profissional excluído com sucesso!");
     }
   }
 
@@ -111,12 +110,12 @@ export default function TabelaProfissional(props) {
         <table className="min-w-full text-sm text-left bg-white">
           <thead className="bg-gray-50 text-gray-600 uppercase text-xs font-medium">
             {usuario.tipo==3?<tr>
-              {['RA', 'Nome', 'CPF', 'Tipo', 'Data de Admissão', 'Usuário', 'Ações'].map((title, i) => (
+              {['RN', 'Nome', 'CPF', 'Tipo', 'Data de Admissão', 'Usuário', 'Ações'].map((title, i) => (
                 <th key={i} className="px-6 py-3">{title}</th>
               ))}
             </tr>:
             <tr>
-              {['RA', 'Nome', 'CPF', 'Tipo', 'Data de Admissão', 'Usuário'].map((title, i) => (
+              {['RN', 'Nome', 'CPF', 'Tipo', 'Data de Admissão', 'Usuário'].map((title, i) => (
                 <th key={i} className="px-6 py-3">{title}</th>
               ))}
             </tr>
@@ -125,8 +124,8 @@ export default function TabelaProfissional(props) {
           <tbody className="divide-y divide-gray-100">
             {profissionaisFiltrados.length > 0 ? (
               profissionaisFiltrados.map((profissional) => (
-                <tr key={profissional.profissional_ra} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">{profissional.profissional_ra}</td>
+                <tr key={profissional.profissional_rn} className="hover:bg-gray-50">
+                  <td className="px-6 py-4">{profissional.profissional_rn}</td>
                   <td className="px-6 py-4">{profissional.profissional_pessoa.nome}</td>
                   <td className="px-6 py-4">{profissional.profissional_pessoa.cpf}</td>
                   <td className="px-6 py-4">{getTipoProfissional(profissional.profissional_tipo)}</td>
