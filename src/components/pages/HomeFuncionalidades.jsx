@@ -54,6 +54,16 @@ const funcionalidades = [
     description: "Ver as fichas que já estão validadas",
     permition: [3],
   },
+  {
+    nome: "Povoar Turmas",
+    href: "/povoar-turma",
+    tipo: "Criação",
+    icon: BookText,
+    bgcolor: "bg-purple-800",
+    color: "text-purple-800",
+    description: "Povoar turmas com alunos",
+    permition: [3],
+  },
 ];
 
 function HomeFuncionalidades() {

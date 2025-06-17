@@ -122,7 +122,7 @@ export default function App() {
                             <Route path="cadastros/habilidade" element={<RotasControle permissao={[1,3]}><HomeHabilidades /></RotasControle>} />
                             <Route path="/cadastros/sala" element={<RotasControle permissao={[1, 3]}><HomeSalas /></RotasControle>} />
                             <Route path="/cadastros/reuniao" element={<RotasControle permissao={[1, 3]}><HomeReunioes /></RotasControle>} />
-                            <Route path="/cadastros/povoarTurma" element={<RotasControle permissao={[1,3]}><HomePovoarTurma /></RotasControle>} />
+                            {/*<Route path="/cadastros/povoarTurma" element={<RotasControle permissao={[1,3]}><HomePovoarTurma /></RotasControle>} />*/}
                             <Route path="/cadastros/turma" element={<RotasControle permissao={[1,3]}><HomeTurmas /></RotasControle>} />
                             <Route path="/cadastros/graduacao" element={<RotasControle permissao={[1, 3]}><HomeGraduacao /></RotasControle>} />
                             <Route path="/cadastros/anoletivo" element={<RotasControle permissao={[1, 3]}><HomeAnoLetivo /></RotasControle>} />
@@ -132,6 +132,7 @@ export default function App() {
                             <Route path="/avalia-matricula" element={<RotasControle permissao={[2,3]}><AvaliaPage /></RotasControle>}></Route>
                             <Route path="/validar-ficha" element={<RotasControle permissao={[3]}><HomeValidacao /></RotasControle>}></Route>
                             <Route path="/fichas-validadas" element={<RotasControle permissao={[3]}><HomeFichasValidadas /></RotasControle>}></Route>
+                            {/*FALTA O POVOAR TURMAS EM FUNCIONALIDADES AQUI!!!*/}
                             <Route path="/chamada" element={<RotasControle permissao={[2]}><HomeFrequencia /></RotasControle>} />
                             <Route path="/notificacao" element={<RotasControle permissao={[1]}><HomeNotificacao /></RotasControle>} />
                         </Routes>

@@ -137,18 +137,18 @@ export default function HomeTurmas() {
             <Page />
             <div className="min-h-screen py-12 flex flex-col items-center justify-start bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: `url('/src/assets/images/imagemFundoPrefeitura.png')` }}
 >
-                <div className="absolute inset-0 bg-black/40" />
+                <div className="" />
                 <div className="relative z-10 w-full max-w-4xl px-4 space-y-8">
                     {!mostrarFormulario && (
-                        <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full border border-gray-700">
+                        <div className="bg-white rounded-2xl shadow-2xl p-5 w-full border border-black">
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-bold text-white">Turmas Cadastradas</h2>
-                                <button onClick={criarTurma} className="flex itens-center p-2 gap-2 rounded-lg bg-green-500/10 text-green-500 hover:bg-green-500/20">
+                                <h2 className="text-2xl font-bold text-black">Turmas Cadastradas</h2>
+                                <button onClick={criarTurma} className="flex p-4 gap-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-900">
                                     <Plus className="w-5 h-5" /> Nova Turma
                                 </button>
                             </div>
 
-                            <div className="overflow-x-auto rounded-xl border border-gray-700">
+                            <div className="overflow-x-auto rounded-xl border border-black">
                                 <TabelaTurmas
                                     turmas={turmas}
                                     editarTurma={editarTurma}
@@ -159,7 +159,7 @@ export default function HomeTurmas() {
                     )}
 
                     {mostrarFormulario && (
-                        <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-8 max-w-md mx-auto">
+                        <div className="bg-black rounded-2xl shadow-2xl p-1 max-w-md mx-auto">
                             <FormularioTurma
                                 turmaEmEdicao={turmaEmEdicao}
                                 salvarTurma={salvarTurma}

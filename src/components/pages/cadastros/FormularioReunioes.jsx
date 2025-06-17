@@ -24,18 +24,20 @@ export default function FormularioReunioes({ reuniaoEmEdicao, salvarReuniao, can
   }, [reuniaoEmEdicao]);
 
   useEffect(() => {
-    fetch("http://localhost:8080/reuniao/turmas")
+    fetch("http://localhost:8080/turma/buscarTodos", { headers: { Authorization: localStorage.getItem('token') } })
       .then(res => res.json())
-      .then(data => setTurmas(data.turmas || [])) 
+      .then(data => setTurmas(data.turmas ?? [])) // <- garante array
       .catch(err => console.error("Erro ao buscar turmas:", err));
 
-    fetch("http://localhost:8080/serie/buscarTodos")
+    fetch("http://localhost:8080/serie/buscarTodos", { headers: { Authorization: localStorage.getItem('token') } })
       .then(res => res.json())
-      .then(data => setSeries(data.series));
+      .then(data => setSeries(data.series ?? [])) // <- garante array
+      .catch(err => console.error("Erro ao buscar séries:", err));
 
-    fetch("http://localhost:8080/anoletivo")
+    fetch("http://localhost:8080/anoletivo", { headers: { Authorization: localStorage.getItem('token') } })
       .then(res => res.json())
-      .then(data => setAnos(data.anoletivo));
+      .then(data => setAnos(data.anoletivo ?? [])) // <- garante array
+      .catch(err => console.error("Erro ao buscar ano letivo:", err));
   }, []);
 
   useEffect(() => {
@@ -54,25 +56,26 @@ export default function FormularioReunioes({ reuniaoEmEdicao, salvarReuniao, can
 
   return (
     <form
-      className="bg-[#0e1629] text-white max-w-md mx-auto p-8 rounded-xl space-y-4"
+      className="bg-white text-black max-w-md mx-auto p-8 rounded-xl border border-gray-300 shadow-md space-y-4"
       onSubmit={(e) => {
         e.preventDefault();
 
         const dataHoje = new Date();
         const dataSelecionada = new Date(form.data);
 
-        if(dataSelecionada < dataHoje)
-          toast.error('Voce está selecionando uma data anterior a atual!');
-        else
+        if (dataSelecionada < dataHoje) {
+          toast.error('Você está selecionando uma data anterior à atual!');
+        } else {
           salvarReuniao(form, !!reuniaoEmEdicao?.reuniaoId);
+        }
       }}
     >
       <h1 className="text-2xl text-center font-bold mb-4">Agendar Reunião</h1>
 
-      {/* SÉRIE */}
-      <label className="block text-sm">Série</label>
+      {/* Série */}
+      <label className="block text-sm font-medium">Série</label>
       <select
-        className="w-full p-2 rounded text-black"
+        className="w-full p-2 rounded border border-gray-300 bg-white"
         value={form.serie_id || ""}
         onChange={(e) => setForm({ ...form, serie_id: e.target.value })}
       >
@@ -84,10 +87,10 @@ export default function FormularioReunioes({ reuniaoEmEdicao, salvarReuniao, can
         ))}
       </select>
 
-      {/* ANO LETIVO */}
-      <label className="block text-sm">Ano Letivo</label>
+      {/* Ano Letivo */}
+      <label className="block text-sm font-medium">Ano Letivo</label>
       <select
-        className="w-full p-2 rounded text-black"
+        className="w-full p-2 rounded border border-gray-300 bg-white"
         value={form.anoletivo_id || ""}
         onChange={(e) => setForm({ ...form, anoletivo_id: e.target.value })}
       >
@@ -99,10 +102,10 @@ export default function FormularioReunioes({ reuniaoEmEdicao, salvarReuniao, can
         ))}
       </select>
 
-      {/* LETRA DA TURMA */}
-      <label className="block text-sm">Letra da Turma</label>
+      {/* Letra */}
+      <label className="block text-sm font-medium">Letra da Turma</label>
       <select
-        className="w-full p-2 rounded text-black"
+        className="w-full p-2 rounded border border-gray-300 bg-white"
         value={form.letra || ""}
         onChange={(e) => setForm({ ...form, letra: e.target.value })}
       >
@@ -114,31 +117,38 @@ export default function FormularioReunioes({ reuniaoEmEdicao, salvarReuniao, can
         ))}
       </select>
 
-      {/* TIPO DA REUNIÃO */}
-      <label className="block text-sm">Tipo da Reunião</label>
+      {/* Tipo */}
+      <label className="block text-sm font-medium">Tipo da Reunião</label>
       <input
-        className="w-full p-2 rounded text-black"
         type="text"
         placeholder="Ex: Professores, Pais, Coordenação..."
+        className="w-full p-2 rounded border border-gray-300"
         value={form.tipo || ""}
         onChange={(e) => setForm({ ...form, tipo: e.target.value })}
       />
 
-      {/* DATA E HORA */}
-      <label className="block text-sm">Data e Hora</label>
+      {/* Data */}
+      <label className="block text-sm font-medium">Data e Hora</label>
       <input
-        className="w-full p-2 rounded text-black"
         type="datetime-local"
+        className="w-full p-2 rounded border border-gray-300"
         value={form.data || ""}
         onChange={(e) => setForm({ ...form, data: e.target.value })}
       />
 
-      {/* BOTÕES */}
-      <div className="flex justify-between mt-4">
-        <button type="submit" className="bg-green-600 px-4 py-2 rounded hover:bg-green-700">
+      {/* Botões */}
+      <div className="flex justify-between pt-4">
+        <button
+          type="submit"
+          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+        >
           Confirmar
         </button>
-        <button type="button" onClick={cancelarEdicao} className="bg-red-600 px-4 py-2 rounded hover:bg-red-700">
+        <button
+          type="button"
+          onClick={cancelarEdicao}
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+        >
           Cancelar
         </button>
       </div>

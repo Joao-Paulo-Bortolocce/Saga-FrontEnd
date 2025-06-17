@@ -23,8 +23,7 @@ export default function HomeReunioes() {
       if (resposta.status) {
         const ordenadas = [...resposta.reunioes].sort((a, b) => new Date(a.reuniaoData) - new Date(b.reuniaoData));
         setReunioes(ordenadas);
-      }
-      else {
+      } else {
         toast.error(resposta.mensagem);
       }
     }
@@ -33,14 +32,8 @@ export default function HomeReunioes() {
 
   function editarReuniao(reuniao) {
     let data = new Date(reuniao.reuniaoData);
-
-    // Adiciona 3 horas
     data.setHours(data.getHours() + 3);
-
-    // Função para preencher com zero à esquerda
     const pad = (num) => String(num).padStart(2, '0');
-
-    // Formata no padrão yyyy-MM-ddTHH:mm
     const dataFormatada = `${data.getFullYear()}-${pad(data.getMonth() + 1)}-${pad(data.getDate())}T${pad(data.getHours())}:${pad(data.getMinutes())}`;
 
     setReuniaoEmEdicao({
@@ -56,7 +49,6 @@ export default function HomeReunioes() {
     setMostrarFormulario(true);
     toast('Você está alterando uma reunião!', { icon: '⚠️' });
   }
-
 
   function excluirReuniao(id) {
     toast.promise(
@@ -89,9 +81,7 @@ export default function HomeReunioes() {
   }
 
   function salvarReuniao(reuniao, emEdicao) {
-    const acao = emEdicao
-      ? alterarReuniao(reuniao)
-      : gravarReuniao(reuniao);
+    const acao = emEdicao ? alterarReuniao(reuniao) : gravarReuniao(reuniao);
 
     toast.promise(
       acao.then(async (res) => {
@@ -118,20 +108,31 @@ export default function HomeReunioes() {
           (a, b) => new Date(a.reuniaoData) - new Date(b.reuniaoData)
         );
         setReunioes(ordenadas);
-      } 
-      else {
+      } else {
         toast.error(todas.mensagem);
       }
       return;
     }
 
-    // Se for data no formato brasileiro dd/mm/yyyy
-    const dataBR = termo.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-    if (dataBR) {
-      const dataISO = `${dataBR[3]}-${dataBR[2]}-${dataBR[1]}`;
-      return filtrarPorData(dataISO);
+    const partes = termo.split('/');
+
+    if (partes.length === 1) {
+      return filtrarPorDia(partes[0]); // Apenas dia
     }
+
+    if (partes.length === 2) {
+      return filtrarPorDiaMes(partes[0], partes[1]); // Dia e mês
+    }
+
+    if (partes.length === 3) {
+      const dataISO = `${partes[2]}-${partes[1]}-${partes[0]}`;
+      return filtrarPorData(dataISO); // Data completa
+    }
+
+    toast.error('Formato inválido. Use DD, DD/MM ou DD/MM/AAAA');
   }
+
+
 
   async function filtrarPorData(dataString) {
     const todas = await buscarTodasReunioes();
@@ -147,49 +148,100 @@ export default function HomeReunioes() {
     });
 
     if (reunioesFiltradas.length === 0) {
-      toast('Nenhuma reunião encontrada para essa data!', { icon: '📅' });
+      toast('Nenhuma reunião encontrada!', { icon: '📅' });
     }
 
     setReunioes(reunioesFiltradas);
   }
 
+  async function filtrarPorDiaMes(diaDigitado, mesDigitado) {
+    const todas = await buscarTodasReunioes();
+    if (!todas.status) {
+      toast.error(todas.mensagem);
+      return;
+    }
+
+    const reunioesFiltradas = todas.reunioes.filter((r) => {
+      const data = new Date(r.reuniaoData);
+      const dia = String(data.getDate()).padStart(2, '0');
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      return (
+        dia === diaDigitado.padStart(2, '0') &&
+        mes === mesDigitado.padStart(2, '0')
+      );
+    });
+
+    if (reunioesFiltradas.length === 0) {
+      toast('Nenhuma reunião encontrada!', { icon: '📅' });
+    }
+
+    setReunioes(reunioesFiltradas);
+  }
+
+  async function filtrarPorDia(diaDigitado) {
+    const todas = await buscarTodasReunioes();
+    if (!todas.status) {
+      toast.error(todas.mensagem);
+      return;
+    }
+
+    const reunioesFiltradas = todas.reunioes.filter((r) => {
+      const data = new Date(r.reuniaoData);
+      const dia = String(data.getDate()).padStart(2, '0');
+      return dia === diaDigitado.padStart(2, '0');
+    });
+
+    if (reunioesFiltradas.length === 0) {
+      toast('Nenhuma reunião encontrada!', { icon: '📅' });
+    }
+
+    setReunioes(reunioesFiltradas);
+  }
+
+
   function confirmarExclusao(reuniaoId) {
-  toast.custom((t) => (
-    <div className="bg-gray-900 text-white p-4 rounded-xl shadow-lg flex flex-col gap-2 border border-red-600 w-[280px]">
-      <span className="text-sm">Deseja excluir esta reunião?</span>
-      <div className="flex justify-end gap-2 text-sm">
-        <button
-          onClick={() => {
-            toast.dismiss(t.id);
-            excluirReuniao(reuniaoId); 
-          }}
-          className="bg-red-600 px-3 py-1 rounded hover:bg-red-700"
-        >
-          Confirmar
-        </button>
-        <button
-          onClick={() => toast.dismiss(t.id)}
-          className="bg-gray-700 px-3 py-1 rounded hover:bg-gray-600"
-        >
-          Cancelar
-        </button>
+    toast.custom((t) => (
+      <div className="bg-white text-black p-4 rounded-xl shadow-lg flex flex-col gap-2 border border-red-600 w-[280px]">
+        <span className="text-sm">Deseja excluir esta reunião?</span>
+        <div className="flex justify-end gap-2 text-sm">
+          <button
+            onClick={() => {
+              toast.dismiss(t.id);
+              excluirReuniao(reuniaoId);
+            }}
+            className="bg-red-600 px-3 py-1 rounded hover:bg-red-700 text-white"
+          >
+            Confirmar
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400"
+          >
+            Cancelar
+          </button>
+        </div>
       </div>
-    </div>
-  ));
-}
+    ));
+  }
 
   return (
     <div>
       <Toaster position="top-center" />
       <Page />
-      <div className="min-h-screen py-12 flex flex-col items-center justify-start bg-cover bg-center bg-no-repeat relative" style={{ backgroundImage: `url('/src/assets/images/imagemFundoPrefeitura.png')` }}>
-        <div className="absolute inset-0 bg-black/40" />
+      <div
+        className="min-h-screen py-12 flex flex-col items-center justify-start bg-cover bg-center bg-no-repeat relative"
+        style={{ backgroundImage: `url('/src/assets/images/imagemFundoPrefeitura.png')` }}
+      >
+        <div />
         <div className="relative z-10 w-full max-w-4xl px-4 space-y-8">
           {!mostrarFormulario && (
-            <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full border border-gray-700">
+            <div className="bg-white rounded-2xl shadow-xl p-8 w-full border border-gray-300">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-white">Reuniões Agendadas</h2>
-                <button onClick={criarReuniao} className="flex items-center gap-2 bg-green-700 hover:bg-green-800 text-white py-2 px-4 rounded-lg">
+                <h2 className="text-2xl font-bold text-black">Reuniões Agendadas</h2>
+                <button
+                  onClick={criarReuniao}
+                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-800 text-white py-2 px-4 rounded-lg"
+                >
                   <Plus className="w-4 h-4" /> Agendar
                 </button>
               </div>
@@ -199,13 +251,19 @@ export default function HomeReunioes() {
                     type="text"
                     placeholder="Buscar por data (DD/MM/AAAA)..."
                     value={busca}
-                    onChange={(e) => buscarPorTermo(e.target.value)}
-                    className="w-full px-4 py-2 pl-10 border border-gray-700 rounded-lg bg-gray-800/40 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        buscarPorTermo(busca);
+                      }
+                    }}
+                    onChange={(e) => setBusca(e.target.value)} // Mantém o estado sincronizado
+                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg bg-white text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-4 h-4" />
                 </div>
               </div>
-              <div className="overflow-x-auto rounded-xl border border-gray-700">
+              <div className="overflow-x-auto rounded-xl border border-gray-300">
                 <TabelaReunioes
                   reunioes={reunioes}
                   editarReuniao={editarReuniao}
@@ -216,7 +274,7 @@ export default function HomeReunioes() {
           )}
 
           {mostrarFormulario && (
-            <div className="bg-gray-900 backdrop-blur-sm rounded-2xl shadow-2xl p-8 max-w-md mx-auto">
+            <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md mx-auto border border-gray-300">
               <FormularioReunioes
                 reuniaoEmEdicao={reuniaoEmEdicao}
                 salvarReuniao={salvarReuniao}

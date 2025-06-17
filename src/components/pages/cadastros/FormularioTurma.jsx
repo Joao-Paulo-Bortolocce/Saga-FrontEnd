@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import logoPrefeitura from '../../../assets/images/logoPrefeitura.png';
 import toast from "react-hot-toast";
 import {
     buscarAnosLetivos,
@@ -49,17 +50,25 @@ export default function FormularioTurma({ turmaEmEdicao, salvarTurma, cancelarEd
     }
 
     return (
-        <form onSubmit={handleSubmit} className="bg-[#0e1629] text-white max-w-md mx-auto p-8 rounded-xl space-y-4">
+        <form onSubmit={handleSubmit} className="bg-[#ffffff] text-black max-w-md mx-auto p-8 rounded-xl space-y-4">
             <h1 className="text-2xl text-center font-bold mb-4">
                 {form.letraAtual ? "Editar Turma" : "Nova Turma"}
             </h1>
+
+            <div className="flex justify-center mb-6">
+                <img
+                  src={logoPrefeitura}
+                  alt="Logo da Prefeitura"
+                  className="h-24 w-auto"
+                />
+              </div>
 
             {/* Letra */}
             <label className="block text-sm">Letra da Turma</label>
             <input
                 type="text"
                 maxLength="1"
-                className="w-full p-2 rounded text-black uppercase"
+                className="w-full p-2 rounded text-black uppercase border"
                 value={form.turmaLetra || ""}
                 onChange={(e) => setForm({ ...form, turmaLetra: e.target.value.toUpperCase(), novaLetra: e.target.value.toUpperCase() })}
             />
@@ -67,7 +76,7 @@ export default function FormularioTurma({ turmaEmEdicao, salvarTurma, cancelarEd
             {/* Série */}
             <label className="block text-sm">Série</label>
             <select
-                className="w-full p-2 rounded text-black"
+                className="w-full p-2 rounded text-black border"
                 value={form.serie_id || ""}
                 onChange={(e) => setForm({ ...form, serie_id: parseInt(e.target.value) })}
             >
@@ -82,7 +91,7 @@ export default function FormularioTurma({ turmaEmEdicao, salvarTurma, cancelarEd
             {/* Ano Letivo */}
             <label className="block text-sm">Ano Letivo</label>
             <select
-                className="w-full p-2 rounded text-black"
+                className="w-full p-2 rounded text-black border"
                 value={form.anoletivo_id || ""}
                 onChange={(e) => setForm({ ...form, anoletivo_id: parseInt(e.target.value) })}
             >
@@ -97,7 +106,7 @@ export default function FormularioTurma({ turmaEmEdicao, salvarTurma, cancelarEd
             {/* Profissional */}
             <label className="block text-sm">Profissional</label>
             <select
-                className="w-full p-2 rounded text-black"
+                className="w-full p-2 rounded text-black border"
                 value={form.profissional_rn || ""}
                 onChange={(e) => setForm({ ...form, profissional_rn: parseInt(e.target.value) })}
             >
@@ -112,7 +121,7 @@ export default function FormularioTurma({ turmaEmEdicao, salvarTurma, cancelarEd
             {/* Sala */}
             <label className="block text-sm">Sala</label>
             <select
-                className="w-full p-2 rounded text-black"
+                className="w-full p-2 rounded text-black border"
                 value={form.sala_id || ""}
                 onChange={(e) => setForm({ ...form, sala_id: parseInt(e.target.value) })}
             >
@@ -126,10 +135,10 @@ export default function FormularioTurma({ turmaEmEdicao, salvarTurma, cancelarEd
 
             {/* Botões */}
             <div className="flex justify-between mt-4">
-                <button type="submit" className="bg-green-600 px-4 py-2 rounded hover:bg-green-700">
+                <button type="submit" className="bg-indigo-600 px-4 py-2 rounded hover:bg-indigo-700 text-white">
                     Confirmar
                 </button>
-                <button type="button" onClick={cancelarEdicao} className="bg-red-600 px-4 py-2 rounded hover:bg-red-700">
+                <button type="button" onClick={cancelarEdicao} className="bg-red-600 px-4 py-2 rounded hover:bg-red-900 text-white">
                     Cancelar
                 </button>
             </div>

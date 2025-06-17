@@ -18,7 +18,7 @@ const cadastros = [
   { nome: "Cadastro de Graduação", href: "/cadastros/graduacao", tipo: "Infraestrutura", icon: GraduationCap, bgcolor: "bg-red-500", color: "text-red-500" },
   { nome: "Cadastro de Matérias", href: "/cadastros/materia", tipo: "Acadêmico", icon: Calculator, bgcolor: "bg-blue-500", color: "text-blue-500" },
   { nome: "Cadastro de Habilidades", href: "/cadastros/habilidade", tipo: "Acadêmico", icon: Dumbbell, bgcolor: "bg-blue-500", color: "text-blue-500" },
-  { nome: "Agendar reunião de pais", href: "/cadastros/reuniao", tipo: "Acadêmico", icon: CalendarClock, bgcolor: "bg-blue-500", color: "text-blue-500" },
+  { nome: "Cadastro de Reunião", href: "/cadastros/reuniao", tipo: "Acadêmico", icon: CalendarClock, bgcolor: "bg-blue-500", color: "text-blue-500" },
 ];
 
 export default function HomeCadastros() {
