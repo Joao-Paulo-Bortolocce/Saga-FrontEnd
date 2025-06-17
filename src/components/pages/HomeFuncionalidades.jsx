@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { BookText, FileText, UserCheck, FolderOpen } from "lucide-react";
+import { BookText, FileText, UserCheck, FolderOpen,FileCheck } from "lucide-react";
+
 import Page from "../layouts/Page";
 
 const funcionalidades = [
@@ -38,6 +39,15 @@ const funcionalidades = [
     bgcolor: "bg-purple-800",
     color: "text-purple-800",
     description: "Validar fichas pendentes"
+  },
+  {
+    nome: "Ver fichas validadas",
+    href: "/fichas-validadas",
+    tipo: "Validar",
+    icon: FileCheck,
+    bgcolor: "bg-purple-800",
+    color: "text-purple-800",
+    description: "Ver as fichas que já estão validadas"
   },
 ];
 

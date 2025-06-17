@@ -27,6 +27,8 @@ import FichaMontagem from "./components/pages/FichaMontagem.jsx";
 import FichasCriadas from "./components/pages/FichasCriadas.jsx";
 import HomeHabilidades from "./components/pages/HomeHabilidades.jsx";
 import HomeValidacao from "./components/pages/HomeValidacao.jsx";
+import HomeFichasValidadas from "./components/pages/HomeFichasValidadas.jsx"
+
 import RotasControle from "./components/Rotas/RotasControle.jsx";
 
 
@@ -127,8 +129,9 @@ export default function App() {
                             <Route path="/funcionalidades" element={<RotasControle permissao={[1, 3]}><HomeFuncionalidades /></RotasControle>} />
                             <Route path="/ficha-montagem" element={<RotasControle permissao={[1,3]}><FichaMontagem /> </RotasControle>} />
                             <Route path="/ficha-criadas" element={<RotasControle permissao={[1,3]}><FichasCriadas /></RotasControle>} />
-                            <Route path="/avalia-matricula" element={<RotasControle permissao={[1,3]}><AvaliaPage /></RotasControle>}></Route>
-                            <Route path="/validar-ficha" element={<RotasControle permissao={[1,3]}><HomeValidacao /></RotasControle>}></Route>
+                            <Route path="/avalia-matricula" element={<RotasControle permissao={[2,3]}><AvaliaPage /></RotasControle>}></Route>
+                            <Route path="/validar-ficha" element={<RotasControle permissao={[3]}><HomeValidacao /></RotasControle>}></Route>
+                            <Route path="/fichas-validadas" element={<RotasControle permissao={[3]}><HomeFichasValidadas /></RotasControle>}></Route>
                             <Route path="/chamada" element={<RotasControle permissao={[2]}><HomeFrequencia /></RotasControle>} />
                             <Route path="/notificacao" element={<RotasControle permissao={[1]}><HomeNotificacao /></RotasControle>} />
                         </Routes>
