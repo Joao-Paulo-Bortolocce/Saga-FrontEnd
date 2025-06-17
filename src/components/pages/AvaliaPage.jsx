@@ -28,8 +28,6 @@ function AvaliaPage() {
   const [assessmentRecords, setAssessmentRecords] = useState([]);
   const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(false);
   const [enviandoValidacao, setEnviandoValidacao] = useState(false);
-  const [estado, setEstado] = useState(1);
-  const[fichaDaMatricula,setFichaDaMatricula]=useState(null);
 
   // Estados para controle de alterações
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -188,30 +186,6 @@ function AvaliaPage() {
     carregarAvaliacoes();
   }, [matriculaSelecionada, fichaAtiva, habilidades.length]);
 
-  function buscaFichaMatricula(matriculaId) {
-    consultarFichaDaMatricula(2).
-      then((resultado) => {
-        if (Array.isArray(resultado)) {
-          const fichaExistente = resultado?.find(f =>
-            (f.matricula.id === parseInt(matriculaSelecionada) ||  f.matricula.id === parseInt(matriculaId)) &&
-            f.ficha.ficha_id === fichaAtiva.ficha_id
-          );
-          if (fichaExistente) {
-            setFichaDaMatricula(fichaExistente)
-            setEstado(fichaExistente.status);
-          }
-          else {
-            setFichaDaMatricula(null)
-            setEstado(1);
-          }
-        }
-        else {
-          setFichaDaMatricula(null)
-          setEstado(1);
-        }
-      })
-  }
-
   // Verificar se há alterações não salvas
   const checkForUnsavedChanges = () => {
     // Só verificar alterações se as avaliações foram carregadas e há habilidades
@@ -327,7 +301,6 @@ function AvaliaPage() {
     const matriculaId = e.target.value;
     isNavigatingProgrammatically.current = true;
     setMatriculaSelecionada(matriculaId);
-    buscaFichaMatricula(matriculaId)
     setHasUnsavedChanges(false);
     setAssessmentsLoaded(false);
     isNavigatingProgrammatically.current = false;
@@ -395,7 +368,7 @@ function AvaliaPage() {
             const fichaDaMatriculaData = {
               ficha: { ficha_id: fichaAtiva.ficha_id },
               matricula: { id: parseInt(matriculaSelecionada) },
-              observacao: null,
+              observacao: "sem observacao",
               status: 1
             };
 
@@ -422,8 +395,6 @@ function AvaliaPage() {
         });
         setOriginalAssessments(newOriginalState);
         setHasUnsavedChanges(false);
-        buscaFichaMatricula();
-        
       } else {
         alert(resultado.mensagem || "Erro ao salvar avaliações");
       }
@@ -435,69 +406,68 @@ function AvaliaPage() {
     }
   };
 
-  const enviarValidacao = async () => {
-    if (hasUnsavedChanges) {
-      setPendingAction(() => () => executeRecuperarFichas());
-      setIsConfirmationModalOpen(true);
-      return;
-    }
+const enviarValidacao = async () => {
+  if (hasUnsavedChanges) {
+    setPendingAction(() => () => executeRecuperarFichas());
+    setIsConfirmationModalOpen(true);
+    return;
+  }
 
-    if (!matriculaSelecionada || !fichaAtiva) {
-      alert("Selecione uma matrícula e série para enviar validação");
-      return;
-    }
+  if (!matriculaSelecionada || !fichaAtiva) {
+    alert("Selecione uma matrícula e série para enviar validação");
+    return;
+  }
 
-    try {
-      // Verificar se já existe uma FichaDaMatricula para esta matrícula e ficha
-      console.log('Verificando FichaDaMatricula existente...');
+  try {
+    // Verificar se já existe uma FichaDaMatricula para esta matrícula e ficha
+    console.log('Verificando FichaDaMatricula existente...');
+    
+    const fichasDaMatricula = await consultarFichaDaMatricula();
+    console.log('Fichas da matrícula consultadas:', fichasDaMatricula);
 
-      const fichasDaMatricula = await consultarFichaDaMatricula();
-      console.log('Fichas da matrícula consultadas:', fichasDaMatricula);
+    // Verificar se já existe um registro para esta matrícula e ficha
+    const fichaExistente = fichasDaMatricula?.find(f =>
+      f.matricula_id === parseInt(matriculaSelecionada) &&
+      f.ficha_id === fichaAtiva.ficha_id
+    );
 
-      // Verificar se já existe um registro para esta matrícula e ficha
-      const fichaExistente = fichasDaMatricula?.find(f =>
-        f.matricula_id === parseInt(matriculaSelecionada) &&
-        f.ficha_id === fichaAtiva.ficha_id
-      );
+    const fichaDaMatriculaData = {
+      ficha: { ficha_id: fichaAtiva.ficha_id },
+      matricula: { id: parseInt(matriculaSelecionada) },
+      observacao: "aguardando validação",
+      status: 2
+    };
 
-      const fichaDaMatriculaData = {
-        ficha: { ficha_id: fichaAtiva.ficha_id },
-        matricula: { id: parseInt(matriculaSelecionada) },
-        observacao: null,
-        status: 2
-      };
-
-      if (fichaExistente) {
-        console.log('FichaDaMatricula já existe, atualizando:', fichaExistente);
-        // Se já existe, usar alterarFichaDaMatricula
-        const resultado = await alterarFichaDaMatricula(fichaDaMatriculaData);
-
-        if (resultado && (resultado.status || resultado.success)) {
-          alert(resultado.mensagem || "Validação enviada com sucesso!");
-        } else {
-          alert(resultado.mensagem || "Erro ao enviar validação");
-        }
+    if (fichaExistente) {
+      console.log('FichaDaMatricula já existe, atualizando:', fichaExistente);
+      // Se já existe, usar alterarFichaDaMatricula
+      const resultado = await alterarFichaDaMatricula(fichaDaMatriculaData);
+      
+      if (resultado && (resultado.status || resultado.success)) {
+        alert(resultado.mensagem || "Validação enviada com sucesso!");
       } else {
-        console.log('FichaDaMatricula não existe, criando nova...');
-        // Se não existe, criar novo registro
-        console.log('Dados da FichaDaMatricula sendo enviados:', fichaDaMatriculaData);
-
-        const resultado = await alterarFichaDaMatricula(fichaDaMatriculaData);
-        console.log('Resultado da criação da FichaDaMatricula:', resultado);
-
-        if (resultado && (resultado.status || resultado.success)) {
-          alert(resultado.mensagem || "Validação enviada com sucesso!");
-        } else {
-          alert(resultado.mensagem || "Erro ao enviar validação");
-        }
+        alert(resultado.mensagem || "Erro ao enviar validação");
       }
-      buscaFichaMatricula()
-
-    } catch (error) {
-      console.error("Erro ao enviar validação:", error);
-      alert("Erro ao enviar validação");
+    } else {
+      console.log('FichaDaMatricula não existe, criando nova...');
+      // Se não existe, criar novo registro
+      console.log('Dados da FichaDaMatricula sendo enviados:', fichaDaMatriculaData);
+      
+      const resultado = await alterarFichaDaMatricula(fichaDaMatriculaData);
+      console.log('Resultado da criação da FichaDaMatricula:', resultado);
+      
+      if (resultado && (resultado.status || resultado.success)) {
+        alert(resultado.mensagem || "Validação enviada com sucesso!");
+      } else {
+        alert(resultado.mensagem || "Erro ao enviar validação");
+      }
     }
-  };
+
+  } catch (error) {
+    console.error("Erro ao enviar validação:", error);
+    alert("Erro ao enviar validação");
+  }
+};
 
   const executeRecuperarFichas = async () => {
     try {
@@ -840,20 +810,10 @@ function AvaliaPage() {
                     ))
                   )}
                 </div>
-                <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Comentário</h3>
-              <textarea
-                value={fichaDaMatricula!=null && (fichaDaMatricula.observacao!=null || fichaDaMatricula.observacao!=="")? fichaDaMatricula.observacao : "Não há comentário"}
-                disabled={true}
-                rows={4}
-                placeholder="Escreva seu comentário sobre a avaliação..."
-                className="w-full p-3 border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
               </div>
             </div>
 
-           {(!fichaDaMatricula || fichaDaMatricula.status === 1) && ( <div className="fixed bottom-8 right-8 print:hidden">
+            <div className="fixed bottom-8 right-8 print:hidden">
               <button
                 onClick={salvarAvaliacao}
                 disabled={salvando || loading || loadingHabilidades}
@@ -869,10 +829,8 @@ function AvaliaPage() {
                 )}
                 <span>{salvando ? 'Salvando...' : 'Salvar Avaliação'}</span>
               </button>
-            </div>)}
+            </div>
           </div>
-
-          
         )}
 
         {!loading && !loadingHabilidades && (!matriculaSelecionada || !serieSelecionada || !bimestreSelecionado) && (
@@ -891,7 +849,7 @@ function AvaliaPage() {
           </div>
         )}
 
-        {(fichaDaMatricula==null || fichaDaMatricula.status==1)&&(<div className="fixed bottom-8 left-8 print:hidden">
+        <div className="fixed bottom-8 left-8 print:hidden">
           <button
             onClick={enviarValidacao}
             disabled={recuperando || loading}
@@ -904,7 +862,7 @@ function AvaliaPage() {
             )}
             <span>{recuperando ? 'Enviando...' : 'Enviar para Validação'}</span>
           </button>
-        </div>)}
+        </div>
 
         <div className="hidden print:flex flex-col items-center text-gray-700 print:mt-32">
           <div className="border-t border-gray-400 w-64 mt-12"></div>
