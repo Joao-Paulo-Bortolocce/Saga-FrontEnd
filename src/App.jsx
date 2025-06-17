@@ -97,6 +97,7 @@ export default function App() {
 
     return (
         <Provider store={store}>
+            <Toaster position="top-center" />
             <ContextoUsuario.Provider value={{ usuario, setUsuario }}>
                 <div
                     className="App min-h-screen"

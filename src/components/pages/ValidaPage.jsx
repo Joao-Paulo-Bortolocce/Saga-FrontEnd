@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Printer, GraduationCap, User, Save } from 'lucide-react';
-import { consultarAvaliacoesDaFichaDaMatricula } from "../../service/serviceFichaDaMatricula";
-import AssessmentButton from "../AssessmentButton.jsx"
+import { Printer, GraduationCap, User } from 'lucide-react';
+import { alterarFichaDaMatricula, consultarAvaliacoesDaFichaDaMatricula } from "../../service/serviceFichaDaMatricula";
+import AssessmentButton from "../AssessmentButton.jsx";
 import toast from "react-hot-toast";
 
-function ValidaPage({ fichaValidacao, setValidando }) {
+function ValidaPage({ fichaValidacao, setValidando, setFichaValidacao }) {
   const [avaliacoes, setAvaliacoes] = useState([]);
+  const [comentario, setComentario] = useState(fichaValidacao.observacao || "");
 
   useEffect(() => {
     consultarAvaliacoesDaFichaDaMatricula(
@@ -20,6 +21,50 @@ function ValidaPage({ fichaValidacao, setValidando }) {
         toast.error("Erro ao consultar avaliações da matrícula");
       });
   }, [fichaValidacao]);
+
+  function aprovarValidacao() {
+    const novaFicha = {
+      ficha: fichaValidacao.ficha,
+      matricula: fichaValidacao.matricula,
+      observacao: comentario,
+      status: 3
+    };
+
+    alterarFichaDaMatricula(novaFicha)
+      .then((resultado) => {
+        if (resultado.status) {
+          setFichaValidacao(null);
+          setValidando(); // sai do modo validação e força recarregar lista no pai
+        } else {
+          toast.error("Ocorreu um erro ao aprovar a validação");
+        }
+      })
+      .catch(() => {
+        toast.error("Ocorreu um erro ao aprovar a validação");
+      });
+  }
+
+  function reprovarValidacao() {
+    const novaFicha = {
+      ficha: fichaValidacao.ficha,
+      matricula: fichaValidacao.matricula,
+      observacao: comentario,
+      status: 1
+    };
+
+    alterarFichaDaMatricula(novaFicha)
+      .then((resultado) => {
+        if (resultado.status) {
+          setFichaValidacao(null);
+          setValidando(); // sai do modo validação e força recarregar lista no pai
+        } else {
+          toast.error("Ocorreu um erro ao reprovar a validação");
+        }
+      })
+      .catch(() => {
+        toast.error("Ocorreu um erro ao reprovar a validação");
+      });
+  }
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -74,52 +119,64 @@ function ValidaPage({ fichaValidacao, setValidando }) {
             <p className="text-center text-gray-500">Nenhuma avaliação encontrada.</p>
           ) : (
             <div className="space-y-4">
-              {avaliacoes.map((avaliacao, index) => (
-                      <div key={avaliacao.avaHabld} className="py-4 grid grid-cols-7 gap-4 items-start border-b border-gray-100">
-                        <div className="col-span-4">
-                          <div className="mb-2">
-                            <p className="text-sm text-gray-700 mt-1 leading-relaxed">
-                              {avaliacao.descricao}
-                            </p>
-                          </div>
-                          <div className="text-xs text-gray-500 space-y-1">
-                            <p>ID da Habilidade: {avaliacao.avaHabld}</p>
-                            <p>ID da Ficha: {fichaValidacao.ficha.ficha_id}</p>
-                          </div>
-                        </div>
-                        <div className="col-span-3">
-                          <div className="flex justify-around gap-2">
-                            <AssessmentButton
-                              value="NA"
-                              currentValue={avaliacao.avaAv}
-                              color="red"
-                            />
-                            <AssessmentButton
-                              value="EC"
-                              currentValue={avaliacao.avaAv}
-                              color="yellow"
-                            />
-                            <AssessmentButton
-                              value="A"
-                              currentValue={avaliacao.avaAv}
-                              color="green"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+              {avaliacoes.map((avaliacao) => (
+                <div key={avaliacao.avaHabld} className="py-4 grid grid-cols-7 gap-4 items-start border-b border-gray-100">
+                  <div className="col-span-4">
+                    <div className="mb-2">
+                      <p className="text-sm text-gray-700 mt-1 leading-relaxed">
+                        {avaliacao.descricao}
+                      </p>
+                    </div>
+                    <div className="text-xs text-gray-500 space-y-1">
+                      <p>ID da Habilidade: {avaliacao.avaHabld}</p>
+                      <p>ID da Ficha: {fichaValidacao.ficha.ficha_id}</p>
+                    </div>
+                  </div>
+                  <div className="col-span-3">
+                    <div className="flex justify-around gap-2">
+                      <AssessmentButton value="NA" currentValue={avaliacao.avaAv} color="red" />
+                      <AssessmentButton value="EC" currentValue={avaliacao.avaAv} color="yellow" />
+                      <AssessmentButton value="A" currentValue={avaliacao.avaAv} color="green" />
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
 
-        {/* Botão Voltar */}
-        <div className="flex justify-end">
-          <button
-            onClick={() => setValidando(false)}
-            className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg"
-          >
-            Voltar
-          </button>
+        {/* Comentário e Ações */}
+        <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Comentário</h3>
+            <textarea
+              value={comentario}
+              onChange={(e) => setComentario(e.target.value)}
+              rows={4}
+              placeholder="Escreva seu comentário sobre a avaliação..."
+              className="w-full p-3 border rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex flex-wrap justify-end gap-4">
+            <button
+              onClick={aprovarValidacao}
+              className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg"
+            >
+              Aprovar validação
+            </button>
+            <button
+              onClick={reprovarValidacao}
+              className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg"
+            >
+              Reprovar validação
+            </button>
+            <button
+              onClick={() => setValidando()}
+              className="bg-gray-600 hover:bg-gray-700 text-white px-5 py-2 rounded-lg"
+            >
+              Voltar
+            </button>
+          </div>
         </div>
       </main>
     </div>
@@ -127,4 +184,3 @@ function ValidaPage({ fichaValidacao, setValidando }) {
 }
 
 export default ValidaPage;
-
