@@ -42,22 +42,15 @@ export async function excluirFichaDaMatricula(fichaDaMatricula) {
 export async function consultarFichaDaMatricula(validadas) {
     let resposta
     if (validadas == undefined) {
-<<<<<<< HEAD
-        resposta = await fetch(urlBase  , {
-=======
+
         resposta = await fetch(urlBase + "?validadas=0" , {
->>>>>>> joaopaulo
             "method": "GET",
             headers:obterHeaders(false)
         })
         const resultado = await resposta.json();
         return resultado.listaDeFichaDaMatriculas;
     }
-<<<<<<< HEAD
-    resposta = await fetch(urlBase + "?validadas=" + termo, {
-=======
     resposta = await fetch(urlBase + "?validadas=" + validadas, {
->>>>>>> joaopaulo
         "method": "GET",
         headers:obterHeaders(false)
     })

@@ -29,11 +29,9 @@ export default function HomeValidacao() {
         else toast.error("Erro ao buscar fichas!");
       })
       .catch(() => {
-<<<<<<< HEAD
-        toast.error("Erro ao buscar fichas!");
-=======
+
         toast.error("Falha ao buscar fichas!");
->>>>>>> joaopaulo
+
       });
   }, [validando]);
 
@@ -74,12 +72,8 @@ export default function HomeValidacao() {
         <ValidaPage
           fichaValidacao={fichaValidacao}
           setFichaValidacao={setFichaValidacao}
-<<<<<<< HEAD
-          setValidando={sairDaValidacao}  // Passa a função para limpar e recarregar
-=======
           setValidando={sairDaValidacao} 
           validadas={false}  // Passa a função para limpar e recarregar
->>>>>>> joaopaulo
         />
       ) : (
         <main className="flex flex-col items-center px-4 py-6">
@@ -134,11 +128,8 @@ export default function HomeValidacao() {
             ))}
             {fichasFiltradas.length === 0 && (
               <p className="col-span-full text-center text-black bg-white py-4 px-6 rounded-lg shadow">
-<<<<<<< HEAD
-                Nenhuma ficha encontrada para os filtros aplicados.
-=======
+
                 Nenhuma ficha encontrada !
->>>>>>> joaopaulo
               </p>
             )}
           </section>

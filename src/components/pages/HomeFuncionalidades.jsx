@@ -1,10 +1,5 @@
 import { useState } from "react";
-<<<<<<< HEAD
-import { BookText, FileText, UserCheck, FolderOpen } from "lucide-react";
-=======
 import { BookText, FileText, UserCheck, FolderOpen,FileCheck } from "lucide-react";
-
->>>>>>> joaopaulo
 import Page from "../layouts/Page";
 
 const funcionalidades = [
@@ -44,8 +39,7 @@ const funcionalidades = [
     color: "text-purple-800",
     description: "Validar fichas pendentes"
   },
-<<<<<<< HEAD
-=======
+
   {
     nome: "Ver fichas validadas",
     href: "/fichas-validadas",
@@ -55,7 +49,7 @@ const funcionalidades = [
     color: "text-purple-800",
     description: "Ver as fichas que já estão validadas"
   },
->>>>>>> joaopaulo
+
 ];
 
 function HomeFuncionalidades() {
