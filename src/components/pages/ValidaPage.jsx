@@ -4,7 +4,7 @@ import { alterarFichaDaMatricula, consultarAvaliacoesDaFichaDaMatricula } from "
 import AssessmentButton from "../AssessmentButton.jsx";
 import toast from "react-hot-toast";
 
-function ValidaPage({ fichaValidacao, setValidando, setFichaValidacao }) {
+function ValidaPage({ fichaValidacao, setValidando, setFichaValidacao ,validadas}) {
   const [avaliacoes, setAvaliacoes] = useState([]);
   const [comentario, setComentario] = useState(fichaValidacao.observacao || "");
 
@@ -146,7 +146,7 @@ function ValidaPage({ fichaValidacao, setValidando, setFichaValidacao }) {
         </div>
 
         {/* Comentário e Ações */}
-        <div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
+        {!validadas&&(<div className="bg-white p-6 rounded-lg border shadow-sm space-y-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Comentário</h3>
             <textarea
@@ -177,7 +177,7 @@ function ValidaPage({ fichaValidacao, setValidando, setFichaValidacao }) {
               Voltar
             </button>
           </div>
-        </div>
+        </div>)}
       </main>
     </div>
   );
