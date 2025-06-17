@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { BookText, FileText, UserCheck, FolderOpen,FileCheck } from "lucide-react";
+import { BookText, FileText, UserCheck, FolderOpen, FileCheck } from "lucide-react";
 import Page from "../layouts/Page";
 
+// Lista de funcionalidades com permissões explícitas
 const funcionalidades = [
   {
     nome: "Montar Ficha",
@@ -10,7 +11,8 @@ const funcionalidades = [
     icon: BookText,
     bgcolor: "bg-purple-800",
     color: "text-purple-800",
-    description: "Criar e configurar fichas"
+    description: "Criar e configurar fichas",
+    permition: [1, 3],
   },
   {
     nome: "Avaliar Matrícula",
@@ -19,7 +21,8 @@ const funcionalidades = [
     icon: UserCheck,
     bgcolor: "bg-purple-800",
     color: "text-purple-800",
-    description: "Análise de matrículas"
+    description: "Análise de matrículas",
+    permition: [2, 3],
   },
   {
     nome: "Fichas Cadastradas",
@@ -28,7 +31,8 @@ const funcionalidades = [
     icon: FolderOpen,
     bgcolor: "bg-purple-800",
     color: "text-purple-800",
-    description: "Visualizar fichas existentes"
+    description: "Visualizar fichas existentes",
+    permition: [1, 3],
   },
   {
     nome: "Validar Fichas",
@@ -37,9 +41,9 @@ const funcionalidades = [
     icon: FolderOpen,
     bgcolor: "bg-purple-800",
     color: "text-purple-800",
-    description: "Validar fichas pendentes"
+    description: "Validar fichas pendentes",
+    permition: [3],
   },
-
   {
     nome: "Ver fichas validadas",
     href: "/fichas-validadas",
@@ -47,9 +51,9 @@ const funcionalidades = [
     icon: FileCheck,
     bgcolor: "bg-purple-800",
     color: "text-purple-800",
-    description: "Ver as fichas que já estão validadas"
+    description: "Ver as fichas que já estão validadas",
+    permition: [3],
   },
-
 ];
 
 function HomeFuncionalidades() {
@@ -64,14 +68,19 @@ function HomeFuncionalidades() {
     setFiltro(e.target.value);
   }
 
+  // Obter usuário do localStorage
+  const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+
+  // Aplicar filtros + permissões
   const funcionalidadesFiltradas = funcionalidades.filter(f =>
     f.nome.toLowerCase().includes(filtro.toLowerCase()) &&
-    (tipo === "Todos" || f.tipo === tipo)
+    (tipo === "Todos" || f.tipo === tipo) &&
+    f.permition.includes(usuario.tipo)
   );
 
   return (
     <>
-    <Page />
+      <Page />
       <main className="flex flex-col items-center px-4 py-6">
         {/* Filtros */}
         <section className="flex flex-wrap gap-4 justify-center w-full max-w-6xl mb-8">

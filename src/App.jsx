@@ -126,7 +126,7 @@ export default function App() {
                             <Route path="/cadastros/turma" element={<RotasControle permissao={[1,3]}><HomeTurmas /></RotasControle>} />
                             <Route path="/cadastros/graduacao" element={<RotasControle permissao={[1, 3]}><HomeGraduacao /></RotasControle>} />
                             <Route path="/cadastros/anoletivo" element={<RotasControle permissao={[1, 3]}><HomeAnoLetivo /></RotasControle>} />
-                            <Route path="/funcionalidades" element={<RotasControle permissao={[1, 3]}><HomeFuncionalidades /></RotasControle>} />
+                            <Route path="/funcionalidades" element={<RotasControle permissao={[1, 2,3]}><HomeFuncionalidades /></RotasControle>} />
                             <Route path="/ficha-montagem" element={<RotasControle permissao={[1,3]}><FichaMontagem /> </RotasControle>} />
                             <Route path="/ficha-criadas" element={<RotasControle permissao={[1,3]}><FichasCriadas /></RotasControle>} />
                             <Route path="/avalia-matricula" element={<RotasControle permissao={[2,3]}><AvaliaPage /></RotasControle>}></Route>
