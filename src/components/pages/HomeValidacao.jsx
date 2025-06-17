@@ -26,10 +26,14 @@ export default function HomeValidacao() {
     consultarFichaDaMatricula()
       .then((resultado) => {
         if (Array.isArray(resultado)) setFichas(resultado);
-        else toast.error("Erro ao buscar fichas!");
+        else {
+          toast.error("Erro ao buscar fichas!");
+          setFichas([])
+        }
+        
       })
       .catch(() => {
-
+        setFichas([])
         toast.error("Falha ao buscar fichas!");
 
       });
