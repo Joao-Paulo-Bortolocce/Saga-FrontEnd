@@ -1,7 +1,11 @@
 GRUPO 4
+
 JOAO MANUEL OLIVEIRA PEREIRA - 102316384
+
 JOAO PAULO SACCOMANI DE FREITAS BORTOLOCCE - 102317224
+
 JOAO EDUARDO CALDAS MEDEIROS - 102317402
+
 LEANDRO MARCOS CASSEMIRO RODRIGUES - 102316686
 
 O Sistema SAGA foi desenvolvido para a Escola Municipal Antônio Moreira Lima, com o objetivo de automatizar as atividades realizadas pelos profissionais da escola. 
@@ -21,23 +25,41 @@ Para isso, foi implementada uma função que permitirá à gestão escolar criar
 Além do monitoramento do desempenho dos alunos, o sistema inclui uma funcionalidade para o agendamento de reuniões de pais, realizadas a cada bimestre. 
 
 listagem dos itens incluídos no repositório (organização).
+
 Gerenciar Alunos
+
 Gerenciar Ano Letivo
+
 Gerenciar Graduação
+
 Gerenciar Habilidades
+
 Gerenciar Matérias
+
 Gerenciar Pessoas
+
 Gerenciar Profissionais
+
 Gerenciar Salas
+
 Gerenciar Séries
+
 Gerenciar Turmas
 
 Registrar Matrícula
+
 Povoar turmas
+
 Montar ficha
+
 Preencher Ficha
+
 Enviar Ficha para Validação
+
 Validar Ficha
+
 Registrar Frequência do Aluno
+
 Notificar secretaria do excesso de ausência
+
 Agendar Reunião de Pais
