@@ -36,23 +36,27 @@ function CadastroAnoLetivo(props) {
     if (!ano.inicio || !ano.fim) {
       toast.error('Preencha todos os campos corretamente');
     }else{
-      let resultAction;
-      if (props.modoEdicao) {
-        resultAction = await dispatch(atualizarAnoLetivo(ano));
-        props.setModoEdicao(false);
-      } else {
-        console.log(ano);
-        resultAction = await dispatch(incluirAnoLetivo(ano));
+      if (new Date(ano.inicio) >= new Date(ano.fim)) {
+        toast.error('A data de início deve ser anterior à data de término.');
+      }else{
+        let resultAction;
+        if (props.modoEdicao) {
+          resultAction = await dispatch(atualizarAnoLetivo(ano));
+          props.setModoEdicao(false);
+        } else {
+          console.log(ano);
+          resultAction = await dispatch(incluirAnoLetivo(ano));
+        }
+        if (resultAction.error) {
+          toast.error('Erro: ' + (resultAction.error.message || 'Falha na operação'));
+        } else {
+          toast.success('Operação realizada com sucesso!');
+        }
+        limparFormulario();
+        setTimeout(() => {
+          props.setExibirTabela(true);
+        }, 1000);
       }
-      if (resultAction.error) {
-        toast.error('Erro: ' + (resultAction.error.message || 'Falha na operação'));
-      } else {
-        toast.success('Operação realizada com sucesso!');
-      }
-      limparFormulario();
-      setTimeout(() => {
-        props.setExibirTabela(true);
-      }, 1000);
     }
   };
 
