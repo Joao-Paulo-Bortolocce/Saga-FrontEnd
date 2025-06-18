@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Printer, GraduationCap, User, Save, FileDown, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { Printer, GraduationCap, User, Save, FileDown, AlertTriangle, ArrowLeft, Lock, Info } from 'lucide-react';
 import { consultarMatricula } from "../../service/serviceMatricula.js"
 import { consultarSerie } from "../../service/servicoSerie.js"
 import { consultarFicha } from "../../service/serviceFicha.js"
@@ -28,6 +28,10 @@ function AvaliaPage() {
   const [assessmentRecords, setAssessmentRecords] = useState([]);
   const [isRecoveryModalOpen, setIsRecoveryModalOpen] = useState(false);
   const [enviandoValidacao, setEnviandoValidacao] = useState(false);
+  
+  // Estados para controle de status das fichas
+  const [fichasStatus, setFichasStatus] = useState({});
+  const [loadingFichasStatus, setLoadingFichasStatus] = useState(false);
 
   // Estados para controle de alterações
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -64,6 +68,10 @@ function AvaliaPage() {
         setFichas(listaFichas || []);
         setBimestres(listaBimestres || []);
         setAssessmentRecords(avaliacoes || []);
+        
+        // Carregar status das fichas após carregar os dados iniciais
+        await loadFichasStatus();
+        
         setLoading(false);
       } catch (error) {
         console.error("Erro ao carregar dados iniciais:", error);
@@ -72,6 +80,80 @@ function AvaliaPage() {
     }
     carregarDadosIniciais();
   }, []);
+
+  // Função para carregar status das fichas
+  const loadFichasStatus = async () => {
+    try {
+      setLoadingFichasStatus(true);
+      const fichasDaMatricula = await consultarFichaDaMatricula();
+      
+      if (Array.isArray(fichasDaMatricula)) {
+        const statusMap = {};
+        
+        fichasDaMatricula.forEach(fichaDaMatricula => {
+          const fichaId = fichaDaMatricula.ficha?.ficha_id;
+          const matriculaId = fichaDaMatricula.matricula_id;
+          
+          if (fichaId && matriculaId) {
+            // Criar chave única combinando ficha e matrícula
+            const chave = `${matriculaId}_${fichaId}`;
+            statusMap[chave] = fichaDaMatricula.status;
+          }
+        });
+        
+        setFichasStatus(statusMap);
+        console.log('Status das fichas carregado:', statusMap);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar status das fichas:', error);
+      setFichasStatus({});
+    } finally {
+      setLoadingFichasStatus(false);
+    }
+  };
+
+  // Função para obter o status da ficha para uma matrícula específica
+  const getFichaStatus = (matriculaId, fichaId) => {
+    if (!matriculaId || !fichaId) return 1; // Default para editável se não houver dados
+    const chave = `${matriculaId}_${fichaId}`;
+    const status = fichasStatus[chave] || 1; // Default para editável se não existir registro
+    console.log(`Status para matrícula ${matriculaId} e ficha ${fichaId}: ${status}`);
+    return status;
+  };
+
+  // Função para verificar se uma ficha é editável para uma matrícula específica
+  const isFichaEditable = (matriculaId, fichaId) => {
+    const status = getFichaStatus(matriculaId, fichaId);
+    return status === 1;
+  };
+
+  // Função para obter o rótulo do status
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 1:
+        return 'Editável';
+      case 2:
+        return 'Em validação';
+      case 3:
+        return 'Validada';
+      default:
+        return 'Desconhecido';
+    }
+  };
+
+  // Função para obter a cor do status
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 1:
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 2:
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 3:
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
 
   useEffect(() => {
     async function carregarHabilidades() {
@@ -198,41 +280,6 @@ function AvaliaPage() {
     });
   };
 
-  const enviarFichaParaValidacao = async () => {
-    if (!matriculaSelecionada || !fichaAtiva || habilidades.length === 0) {
-      alert("Selecione uma matrícula, série e bimestre para enviar para validação");
-      return;
-    }
-
-    // Verificar se há avaliações preenchidas
-    const avaliacoesPreenchidas = habilidades.filter(hab => hab.assessment && hab.assessment !== "0");
-    if (avaliacoesPreenchidas.length === 0) {
-      alert("Preencha pelo menos uma avaliação antes de enviar para validação");
-      return;
-    }
-
-    try {
-      setEnviandoValidacao(true);
-
-      // Aqui você pode implementar a lógica para enviar para validação
-      // Por exemplo, chamar um serviço específico para mudar o status da ficha
-
-      // Simulação de envio (substitua pela sua lógica real)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      alert("Ficha enviada para validação com sucesso!");
-
-      // Aqui você pode atualizar algum estado ou recarregar dados se necessário
-
-    } catch (error) {
-      console.error("Erro ao enviar ficha para validação:", error);
-      alert("Erro ao enviar ficha para validação");
-    } finally {
-      setEnviandoValidacao(false);
-    }
-  };
-
-
   const handleRecordUpdated = async () => {
     console.log('Registro atualizado, recarregando dados...');
     // Recarregar dados se necessário
@@ -307,6 +354,13 @@ function AvaliaPage() {
   };
 
   const handleAssessmentChange = (habilidadeId, value) => {
+    // Verificar se a matrícula atual pode ser editada
+    if (!isFichaEditable(parseInt(matriculaSelecionada), fichaAtiva?.ficha_id)) {
+      const status = getFichaStatus(parseInt(matriculaSelecionada), fichaAtiva?.ficha_id);
+      alert(`Esta avaliação não pode ser alterada porque a ficha está com status: ${getStatusLabel(status)}`);
+      return;
+    }
+
     setHabilidades(prevHabilidades =>
       prevHabilidades.map(hab => {
         if (hab.habilidadesDaFicha_id === habilidadeId) {
@@ -323,6 +377,13 @@ function AvaliaPage() {
   const salvarAvaliacao = async () => {
     if (!matriculaSelecionada || !fichaAtiva || habilidades.length === 0) {
       alert("Selecione uma matrícula, série e bimestre para salvar");
+      return;
+    }
+
+    // Verificar se a matrícula atual pode ser editada
+    if (!isFichaEditable(parseInt(matriculaSelecionada), fichaAtiva?.ficha_id)) {
+      const status = getFichaStatus(parseInt(matriculaSelecionada), fichaAtiva?.ficha_id);
+      alert(`Esta avaliação não pode ser salva porque a ficha está com status: ${getStatusLabel(status)}`);
       return;
     }
 
@@ -364,7 +425,6 @@ function AvaliaPage() {
             console.log('FichaDaMatricula não existe, criando nova...');
 
             // Criar registro na FichaDaMatricula
-
             const fichaDaMatriculaData = {
               ficha: { ficha_id: fichaAtiva.ficha_id },
               matricula: { id: parseInt(matriculaSelecionada) },
@@ -379,6 +439,8 @@ function AvaliaPage() {
 
             if (resultadoFicha && (resultadoFicha.status || resultadoFicha.success)) {
               alert(resultado.mensagem || "Avaliação e ficha da matrícula salvas com sucesso!");
+              // Recarregar status das fichas após criar nova
+              await loadFichasStatus();
             } else {
               alert((resultado.mensagem || "Avaliação salva com sucesso!") + "\nAviso: " + (resultadoFicha.mensagem || "Erro ao criar ficha da matrícula"));
             }
@@ -406,68 +468,83 @@ function AvaliaPage() {
     }
   };
 
-const enviarValidacao = async () => {
-  if (hasUnsavedChanges) {
-    setPendingAction(() => () => executeRecuperarFichas());
-    setIsConfirmationModalOpen(true);
-    return;
-  }
-
-  if (!matriculaSelecionada || !fichaAtiva) {
-    alert("Selecione uma matrícula e série para enviar validação");
-    return;
-  }
-
-  try {
-    // Verificar se já existe uma FichaDaMatricula para esta matrícula e ficha
-    console.log('Verificando FichaDaMatricula existente...');
-    
-    const fichasDaMatricula = await consultarFichaDaMatricula();
-    console.log('Fichas da matrícula consultadas:', fichasDaMatricula);
-
-    // Verificar se já existe um registro para esta matrícula e ficha
-    const fichaExistente = fichasDaMatricula?.find(f =>
-      f.matricula_id === parseInt(matriculaSelecionada) &&
-      f.ficha_id === fichaAtiva.ficha_id
-    );
-
-    const fichaDaMatriculaData = {
-      ficha: { ficha_id: fichaAtiva.ficha_id },
-      matricula: { id: parseInt(matriculaSelecionada) },
-      observacao: "aguardando validação",
-      status: 2
-    };
-
-    if (fichaExistente) {
-      console.log('FichaDaMatricula já existe, atualizando:', fichaExistente);
-      // Se já existe, usar alterarFichaDaMatricula
-      const resultado = await alterarFichaDaMatricula(fichaDaMatriculaData);
-      
-      if (resultado && (resultado.status || resultado.success)) {
-        alert(resultado.mensagem || "Validação enviada com sucesso!");
-      } else {
-        alert(resultado.mensagem || "Erro ao enviar validação");
-      }
-    } else {
-      console.log('FichaDaMatricula não existe, criando nova...');
-      // Se não existe, criar novo registro
-      console.log('Dados da FichaDaMatricula sendo enviados:', fichaDaMatriculaData);
-      
-      const resultado = await alterarFichaDaMatricula(fichaDaMatriculaData);
-      console.log('Resultado da criação da FichaDaMatricula:', resultado);
-      
-      if (resultado && (resultado.status || resultado.success)) {
-        alert(resultado.mensagem || "Validação enviada com sucesso!");
-      } else {
-        alert(resultado.mensagem || "Erro ao enviar validação");
-      }
+  const enviarValidacao = async () => {
+    if (hasUnsavedChanges) {
+      setPendingAction(() => () => executeRecuperarFichas());
+      setIsConfirmationModalOpen(true);
+      return;
     }
 
-  } catch (error) {
-    console.error("Erro ao enviar validação:", error);
-    alert("Erro ao enviar validação");
-  }
-};
+    if (!matriculaSelecionada || !fichaAtiva) {
+      alert("Selecione uma matrícula e série para enviar validação");
+      return;
+    }
+
+    // Verificar se a matrícula atual pode ser editada
+    if (!isFichaEditable(parseInt(matriculaSelecionada), fichaAtiva?.ficha_id)) {
+      const status = getFichaStatus(parseInt(matriculaSelecionada), fichaAtiva?.ficha_id);
+      alert(`Esta avaliação não pode ser enviada para validação porque a ficha já está com status: ${getStatusLabel(status)}`);
+      return;
+    }
+
+    try {
+      setEnviandoValidacao(true);
+
+      // Verificar se já existe uma FichaDaMatricula para esta matrícula e ficha
+      console.log('Verificando FichaDaMatricula existente...');
+      
+      const fichasDaMatricula = await consultarFichaDaMatricula();
+      console.log('Fichas da matrícula consultadas:', fichasDaMatricula);
+
+      // Verificar se já existe um registro para esta matrícula e ficha
+      const fichaExistente = fichasDaMatricula?.find(f =>
+        f.matricula_id === parseInt(matriculaSelecionada) &&
+        f.ficha_id === fichaAtiva.ficha_id
+      );
+
+      const fichaDaMatriculaData = {
+        ficha: { ficha_id: fichaAtiva.ficha_id },
+        matricula: { id: parseInt(matriculaSelecionada) },
+        observacao: "aguardando validação",
+        status: 2
+      };
+
+      if (fichaExistente) {
+        console.log('FichaDaMatricula já existe, atualizando:', fichaExistente);
+        // Se já existe, usar alterarFichaDaMatricula
+        const resultado = await alterarFichaDaMatricula(fichaDaMatriculaData);
+        
+        if (resultado && (resultado.status || resultado.success)) {
+          alert(resultado.mensagem || "Validação enviada com sucesso!");
+          // Recarregar status das fichas após alterar
+          await loadFichasStatus();
+        } else {
+          alert(resultado.mensagem || "Erro ao enviar validação");
+        }
+      } else {
+        console.log('FichaDaMatricula não existe, criando nova...');
+        // Se não existe, criar novo registro
+        console.log('Dados da FichaDaMatricula sendo enviados:', fichaDaMatriculaData);
+        
+        const resultado = await gravarFichaDaMatricula(fichaDaMatriculaData);
+        console.log('Resultado da criação da FichaDaMatricula:', resultado);
+        
+        if (resultado && (resultado.status || resultado.success)) {
+          alert(resultado.mensagem || "Validação enviada com sucesso!");
+          // Recarregar status das fichas após criar nova
+          await loadFichasStatus();
+        } else {
+          alert(resultado.mensagem || "Erro ao enviar validação");
+        }
+      }
+
+    } catch (error) {
+      console.error("Erro ao enviar validação:", error);
+      alert("Erro ao enviar validação");
+    } finally {
+      setEnviandoValidacao(false);
+    }
+  };
 
   const executeRecuperarFichas = async () => {
     try {
@@ -552,13 +629,30 @@ const enviarValidacao = async () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasUnsavedChanges]);
 
-  const matriculasFiltradas = serieSelecionada
-    ? matriculas.filter(m => m.serie.serieId === parseInt(serieSelecionada))
-    : matriculas;
+  // Filtrar matrículas baseado na série e status da ficha
+  const matriculasFiltradas = serieSelecionada && fichaAtiva
+    ? matriculas.filter(m => {
+        // Primeiro filtro: mesma série
+        if (m.serie.serieId !== parseInt(serieSelecionada)) return false;
+        
+        // Segundo filtro: apenas matrículas com fichas editáveis (status 1) ou sem ficha criada
+        const isEditable = isFichaEditable(m.id, fichaAtiva.ficha_id);
+        console.log(`Matrícula ${m.id} (${m.aluno.pessoa.nome}) - Editável: ${isEditable}`);
+        return isEditable;
+      })
+    : matriculas.filter(m => serieSelecionada ? m.serie.serieId === parseInt(serieSelecionada) : true);
 
   const matriculaAtual = matriculas.find(m => m.id === parseInt(matriculaSelecionada));
   const serieAtual = series.find(s => s.serieId === parseInt(serieSelecionada));
   const bimestreAtual = bimestres.find(b => b.bimestre_id === parseInt(bimestreSelecionado));
+
+  // Verificar status da matrícula atual
+  const matriculaAtualStatus = matriculaAtual && fichaAtiva 
+    ? getFichaStatus(matriculaAtual.id, fichaAtiva.ficha_id)
+    : 1;
+  const matriculaAtualEditavel = matriculaAtual && fichaAtiva 
+    ? isFichaEditable(matriculaAtual.id, fichaAtiva.ficha_id)
+    : true;
 
   const getBimestreNome = (bimestreId) => {
     const bimestre = bimestres.find(b => b.bimestre_id === bimestreId);
@@ -601,7 +695,7 @@ const enviarValidacao = async () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-800">Sistema de Avaliação</h1>
-                <p className="text-sm text-gray-600">Avaliação de Matrícula</p>
+                <p className="text-sm text-gray-600">Avaliação de Matrícula com Controle de Validação</p>
               </div>
               {hasUnsavedChanges && (
                 <div className="flex items-center gap-2 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
@@ -659,25 +753,43 @@ const enviarValidacao = async () => {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Aluno:</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Aluno:
+                {loadingFichasStatus && (
+                  <span className="ml-2 text-xs text-blue-600">(Verificando status...)</span>
+                )}
+              </label>
               <select
                 value={matriculaSelecionada}
                 onChange={(e) => handleChangeWithConfirmation(handleChangeMatricula, e)}
                 className="w-full p-3 border border-gray-300 rounded-lg bg-white shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
-                disabled={loading || !serieSelecionada || !bimestreSelecionado}
+                disabled={loading || !serieSelecionada || !bimestreSelecionado || loadingFichasStatus}
               >
-                <option value="">Selecione um aluno</option>
+                <option value="">
+                  {loadingFichasStatus 
+                    ? "Carregando status das fichas..." 
+                    : matriculasFiltradas.length === 0 && serieSelecionada && fichaAtiva
+                      ? "Nenhum aluno disponível para avaliação"
+                      : "Selecione um aluno"
+                  }
+                </option>
                 {matriculasFiltradas.map(matricula => (
                   <option key={matricula.id} value={matricula.id}>
                     {matricula.aluno.pessoa.nome}
                   </option>
                 ))}
               </select>
+              {serieSelecionada && fichaAtiva && matriculasFiltradas.length === 0 && !loadingFichasStatus && (
+                <p className="mt-2 text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <Info size={16} className="inline mr-1" />
+                  Todos os alunos desta série já possuem fichas em validação ou validadas. Apenas alunos com fichas editáveis podem ser avaliados.
+                </p>
+              )}
             </div>
           </div>
         </div>
 
-        {(loading || loadingHabilidades) && (
+        {(loading || loadingHabilidades || loadingFichasStatus) && (
           <div className="bg-white p-12 rounded-lg border border-gray-200 shadow-sm flex justify-center">
             <div className="animate-pulse flex flex-col items-center">
               <div className="h-6 w-32 bg-gray-200 rounded mb-3"></div>
@@ -685,12 +797,36 @@ const enviarValidacao = async () => {
               {loadingHabilidades && (
                 <p className="text-sm text-gray-500 mt-2">Carregando detalhes das habilidades...</p>
               )}
+              {loadingFichasStatus && (
+                <p className="text-sm text-gray-500 mt-2">Verificando status das fichas...</p>
+              )}
             </div>
           </div>
         )}
 
-        {!loading && !loadingHabilidades && matriculaAtual && serieAtual && bimestreAtual && fichaAtiva && (
+        {!loading && !loadingHabilidades && !loadingFichasStatus && matriculaAtual && serieAtual && bimestreAtual && fichaAtiva && (
           <div className="space-y-6">
+            {/* Alerta para fichas não editáveis */}
+            {!matriculaAtualEditavel && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="bg-yellow-100 text-yellow-600 p-2 rounded-full">
+                    <Lock size={24} />
+                  </div>
+                  <h3 className="text-lg font-semibold text-yellow-800">Avaliação Bloqueada</h3>
+                </div>
+                <p className="text-yellow-700 mb-2">
+                  Esta avaliação não pode ser editada porque a ficha está com status: 
+                  <span className={`ml-2 px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(matriculaAtualStatus)}`}>
+                    {getStatusLabel(matriculaAtualStatus)}
+                  </span>
+                </p>
+                <p className="text-yellow-600 text-sm">
+                  Apenas fichas com status "Editável" podem ter suas avaliações modificadas.
+                </p>
+              </div>
+            )}
+
             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
               <h3 className="text-lg font-semibold flex justify-center text-gray-800 mb-4">Legenda da Avaliação</h3>
               <div className="flex flex-wrap justify-between gap-6">
@@ -733,9 +869,21 @@ const enviarValidacao = async () => {
               </div>
               {fichaAtiva && (
                 <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    <strong>Ficha #{fichaAtiva.ficha_id}</strong> - {getSerieNome(fichaAtiva.ficha_bimestre_serie_id)} - {getBimestreNome(fichaAtiva.ficha_bimestre_id)} - {getAnoLetivoNome(fichaAtiva.ficha_bimestre_anoLetivo_id)}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-blue-800">
+                        <strong>Ficha #{fichaAtiva.ficha_id}</strong> - {getSerieNome(fichaAtiva.ficha_bimestre_serie_id)} - {getBimestreNome(fichaAtiva.ficha_bimestre_id)} - {getAnoLetivoNome(fichaAtiva.ficha_bimestre_anoLetivo_id)}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(matriculaAtualStatus)}`}>
+                        {getStatusLabel(matriculaAtualStatus)}
+                      </span>
+                      {!matriculaAtualEditavel && (
+                        <Lock size={16} className="text-gray-500" />
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -791,18 +939,21 @@ const enviarValidacao = async () => {
                               currentValue={habilidade.assessment}
                               onClick={() => handleAssessmentChange(habilidade.habilidadesDaFicha_id, 'NA')}
                               color="red"
+                              disabled={!matriculaAtualEditavel}
                             />
                             <AssessmentButton
                               value="EC"
                               currentValue={habilidade.assessment}
                               onClick={() => handleAssessmentChange(habilidade.habilidadesDaFicha_id, 'EC')}
                               color="yellow"
+                              disabled={!matriculaAtualEditavel}
                             />
                             <AssessmentButton
                               value="A"
                               currentValue={habilidade.assessment}
                               onClick={() => handleAssessmentChange(habilidade.habilidadesDaFicha_id, 'A')}
                               color="green"
+                              disabled={!matriculaAtualEditavel}
                             />
                           </div>
                         </div>
@@ -813,27 +964,29 @@ const enviarValidacao = async () => {
               </div>
             </div>
 
-            <div className="fixed bottom-8 right-8 print:hidden">
-              <button
-                onClick={salvarAvaliacao}
-                disabled={salvando || loading || loadingHabilidades}
-                className={`px-4 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed text-white ${hasUnsavedChanges
-                  ? 'bg-orange-600 hover:bg-orange-700 animate-pulse'
-                  : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
-              >
-                {salvando ? (
-                  <div className="w-5 h-5 border-t-2 border-r-2 border-white rounded-full animate-spin"></div>
-                ) : (
-                  <Save size={20} />
-                )}
-                <span>{salvando ? 'Salvando...' : 'Salvar Avaliação'}</span>
-              </button>
-            </div>
+            {matriculaAtualEditavel && (
+              <div className="fixed bottom-8 right-8 print:hidden">
+                <button
+                  onClick={salvarAvaliacao}
+                  disabled={salvando || loading || loadingHabilidades}
+                  className={`px-4 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed text-white ${hasUnsavedChanges
+                    ? 'bg-orange-600 hover:bg-orange-700 animate-pulse'
+                    : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                >
+                  {salvando ? (
+                    <div className="w-5 h-5 border-t-2 border-r-2 border-white rounded-full animate-spin"></div>
+                  ) : (
+                    <Save size={20} />
+                  )}
+                  <span>{salvando ? 'Salvando...' : 'Salvar Avaliação'}</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
 
-        {!loading && !loadingHabilidades && (!matriculaSelecionada || !serieSelecionada || !bimestreSelecionado) && (
+        {!loading && !loadingHabilidades && !loadingFichasStatus && (!matriculaSelecionada || !serieSelecionada || !bimestreSelecionado) && (
           <div className="bg-blue-50 p-6 rounded-lg border border-blue-200 shadow-sm text-center">
             <p className="text-blue-800">
               Selecione uma série, bimestre e um aluno para visualizar e preencher a avaliação.
@@ -841,7 +994,7 @@ const enviarValidacao = async () => {
           </div>
         )}
 
-        {!loading && !loadingHabilidades && serieSelecionada && bimestreSelecionado && !fichaAtiva && (
+        {!loading && !loadingHabilidades && !loadingFichasStatus && serieSelecionada && bimestreSelecionado && !fichaAtiva && (
           <div className="bg-yellow-50 p-6 rounded-lg border border-yellow-200 shadow-sm text-center">
             <p className="text-yellow-800">
               Nenhuma ficha encontrada para a série e bimestre selecionados.
@@ -849,20 +1002,22 @@ const enviarValidacao = async () => {
           </div>
         )}
 
-        <div className="fixed bottom-8 left-8 print:hidden">
-          <button
-            onClick={enviarValidacao}
-            disabled={recuperando || loading}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {recuperando ? (
-              <div className="w-5 h-5 border-t-2 border-r-2 border-white rounded-full animate-spin"></div>
-            ) : (
-              <FileDown size={20} />
-            )}
-            <span>{recuperando ? 'Enviando...' : 'Enviar para Validação'}</span>
-          </button>
-        </div>
+        {matriculaAtualEditavel && (
+          <div className="fixed bottom-8 left-8 print:hidden">
+            <button
+              onClick={enviarValidacao}
+              disabled={enviandoValidacao || loading}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-full shadow-lg flex items-center gap-2 transition-all duration-200 transform hover:scale-105 active:scale-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {enviandoValidacao ? (
+                <div className="w-5 h-5 border-t-2 border-r-2 border-white rounded-full animate-spin"></div>
+              ) : (
+                <FileDown size={20} />
+              )}
+              <span>{enviandoValidacao ? 'Enviando...' : 'Enviar para Validação'}</span>
+            </button>
+          </div>
+        )}
 
         <div className="hidden print:flex flex-col items-center text-gray-700 print:mt-32">
           <div className="border-t border-gray-400 w-64 mt-12"></div>

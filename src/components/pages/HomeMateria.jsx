@@ -91,9 +91,9 @@ export default function HomeMateria() {
             if (materia.materia_id > 0) {
                 // Edição - ajustar para o formato esperado pelo service
                 const materiaParaAlterar = {
-                    id: materia.materia_id,
-                    nome: materia.materia_nome,
-                    carga: materia.materia_carga
+                    materia_id: materia.materia_id,
+                    materia_nome: materia.materia_nome,
+                    materia_carga: materia.materia_carga
                 };
                 await alterarMateria(materiaParaAlterar);
                 toast.success("Matéria alterada com sucesso!");

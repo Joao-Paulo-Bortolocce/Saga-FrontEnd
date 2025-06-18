@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, Save, X, Plus, Minus } from 'lucide-react';
+import { Check, Save, X, Plus, Minus, Lock, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Button from './Button';
 import SeriesSelector from './SeriesSelector';
@@ -10,7 +10,7 @@ import { Toaster, toast } from "react-hot-toast";
 import { incluirHabilidadeDaFicha } from '../service/serviceHabilidadesDaFicha.js';
 import { consultarHabilidadesDaFicha } from "../service/serviceHabilidadesDaFicha.js";
 
-const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { } }) => {
+const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }, fichaStatus = 1 }) => {
   const [selectedSerie, setSelectedSerie] = useState(null);
   const [selectedBimestre, setSelectedBimestre] = useState(null);
   const [selectedSkills, setSelectedSkills] = useState([]);
@@ -22,6 +22,9 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
   const [showSkillSelector, setShowSkillSelector] = useState(false);
   const [existingFichas, setExistingFichas] = useState([]);
 
+  // Verificar se a ficha pode ser editada baseado no status
+  const isFichaEditable = fichaStatus === 1;
+
   useEffect(() => {
     loadExistingFichas();
   }, []);
@@ -29,6 +32,7 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
   useEffect(() => {
     if (editingFicha) {
       console.log('Loading editing ficha:', editingFicha);
+      console.log('Ficha status:', fichaStatus);
 
       setSelectedSerie({
         serieId: editingFicha.ficha_bimestre_serie_id,
@@ -53,7 +57,7 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
     } else {
       resetForm();
     }
-  }, [editingFicha]);
+  }, [editingFicha, fichaStatus]);
 
   const loadExistingFichas = async () => {
     try {
@@ -150,6 +154,12 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
   }
 
   const handleSave = async () => {
+    // Verificar se a ficha pode ser editada
+    if (!isFichaEditable) {
+      toast.error("Esta ficha não pode ser alterada porque já foi enviada para validação ou está validada");
+      return;
+    }
+
     const isValid = await validateFicha();
     if (!isValid) {
       return;
@@ -306,6 +316,11 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
   };
 
   const handleToggleSkillSelector = () => {
+    if (!isFichaEditable) {
+      toast.error("Esta ficha não pode ser alterada porque já foi enviada para validação ou está validada");
+      return;
+    }
+
     console.log('Toggle skill selector - Current ficha ID:', currentFichaId);
 
     if (!currentFichaId) {
@@ -322,6 +337,19 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
 
   console.log('Render - currentFichaId:', currentFichaId, 'canShowSkillButton:', canShowSkillButton, 'showSkillSelector:', showSkillSelector);
 
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 1:
+        return 'Editável';
+      case 2:
+        return 'Em validação';
+      case 3:
+        return 'Validado';
+      default:
+        return 'Desconhecido';
+    }
+  };
+
   return (
     <>
       <Toaster position="top-center" />
@@ -335,17 +363,39 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
           <h2 className="text-2xl font-bold text-gray-800">
             {isEditing ? 'Editar Ficha' : 'Nova Ficha'}
           </h2>
-          {isEditing && (
-            <Button
-              variant="danger"
-              size="sm"
-              icon={<X size={18} />}
-              onClick={handleCancelEdit}
-            >
-              Cancelar
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {isEditing && !isFichaEditable && (
+              <div className="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
+                <Lock size={16} />
+                <span>{getStatusLabel(fichaStatus)}</span>
+              </div>
+            )}
+            {isEditing && (
+              <Button
+                variant="danger"
+                size="sm"
+                icon={<X size={18} />}
+                onClick={handleCancelEdit}
+              >
+                Cancelar
+              </Button>
+            )}
+          </div>
         </div>
+
+        {/* Alerta quando a ficha não é editável */}
+        {isEditing && !isFichaEditable && (
+          <div className="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertTriangle className="text-yellow-600" size={20} />
+              <h3 className="font-semibold text-yellow-800">Ficha não editável</h3>
+            </div>
+            <p className="text-yellow-700 text-sm">
+              Esta ficha está com status "{getStatusLabel(fichaStatus)}" e não pode ser modificada. 
+              Somente fichas com status "Editável" podem ser alteradas.
+            </p>
+          </div>
+        )}
 
         <div className="space-y-6">
           <div>
@@ -355,7 +405,7 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
             <SeriesSelector
               selectedSerie={selectedSerie}
               onSelectSerie={setSelectedSerie}
-              disabled={isEditing}
+              disabled={isEditing || !isFichaEditable}
             />
           </div>
 
@@ -366,7 +416,7 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
             <BimestreSelector
               selectedBimestre={selectedBimestre}
               onSelectBimestre={setSelectedBimestre}
-              disabled={isEditing}
+              disabled={isEditing || !isFichaEditable}
             />
           </div>
 
@@ -381,10 +431,13 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
               {canShowSkillButton && (
                 <Button
                   onClick={handleToggleSkillSelector}
-                  icon={showSkillSelector ? <Minus size={18} /> : <Plus size={18} />}
-                  variant="outline"
+                  icon={!isFichaEditable ? <Lock size={18} /> : showSkillSelector ? <Minus size={18} /> : <Plus size={18} />}
+                  variant={!isFichaEditable ? "secondary" : "outline"}
+                  disabled={!isFichaEditable}
+                  className={!isFichaEditable ? "opacity-50 cursor-not-allowed" : ""}
+                  title={!isFichaEditable ? `Não é possível gerenciar habilidades - Status: ${getStatusLabel(fichaStatus)}` : ""}
                 >
-                  {showSkillSelector ? 'Ocultar Habilidades' : 'Gerenciar Habilidades'}
+                  {!isFichaEditable ? 'Habilidades Bloqueadas' : showSkillSelector ? 'Ocultar Habilidades' : 'Gerenciar Habilidades'}
                 </Button>
               )}
             </div>
@@ -392,16 +445,18 @@ const FichaForm = ({ onFichaSaved, editingFicha = null, onCancelEdit = () => { }
             <div className="flex gap-2">
               <Button
                 onClick={handleSave}
-                disabled={saving || !selectedSerie || !selectedBimestre}
-                icon={success ? <Check size={18} /> : <Save size={18} />}
-                variant={success ? 'success' : 'primary'}
+                disabled={saving || !selectedSerie || !selectedBimestre || !isFichaEditable}
+                icon={!isFichaEditable ? <Lock size={18} /> : success ? <Check size={18} /> : <Save size={18} />}
+                variant={!isFichaEditable ? "secondary" : success ? 'success' : 'primary'}
+                className={!isFichaEditable ? "opacity-50 cursor-not-allowed" : ""}
+                title={!isFichaEditable ? `Não é possível salvar - Status: ${getStatusLabel(fichaStatus)}` : ""}
               >
-                {saving ? 'Salvando...' : success ? 'Salvo!' : isEditing ? 'Salvar Alterações' : 'Criar Ficha'}
+                {!isFichaEditable ? 'Bloqueado' : saving ? 'Salvando...' : success ? 'Salvo!' : isEditing ? 'Salvar Alterações' : 'Criar Ficha'}
               </Button>
             </div>
           </div>
 
-          {canShowSkillSelector && (
+          {canShowSkillSelector && isFichaEditable && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}

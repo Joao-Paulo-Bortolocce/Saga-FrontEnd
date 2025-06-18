@@ -4,12 +4,14 @@ import { Library } from 'lucide-react';
 import FichaForm from '../FichaForm';
 import FichaList from '../FichaList';
 import { consultarFicha, excluirFicha } from '../../service/serviceFicha';
+import { consultarFichaDaMatricula } from '../../service/serviceFichaDaMatricula';
 import AlertDialog from '../AlertDialog';
 import imagemFundoPrefeitura from "../../assets/images/imagemFundoPrefeitura.png"
 import { useNavigate } from 'react-router-dom';
 
 function FichaMontagem() {
   const [fichas, setFichas] = useState([]);
+  const [fichasStatus, setFichasStatus] = useState({}); // Para armazenar o status de cada ficha
   const [loading, setLoading] = useState(true);
   const [editingFicha, setEditingFicha] = useState(null);
   const [fadeIn, setFadeIn] = useState(false);
@@ -24,32 +26,100 @@ function FichaMontagem() {
     setTimeout(() => setFadeIn(true), 100);
   }, []);
 
-  const loadFichas = () => {
+  const loadFichas = async () => {
     setLoading(true);
     setError(null);
 
-    consultarFicha()
-      .then(response => {
-        if (response && response.listaDeFichas && Array.isArray(response.listaDeFichas)) {
-          setFichas(response.listaDeFichas);
-        } else {
-          setFichas([]);
-          if (response === "Não existem fichas cadastradas") {
-            setError("Não existem fichas cadastradas");
-          } else {
-            setError("Formato de resposta inválido");
-            console.error("Resposta inválida:", response);
-          }
-        }
-      })
-      .catch(err => {
-        console.error("Erro ao carregar fichas:", err);
-        setError("Erro ao carregar as fichas");
+    try {
+      const response = await consultarFicha();
+      
+      if (response && response.listaDeFichas && Array.isArray(response.listaDeFichas)) {
+        const fichasData = response.listaDeFichas;
+        setFichas(fichasData);
+        
+        // Carregar status das fichas
+        await loadFichasStatus(fichasData);
+      } else {
         setFichas([]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+        setFichasStatus({});
+        if (response === "Não existem fichas cadastradas") {
+          setError("Não existem fichas cadastradas");
+        } else {
+          setError("Formato de resposta inválido");
+          console.error("Resposta inválida:", response);
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao carregar fichas:", err);
+      setError("Erro ao carregar as fichas");
+      setFichas([]);
+      setFichasStatus({});
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadFichasStatus = async (fichasData) => {
+    try {
+      // Consultar todas as fichas da matrícula para obter o status
+      const fichasDaMatricula = await consultarFichaDaMatricula();
+      
+      if (Array.isArray(fichasDaMatricula)) {
+        const statusMap = {};
+        
+        // Criar um mapa de status por ficha_id
+        fichasDaMatricula.forEach(fichaDaMatricula => {
+          const fichaId = fichaDaMatricula.ficha?.ficha_id;
+          if (fichaId) {
+            // Se já existe um status para esta ficha, manter o mais restritivo (maior número)
+            if (!statusMap[fichaId] || fichaDaMatricula.status > statusMap[fichaId]) {
+              statusMap[fichaId] = fichaDaMatricula.status;
+            }
+          }
+        });
+        
+        setFichasStatus(statusMap);
+        console.log('Status das fichas carregado:', statusMap);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar status das fichas:', error);
+      setFichasStatus({});
+    }
+  };
+
+  const getFichaStatus = (fichaId) => {
+    return fichasStatus[fichaId] || 1; // Default para status 1 (editável)
+  };
+
+  const isFichaEditable = (fichaId) => {
+    const status = getFichaStatus(fichaId);
+    return status === 1; // Só pode editar se status for 1
+  };
+
+  const getStatusLabel = (status) => {
+    switch (status) {
+      case 1:
+        return 'Editável';
+      case 2:
+        return 'Em validação';
+      case 3:
+        return 'Validado';
+      default:
+        return 'Desconhecido';
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 1:
+        return 'bg-green-100 text-green-800';
+      case 2:
+        return 'bg-yellow-100 text-yellow-800';
+      case 3:
+        return 'bg-blue-100 text-blue-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   const handleFichaSaved = (savedFicha) => {
@@ -59,11 +129,29 @@ function FichaMontagem() {
   };
 
   const handleEditFicha = (ficha) => {
+    const isEditable = isFichaEditable(ficha.ficha_id);
+    
+    if (!isEditable) {
+      const status = getFichaStatus(ficha.ficha_id);
+      const statusLabel = getStatusLabel(status);
+      showErrorMessage(`Esta ficha não pode ser editada porque está com status: ${statusLabel}`);
+      return;
+    }
+    
     setEditingFicha(ficha);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDeleteRequest = (ficha) => {
+    const isEditable = isFichaEditable(ficha.ficha_id);
+    
+    if (!isEditable) {
+      const status = getFichaStatus(ficha.ficha_id);
+      const statusLabel = getStatusLabel(status);
+      showErrorMessage(`Esta ficha não pode ser excluída porque está com status: ${statusLabel}`);
+      return;
+    }
+    
     setDeleteAlert({ open: true, ficha });
   };
 
@@ -102,6 +190,13 @@ function FichaMontagem() {
     }, 3000);
   };
 
+  const showErrorMessage = (message) => {
+    setActionSuccess({ show: true, message });
+    setTimeout(() => {
+      setActionSuccess({ show: false, message: '' });
+    }, 5000);
+  };
+
   return (
     <div className="min-h-screen relative">
       <div
@@ -138,7 +233,11 @@ function FichaMontagem() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded-md shadow-md"
+            className={`border-l-4 p-4 mb-6 rounded-md shadow-md ${
+              actionSuccess.message.includes('não pode') || actionSuccess.message.includes('status')
+                ? 'bg-red-100 border-red-500 text-red-700'
+                : 'bg-green-100 border-green-500 text-green-700'
+            }`}
           >
             <p>{actionSuccess.message}</p>
           </motion.div>
@@ -150,6 +249,7 @@ function FichaMontagem() {
               onFichaSaved={handleFichaSaved}
               editingFicha={editingFicha}
               onCancelEdit={handleCancelEdit}
+              fichaStatus={editingFicha ? getFichaStatus(editingFicha.ficha_id) : 1}
             />
           </section>
 
@@ -167,6 +267,10 @@ function FichaMontagem() {
                 fichas={fichas}
                 onEditFicha={handleEditFicha}
                 onDeleteFicha={handleDeleteRequest}
+                fichasStatus={fichasStatus}
+                getStatusLabel={getStatusLabel}
+                getStatusColor={getStatusColor}
+                isFichaEditable={isFichaEditable}
               />
             )}
           </section>
@@ -194,8 +298,6 @@ function FichaMontagem() {
         onCancel={handleDeleteCancel}
       />
     </div>
-
-
   );
 }
 
