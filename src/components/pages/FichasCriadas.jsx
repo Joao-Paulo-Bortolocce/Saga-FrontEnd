@@ -98,16 +98,21 @@ const FichasCriadas = () => {
   };
 
   const getStatusLabel = (status) => {
-    switch (status) {
-      case 1:
-        return 'Editável';
-      case 2:
-        return 'Em validação';
-      case 3:
-        return 'Validado';
-      default:
-        return 'Desconhecido';
-    }
+    
+    if(status==1)
+      return 'Editável';
+    else
+      return 'Em validação';
+    // switch (status) {
+    //   case 1:
+    //     return 'Editável';
+    //   case 2:
+    //     return 'Em validação';
+    //   case 3:
+    //     return 'Validado';
+    //   default:
+    //     return 'Desconhecido';
+    // }
   };
 
   const getStatusColor = (status) => {

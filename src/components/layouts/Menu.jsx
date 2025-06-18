@@ -131,7 +131,7 @@ export default function HeaderMenu() {
                     <a href="/funcionalidades" className="text-sm font-semibold text-gray-900">
                         Funcionalidades
                     </a>
-                    {usuario.tipo > 1 && (
+                    {usuario.tipo ==2 && (
                         <a href="/chamada" className="text-sm font-semibold text-gray-900">
                             Chamada
                         </a>
