@@ -344,7 +344,7 @@ export default function HomeHabilidades() {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    {habilidade.habilidades_serie_id === 0 ? "Todas" : habilidade.habilidade_serie_id + "º"}
+                                    {habilidade.habilidades_serie_id + "º"}
                                   </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
